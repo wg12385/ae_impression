@@ -1,0 +1,9 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=100:00:00
+#PBS -l mem=26GB
+#PBS -N testmol_0
+#PBS -t 1-5
+cd $PBS_O_WORKDIR
+NMRNAME=$(gawk -v y=${PBS_ARRAYID} 'NR == y' test/optimisation/testmol__COM_ARRAY)
+g09 $NMRNAME
