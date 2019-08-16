@@ -1,16 +1,17 @@
 import sys
 sys.path.append('aE_lib')
 from conversion.convert import xyz_to_nmrdummy, nmrmol_to_xyz
+import pybel as pyb
 
 # Runs conformational search
 def conformational_search(molecule, prefs, path=''):
 	# Try reading pybel mol object from xyz named according to molname
 	try:
-		file = args.path + molecule.molid + '.xyz'
+		file = path + molecule.molid + '.xyz'
 		mol = next(pyb.readfile('xyz', file))
 	# If not, make a molecule xyz file and then read the pybel mol object
 	except:
-		file = args.path + molecule.molid + '.xyz'
+		file = path + molecule.molid + '_INIT.xyz'
 		nmrmol_to_xyz(molecule, file, num=-404)
 		mol = next(pyb.readfile('xyz', file))
 
@@ -26,6 +27,9 @@ def conformational_search(molecule, prefs, path=''):
 	molecule.generate_conformers(smiles, path=path,
 				iterations=iterations, RMSthresh=RMSthresh,
 				maxconfs=maxconfs, Ethresh=Ethresh)
+
+	molecule.print_xyzs(path=path+'conf_search/')
+
 	return 0
 
 # Setup optimisation gaussian com files
@@ -67,8 +71,47 @@ def setup_opt(molecule, prefs, path=''):
 
 	return 0
 
+def process_opt(molecule, prefs, path):
+	statuss = []
+	good = 0
+	bad = 0
+	for conformer in molecule.conformers:
+		conformer.check_opt()
+		statuss.append(conformer.opt_status)
+		print('Conformer ', conformer.molid, ' status: ', conformer.opt_status)
+
+		if conformer.opt_status == 'successful':
+			good += 1
+		elif conformer.opt_status == 'failed':
+			bad += 1
+
+	charge = prefs['mol']['charge']
+	multiplicity = prefs['mol']['multiplicity']
+
+	walltime = prefs['optimisation']['walltime']
+	processors = prefs['optimisation']['processors']
+	memory = prefs['optimisation']['memory']
+	parallel = prefs['comp']['parallel']
+	system = prefs['comp']['system']
+	qsub_names = molecule.make_opt_sub(path=path+'optimisation/RESUB_FAILED_', parallel=parallel, system=system, nodes=1, ppn=processors,
+							walltime=walltime, mem=memory, start=-1, end=-1, failed_only=True)
+
+	print(good, ' successful optimisations, ', bad, ' failed, out of ', len(statuss))
+
+	print('Created ', len(qsub_names), ' qsub files to resubmit failed calculations')
+	if system == 'BC3':
+		print('Fix the issue (check log_file for error) then submit the calculations using:')
+		for file in qsub_names:
+			print('qsub ', file)
+	else:
+		print('Fix the issue (check log_file for error) then submit the calculations using:')
+		for file in qsub_names:
+			print('bash ', file)
+
+	print("Resubmit failed optimisations or continue to NMR calculations with 'setup_nmr'")
+
 # Setup NMR gaussian com files
-def setup_nmr():
+def setup_nmr(molecule, prefs, path):
 	# Read relevant preferences
 	charge = prefs['mol']['charge']
 	multiplicity = prefs['mol']['multiplicity']

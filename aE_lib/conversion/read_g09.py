@@ -62,11 +62,25 @@ def eread(filename):
 	return energy
 
 def check_opt_status(filename):
+	status = 'unknown'
+	with open(filename, 'r') as f:
+		for line in f:
+			if 'Normal termination' in line:
+				status = 'successful'
+			if 'Error termination' in line:
+				status = 'failed'
 
 	return status
 
 
 
 def check_nmr_status(filename):
+	status = 'unknown'
+	with open(filename, 'r') as f:
+		for line in f:
+			if 'Normal termination' in line:
+				status = 'successful'
+			if 'Error termination' in line:
+				status = 'failed'
 
 	return status

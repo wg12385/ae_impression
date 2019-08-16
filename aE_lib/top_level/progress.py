@@ -1,31 +1,42 @@
 from top_level.user_util import yes_or_no
+from molecule.molecule import molecule as moleculeclass
+import glob
+import os
 
-def check_proceed(stage, command, molecule):
+def check_proceed(stage, command, molecule, path):
 	proceed = False
 
 	if command == 'init':
 		proceed = True
 
 	elif command == 'conf_search':
-		if status != 'init':
-			print('Conformational search already run for molecule,', args.Molecule, '. . . continuing will erase existing molecule data.')
+		if stage != 'init':
+			print('Conformational search already run for molecule,', molecule.molid, '. . . continuing will erase existing molecule data.')
 			print('Do you want to continue ?')
 			# Get user conformation for overwrite
 			answer = yes_or_no()
 			if answer:
 				# enumerate files in conf_search directory then delete them
-				files_to_remove = glob.glob(args.path + 'conf_search/*')
+				files_to_remove = glob.glob(path + 'conf_search/*')
 				for file in files_to_remove:
-					os.remove(file)
+					try:
+						os.remove(file)
+					except:
+						continue
 				# remove conf_search directory
-				os.rmdir(args.path + 'conf_search')
+				try:
+					os.rmdir(path + 'conf_search')
+				except:
+					pass
 				# Re-initialise molecule from existing molecule, retaining only xyz and types
 				init_xyz = molecule.xyz
 				init_types = molecule.types
-				molecule = moleculeclass(init_xyz, init_types, name=args.Molecule, path=args.path)
+				molecule = moleculeclass(init_xyz, init_types, name=molecule.molid, path=path)
 				proceed = True
 			else:
 				proceed = False
+		else:
+			proceed = True
 
 	elif command == 'setup_opt':
 		if stage in ['init', 'pre-opt']:
@@ -38,6 +49,13 @@ def check_proceed(stage, command, molecule):
 				proceed = True
 			else:
 				proceed = False
+
+	elif command == 'process_opt':
+		if stage in ['running-opt']:
+			proceed = True
+		if stage in ['init', 'pre-opt']:
+			proceed = False
+			print('Optimisation not set up yet, nothing to process. . .')
 
 	elif command == 'setup_nmr':
 		if stage in ['running-opt', 'pre-nmr']:

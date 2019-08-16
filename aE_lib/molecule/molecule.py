@@ -82,13 +82,19 @@ class molecule(object):
 			self.conformers.append(new_conf)
 
 		for conformer in self.conformers:
-			file = self.path + 'conf_search/' + 'conf' + str(conformer.id) + '.xyz'
-			titleline = str(conformer.id) + '  ' + str(conformer.energy)
+			file = self.path + 'conf_search/' + 'conf' + str(conformer.molid) + '.xyz'
+			titleline = str(conformer.molid) + '  ' + str(conformer.energy)
 			raw_to_xyz(file, titleline, conformer.xyz, conformer.types)
 			conformer.xyz_file = file
 
 
 		self.stage = 'pre-opt'
+
+
+	def print_xyzs(self, path=''):
+		for conformer in self.conformers:
+			conformer.print_xyz(path)
+
 
 	# make optimsation com files
 	def make_opt_com(self, path='', charge=0, multiplicity=1, memory=26, processors=8,
@@ -104,13 +110,12 @@ class molecule(object):
 		self.stage = 'running-opt'
 
 	def make_opt_sub(self, path='', parallel=True, system='BC3', nodes=1, ppn=8,
-							walltime='100:00:00', mem=26, start=-1, end=-1):
-
-		path = path + 'optimisation/'
+							walltime='100:00:00', mem=26, start=-1, end=-1, failed_only=False):
 
 		comnames = []
 		for conformer in self.conformers:
-			comnames.append(conformer.opt_com)
+			if conformer.opt_status != 'successful' or not failed_only:
+				comnames.append(conformer.opt_com)
 
 		com_array = make_g09.make_submission_array(self.molid, comnames, path=path)
 		qsub_names = make_g09.make_submission_qsub(com_array, comnames, self.molid, path=path, parallel=parallel, system=system,
@@ -132,13 +137,14 @@ class molecule(object):
 		self.stage = 'running-nmr'
 
 	def make_nmr_sub(self, path='', parallel=True, system='BC3', nodes=1, ppn=8,
-							walltime='100:00:00', mem=26, start=-1, end=-1):
+							walltime='100:00:00', mem=26, start=-1, end=-1, failed_only=False):
 
 		path = path + 'NMR/'
 
 		comnames = []
 		for conformer in self.conformers:
-			comnames.append(conformer.nmr_com)
+			if conformer.opt_status != 'successful' or not failed_only:
+				comnames.append(conformer.nmr_com)
 
 		com_array = make_g09.make_submission_array(self.molid, comnames, path=path)
 		qsub_names = make_g09.make_submission_qsub(com_array, comnames, self.molid, path=path, parallel=parallel, system=system,

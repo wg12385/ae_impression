@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	# Define name of molecule (used for save/load of pickle file)
 	parser.add_argument('Molecule', help='name of molecule')
 	# Define command to perform
-	parser.add_argument('Command', help='auto-ENRICH command', choices=['init', 'conf_search', 'setup_opt', 'setup_nmr', 'process_nmr', 'update', 'check_status'])
+	parser.add_argument('Command', help='auto-ENRICH command', choices=['init', 'conf_search', 'setup_opt', 'process_opt', 'setup_nmr', 'process_nmr', 'update', 'check_status'])
 	# Optional arguments
 	parser.add_argument('--xyz', help='xyz file to initialise molecule', action="store", dest='xyz_file', default='None')
 	parser.add_argument('--path', help='path to molecule pickle file', action="store", dest='path', default='')
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 	# Get molecule status, print to user
 	status = molecule.stage
 	print('Molecule ', molecule.molid, ' stage: ', status)
-	proceed, molecule = check_proceed(status, args.Command, molecule)
+	proceed, molecule = check_proceed(status, args.Command, molecule, args.path)
 	if not proceed:
 		print('Exiting. . .')
 		sys.exit(0)
@@ -83,7 +83,11 @@ if __name__ == "__main__":
 
 		print('Running conformational search for molecule ', args.Molecule)
 		# Make conf_search directory
-		os.mkdir(args.path+'conf_search')
+		try:
+			os.mkdir(args.path+'conf_search')
+		except:
+			pass
+
 		# Do conformational search
 		conformational_search(molecule, prefs, path=args.path)
 		# Save molecule in pickle file
@@ -99,6 +103,13 @@ if __name__ == "__main__":
 			pass
 		setup_opt(molecule, prefs, path=args.path)
 		molecule.save_molecule(path=args.path)
+
+	elif args.Command == 'process_opt':
+		print('Processing optimisation log files')
+		process_opt(molecule, prefs, path=args.path)
+
+		molecule.save_molecule(path=args.path)
+
 
 	elif args.Command == 'setup_nmr':
 		print('Generating NMR gaussian com files for molecule, ', args.Molecule)

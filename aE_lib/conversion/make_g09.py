@@ -119,6 +119,7 @@ def make_submission_array(molname, comnames, path='', tag=''):
 	filename = path + molname + '_' + tag + '_COM_ARRAY'
 	with open(filename, 'w') as f:
 		for name in comnames:
+			name = name.split('/')[-1]
 			print(name, file=f)
 
 	return filename
