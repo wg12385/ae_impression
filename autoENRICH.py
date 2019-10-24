@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	# Define name of molecule (used for save/load of pickle file)
 	parser.add_argument('Molecule', help='name of molecule')
 	# Define command to perform
-	parser.add_argument('Command', help='auto-ENRICH command', choices=['init', 'conf_search', 'setup_opt', 'process_opt', 'setup_nmr', 'process_nmr', 'update', 'check_status'])
+	parser.add_argument('Command', help='auto-ENRICH command', choices=['undo', 'init', 'conf_search', 'setup_opt', 'process_opt', 'setup_nmr', 'process_nmr', 'update', 'check_status'])
 	# Optional arguments
 	parser.add_argument('--xyz', help='xyz file to initialise molecule', action="store", dest='xyz_file', default='None')
 	parser.add_argument('--path', help='path to molecule pickle file', action="store", dest='path', default='')
@@ -51,9 +51,6 @@ if __name__ == "__main__":
 			print('ERROR: Must supply xyz file to initialise molecule')
 			sys.exit(0)
 
-		# Load xyz coords and types from xyz file, create molecule object
-		file = args.path + args.xyz_file
-		_, init_types, init_xyz, _, _, _, _, _ = xyz_to_nmrdummy(file)
 		filename = args.path + args.Molecule + '.pkl'
 		if os.path.isfile(filename):
 			print('Molecule', args.Molecule, 'already exists, do you want to overwrite this molecule ?')
@@ -63,11 +60,17 @@ if __name__ == "__main__":
 			else:
 				print('Overwriting molecule. . .')
 
-		molecule = moleculeclass(init_xyz, init_types, name=args.Molecule, path=args.path)
+		# Load xyz coords and types from xyz file, create molecule object
+		molecule = moleculeclass(path=args.path, from_file=args.xyz_file, from_type='xyz')
+		molecule.save_molecule_to_file()
+
+
+		#molecule = moleculeclass(init_xyz, init_types, name=args.Molecule, path=args.path)
 	# If not initialising, get molecule from file
 	else:
 		# Load molecule object
-		molecule = moleculeclass([], [], name=args.Molecule, path=args.path, from_file=True)
+		filename = args.Molecule + '.pkl'
+		molecule = moleculeclass(from_file=filename, path=args.path, from_type='pickle')
 
 	# Get molecule status, print to user
 	status = molecule.stage
@@ -76,6 +79,11 @@ if __name__ == "__main__":
 	if not proceed:
 		print('Exiting. . .')
 		sys.exit(0)
+
+	if args.Command == 'undo':
+		molecule.load_molecule(path=args.path+'BACKUP_')
+	else:
+		molecule.save_molecule_to_file(path=args.path+'BACKUP_')
 
 	# Conformational Search command
 	if args.Command == 'conf_search':
@@ -91,39 +99,43 @@ if __name__ == "__main__":
 		# Do conformational search
 		conformational_search(molecule, prefs, path=args.path)
 		# Save molecule in pickle file
-		molecule.save_molecule(path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
 		print('Conformational search complete, number of conformers generated:', len(molecule.conformers))
 
 
 	elif args.Command == 'setup_opt':
-		print('Generating optimisation gaussian com files for molecule, ', args.Molecule)
+		print('Generating optimisation ORCA input files for molecule, ', args.Molecule)
 		try:
 			os.mkdir(args.path+'optimisation')
 		except:
 			pass
 		setup_opt(molecule, prefs, path=args.path)
-		molecule.save_molecule(path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
 
 	elif args.Command == 'process_opt':
 		print('Processing optimisation log files')
 		process_opt(molecule, prefs, path=args.path)
 
-		molecule.save_molecule(path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
 
 
 	elif args.Command == 'setup_nmr':
-		print('Generating NMR gaussian com files for molecule, ', args.Molecule)
-		setup_nmr(molecule)
-		molecule.save_molecule(path=args.path)
+		print('Generating NMR ORCA input files for molecule, ', args.Molecule)
+		try:
+			os.mkdir(args.path+'NMR')
+		except:
+			pass
+		setup_nmr(molecule, prefs, path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
 
 	elif args.Command == 'process_nmr':
 		process_nmr(molecule)
-		molecule.save_molecule(path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
 
 	elif args.Command == 'check_status':
-		molecule.save_molecule(path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
 
 	elif args.Command == 'update':
 		status = check_status(molecule)
 		update_molecule(molecule)
-		molecule.save_molecule(path=args.path)
+		molecule.save_molecule_to_file(path=args.path)
