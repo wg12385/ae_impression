@@ -9,6 +9,9 @@ def check_proceed(stage, command, molecule, path):
 	if command == 'init':
 		proceed = True
 
+	if command == 'undo':
+		proceed = True
+
 	elif command == 'conf_search':
 		if stage != 'init':
 			print('Conformational search already run for molecule,', molecule.molid, '. . . continuing will erase existing molecule data.')
@@ -56,6 +59,8 @@ def check_proceed(stage, command, molecule, path):
 		if stage in ['init', 'pre-opt']:
 			proceed = False
 			print('Optimisation not set up yet, nothing to process. . .')
+		else:
+			proceed = True
 
 	elif command == 'setup_nmr':
 		if stage in ['running-opt', 'pre-nmr']:

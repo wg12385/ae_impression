@@ -6,7 +6,7 @@ from reference.periodic_table import Get_periodic_table
 def make_optcom(molname, xyz, type, directory='',
 					charge=0, multiplicity=1, memory=26, processors=8,
 					opt='tight', freq=True, functional='mpw1pw91', basis_set='6-31g(d)',
-					solvent='none', solventmodel='iefpcm' , grid='fine', direct_cmd_line_opt = 'none'):
+					solvent='none', solventmodel='iefpcm' , grid='fine', direct_cmd_line_opt = False):
 	## Inputs:
 	#  molname      = molecule name, string. 'Progesterone'
 	#  xyz          = xyz coordinates, Nx3 numpy array.
@@ -31,7 +31,7 @@ def make_optcom(molname, xyz, type, directory='',
 	if solvent != 'none':
 		instr += ' scrf=(' + str(solventmodel) + ',solvent=' + str(solvent) + ')'
 
-	if direct_cmd_line_opt != 'none':
+	if direct_cmd_line_opt:
 		instr1 = direct_cmd_line_opt
 
 	comfile = directory.strip() + molname.strip() + '_OPT.com'
@@ -61,7 +61,7 @@ def make_optcom(molname, xyz, type, directory='',
 def make_nmrcom(molname, xyz, type, directory='',
 				charge=0, multiplicity=1, memory=26, processors=8,
 				functional='wb97xd', basis_set='6-311g(d,p)', mixed=True,
-				solvent='none', solventmodel='iefpcm',  direct_cmd_line_nmr = 'none'):
+				solvent='none', solventmodel='iefpcm',  direct_cmd_line_nmr = False):
 
 	## Inputs:
 	#  molname      = molecule name, string. 'Progesterone'
@@ -80,7 +80,7 @@ def make_nmrcom(molname, xyz, type, directory='',
 	except:
 		return
 
-	if mixed == "True":
+	if mixed:
 		instr='nmr(giao,spinspin,mixed)' + str(functional) + '/' + str(basis_set) + ' maxdisk=50GB'
 	else:
 		instr='nmr(giao,spinspin)' + str(functional) + '/' + str(basis_set) + ' maxdisk=50GB'
@@ -88,7 +88,7 @@ def make_nmrcom(molname, xyz, type, directory='',
 	if solvent != 'none':
 		instr += ' scrf=(' + str(solventmodel) + ',solvent=' + str(solvent) + ')'
 
-	if direct_cmd_line_nmr != 'none':
+	if direct_cmd_line_nmr:
 		instr = direct_cmd_line_nmr
 
 	comfile = directory.strip() + molname.strip() + '_NMR.com'
@@ -113,7 +113,7 @@ def make_nmrcom(molname, xyz, type, directory='',
 		for i in range(4):
 			print("", file=f_handle)
 
-	return 0
+	return comfile
 
 def make_submission_array(molname, comnames, path='', tag=''):
 	filename = path + molname + '_' + tag + '_COM_ARRAY'

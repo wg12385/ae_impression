@@ -1,16 +1,17 @@
 import numpy as np
 import pickle
 from conformational_search.conformational_search import *
-from conversion.convert import raw_to_xyz
-from conversion import make_g09
+from conversion.convert import *
+from conversion import make_orca
 from molecule.conformer import conformer as conformerclass
+from .nmrfile import nmrmol
 import glob
 
 # global molecule object, contains everything for one auto-ENRICH run
 class molecule(object):
 
 	# initialise object from xyz coords and types
-	def __init__(self, init_xyz, init_types, name='NONAME_MOL', path='', from_file=False):
+	def __init__(self, init_xyz=[[1,1,1],[2,2,2],[3,3,3]], init_types=[1,1,1], name='NONAME_MOL', path='', from_file=False, from_type='pickle', nosave=False):
 		if from_file == False:
 			# set name
 			self.molid = name
@@ -25,38 +26,94 @@ class molecule(object):
 
 			# placeholders for NMR data
 			self.shift = np.zeros(len(self.types), dtype=np.float64)
+			self.shift_var = np.zeros(len(self.types), dtype=np.float64)
+
 			self.coupling1b = []
+			self.var1b = []
 			self.coupling2b = []
+			self.var2b = []
 			self.coupling3b = []
+			self.var3b = []
 			self.coupling4b = []
+			self.var4b = []
 			self.coupling5b = []
+			self.var5b = []
 
 			self.stage = 'init'
 			# stages = init, pre-opt, running-opt, pre-nmr, running-nmr, post
+			self.pickle = 'none'
 			self.path = path
 
-			self.save_molecule(path=path)
-
 		else:
-			if from_file:
-				self.molid = name
-				self.load_molecule(path=path)
-			else:
-				self.molid = name
-				self.load_molecule(path=path, overrd_filename=from_file)
+			self.pickle = 'none'
+			self.read_molecule_from_file(from_file, path=path, type=from_type)
 
-	def save_molecule(self, path=''):
-		filename = path + self.molid + '.pkl'
-		pickle.dump([self.path, self.molid, self.stage, self.xyz, self.types,
-						self.conformers, self.pops, self.shift,
-						self.coupling1b, self.coupling2b, self.coupling3b], open( filename, "wb" ) )
+		if not nosave:
+			self.save_molecule_to_file(file='', type='pickle')
 
-	def load_molecule(self, path='', overrd_filename=''):
-		filename = path + self.molid + '.pkl'
-		if len(overrd_filename) > 1:
-			filename = overrd_filename
+	def save_molecule_to_file(self, file='', path='', type='pickle'):
+		if type == 'pickle':
+			if len(file) == 0:
+				if len(path) == 0:
+					file = self.path + self.molid + '.pkl'
+				else:
+					file = path + self.molid + '.pkl'
+			self.pickle = file
+			pickle.dump([self.pickle, self.molid, self.stage, self.xyz, self.types,
+							self.conformers, self.pops, self.shift,
+							self.coupling1b, self.coupling2b, self.coupling3b], open( file, "wb" ) )
 
-		self.path, self.molid, self.stage, self.xyz, self.types, self.conformers, self.pops, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = pickle.load(open(filename, "rb" ))
+		if type == 'nmredata':
+			if len(file) == 0:
+				file = self.path + self.molid + '.nmredata.sdf'
+			nmrmol_to_nmredata(self, file)
+
+
+	def read_molecule_from_file(self, file, path, type='nxyz'):
+		self.stage = 'init'
+		self.conformers = []
+		self.pops = []
+		if len(path) > 0:
+			self.path = path
+
+		filename = self.path + file
+
+		if type == 'nxyz':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = nxyz_to_nmrdata(filename)
+
+		if type == 'pickle':
+			self.pickle, self.molid, self.stage, self.xyz, self.types, self.conformers, self.pops, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = pickle.load(open(filename, "rb" ))
+			self.shift_var = np.zeros(len(self.shift), dtype=np.float64)
+			self.var1b = np.zeros(len(self.coupling1b), dtype=np.float64)
+			self.var2b = np.zeros(len(self.coupling2b), dtype=np.float64)
+			self.var3b = np.zeros(len(self.coupling3b), dtype=np.float64)
+
+			self.molid = self.molid.split('.')[0]
+
+		if type == 'nmredata':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = nmredata_to_nmrmol(filename)
+
+
+		elif type == 'g09':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = g09_to_nmrdata(filename)
+
+		elif type == 'MIN_g09':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = MINIMIZE_g09_to_nmrdata(filename)
+
+		elif type == 'tensor_g09':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = TENSOR_g09_to_nmrdata(filename)
+
+		elif type == 'sygcml':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = sygcml_to_nmrdata(filename)
+
+		elif type == 'pdb':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = pdb_to_nmrdummy(filename)
+
+		elif type == 'mol2':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = mol2_to_nmrdummy(filename)
+
+		elif type == 'xyz':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.coupling1b, self.var1b, self.coupling2b, self.var2b, self.coupling3b, self.var3b = xyz_to_nmrdummy(filename)
 
 
 	# function to remove redundant conformers
@@ -82,9 +139,7 @@ class molecule(object):
 			self.conformers.append(new_conf)
 
 		for conformer in self.conformers:
-			file = self.path + 'conf_search/' + 'conf' + str(conformer.molid) + '.xyz'
-			titleline = str(conformer.molid) + '  ' + str(conformer.energy)
-			raw_to_xyz(file, titleline, conformer.xyz, conformer.types)
+			file = conformer.print_xyz(self.path + 'conf_search/')
 			conformer.xyz_file = file
 
 
@@ -97,58 +152,58 @@ class molecule(object):
 
 
 	# make optimsation com files
-	def make_opt_com(self, path='', charge=0, multiplicity=1, memory=26, processors=8,
-						opt='tight', freq=True, functional='mpw1pw91', basis_set='6-31g(d)',
-						solvent='none', solventmodel='iefpcm' , grid='ultrafine', direct_cmd_line_opt='none'):
+	def make_opt_com(self, prefs, path=''):
 
 		for conformer in self.conformers:
-			conformer.generate_opt_com(path=path, charge=charge, multiplicity=multiplicity,
-										memory=memory, processors=processors, opt=opt, freq=freq,
-										functional=functional, basis_set=basis_set, solvent=solvent,
-										solventmodel=solventmodel, grid=grid, direct_cmd_line_opt=direct_cmd_line_opt)
+			conformer.generate_opt_com(prefs, path=path)
 
 		self.stage = 'running-opt'
 
-	def make_opt_sub(self, path='', parallel=True, system='BC3', nodes=1, ppn=8,
-							walltime='100:00:00', mem=26, start=-1, end=-1, failed_only=False):
+	def make_opt_sub(self, prefs, path='', start=-1, end=-1, failed_only=False):
 
 		comnames = []
 		for conformer in self.conformers:
 			if conformer.opt_status != 'successful' or not failed_only:
 				comnames.append(conformer.opt_com)
 
-		com_array = make_g09.make_submission_array(self.molid, comnames, path=path)
-		qsub_names = make_g09.make_submission_qsub(com_array, comnames, self.molid, path=path, parallel=parallel, system=system,
-										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
+
+		nodes = 1
+		mem = prefs['optimisation']['memory']
+		ppn = prefs['optimisation']['processors']
+		walltime = prefs['optimisation']['walltime']
+
+		com_array = make_orca.make_submission_array(self.molid, comnames, path=path)
+		qsub_names = make_orca.make_submission_qsub(prefs, com_array, comnames, self.molid, path=path,
+		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
 
 		return qsub_names
 
 	# make nmr com files
-	def make_nmr_com(self, path='', charge=0, multiplicity=1, memory=26, processors=8,
-						functional='mpw1pw91', basis_set='6-31g(d)', mixed=True,
-						solvent='none', solventmodel='iefpcm', direct_cmd_line_opt='none'):
+	def make_nmr_com(self, prefs, path=''):
 
 		for conformer in self.conformers:
-			conformer.generate_nmr_com(path=path, charge=charge, multiplicity=multiplicity,
-								memory=memory, processors=processors,
-								functional=functional, basis_set=basis_set, mixed=True,
-								solvent=solvent, solventmodel=solventmodel, direct_cmd_line_opt=direct_cmd_line_opt)
+			if conformer.opt_status == 'successful':
+				conformer.generate_nmr_com(prefs, path=path)
 
 		self.stage = 'running-nmr'
 
-	def make_nmr_sub(self, path='', parallel=True, system='BC3', nodes=1, ppn=8,
-							walltime='100:00:00', mem=26, start=-1, end=-1, failed_only=False):
+	def make_nmr_sub(self, prefs, path='', start=-1, end=-1, failed_only=False):
 
 		path = path + 'NMR/'
 
 		comnames = []
 		for conformer in self.conformers:
-			if conformer.opt_status != 'successful' or not failed_only:
+			if conformer.nmr_status != 'successful' or not failed_only:
 				comnames.append(conformer.nmr_com)
 
-		com_array = make_g09.make_submission_array(self.molid, comnames, path=path)
-		qsub_names = make_g09.make_submission_qsub(com_array, comnames, self.molid, path=path, parallel=parallel, system=system,
-										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
+		nodes = 1
+		mem = prefs['NMR']['memory']
+		ppn = prefs['NMR']['processors']
+		walltime = prefs['NMR']['walltime']
+
+		com_array = make_orca.make_submission_array(prefs, self.molid, comnames, path=path)
+		qsub_names = make_orca.make_submission_qsub(prefs, com_array, comnames, self.molid, path=path,
+		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
 
 		return qsub_names
 

@@ -119,3 +119,25 @@ def mol_find_all_paths(mol, start, end, coupling_length, path=[]):
 					if len(newpath) == coupling_length+1:
 						paths.append(newpath)
 		return paths
+
+def mol_get_bond_table(mol):
+
+	atoms = len(mol.atoms)
+
+	bond_table = np.zeros((atoms, atoms), dtype=np.int32)
+
+	for atom1 in range(atoms):
+		for atom2 in range(atom1, atoms):
+
+			for nbr_atom in openbabel.OBAtomAtomIter(mol.atoms[atom1].OBAtom):
+				check = nbr_atom.GetId()
+				if atom2 != check:
+					continue
+
+				bond = mol.atoms[atom1].OBAtom.GetBond(nbr_atom)
+				order = bond.GetBondOrder()
+
+				bond_table[atom1][atom2] = int(order)
+				bond_table[atom2][atom1] = int(order)
+
+	return bond_table

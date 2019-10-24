@@ -35,39 +35,24 @@ def conformational_search(molecule, prefs, path=''):
 # Setup optimisation gaussian com files
 def setup_opt(molecule, prefs, path=''):
 	# Read relevant preferences
-	charge = prefs['mol']['charge']
-	multiplicity = prefs['mol']['multiplicity']
-	memory = prefs['optimisation']['memory']
-	processors = prefs['optimisation']['processors']
-	opt = prefs['optimisation']['opt']
-	freq = prefs['optimisation']['freq']
-	functional = prefs['optimisation']['functional']
-	basis_set = prefs['optimisation']['basisset']
-	solvent = prefs['optimisation']['solvent']
-	solventmodel = prefs['optimisation']['solventmodel']
-	grid = prefs['optimisation']['grid']
-	direct_cmd_line_opt = prefs['optimisation']['custom_cmd_line']
 
-	molecule.make_opt_com(path=path, charge=charge, multiplicity=multiplicity,
-								memory=memory, processors=processors, opt=opt, freq=freq,
-								functional=functional, basis_set=basis_set, solvent=solvent,
-								solventmodel=solventmodel, grid=grid, direct_cmd_line_opt=direct_cmd_line_opt)
+	molecule.make_opt_com(prefs, path=path)
 
-	walltime = prefs['optimisation']['walltime']
-	parallel = prefs['comp']['parallel']
-	system = prefs['comp']['system']
-	qsub_names = molecule.make_opt_sub(path=path, parallel=parallel, system=system, nodes=1, ppn=processors,
-							walltime=walltime, mem=memory, start=-1, end=-1)
+	qsub_names = molecule.make_opt_sub(prefs, path=path, start=-1, end=-1)
+
+	molecule.print_xyzs(path=path+'optimisation/')
 
 	print('Created ', len(qsub_names), ' qsub files. . .')
-	if system == 'BC3':
+	if prefs['comp']['system'] == 'BC3':
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('qsub ', file)
-	else:
+	elif prefs['comp']['system'] == 'Grendel':
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('bash ', file)
+	elif prefs['comp']['system'] == 'BC4':
+		print('Havent finished this yet, good luck pal. . . .')
 
 	return 0
 
@@ -78,25 +63,21 @@ def process_opt(molecule, prefs, path):
 	for conformer in molecule.conformers:
 		conformer.check_opt()
 		statuss.append(conformer.opt_status)
-		print('Conformer ', conformer.molid, ' status: ', conformer.opt_status)
+		string = 'Conformer {molid:^3s} status: {status:^10s} | Energy {energy:<10.4f}'.format(molid=str(conformer.molid),
+																								status=conformer.opt_status,
+																								energy=conformer.energy)
+		print(string)
 
 		if conformer.opt_status == 'successful':
 			good += 1
 		elif conformer.opt_status == 'failed':
 			bad += 1
 
-	charge = prefs['mol']['charge']
-	multiplicity = prefs['mol']['multiplicity']
-
-	walltime = prefs['optimisation']['walltime']
-	processors = prefs['optimisation']['processors']
-	memory = prefs['optimisation']['memory']
-	parallel = prefs['comp']['parallel']
-	system = prefs['comp']['system']
-	qsub_names = molecule.make_opt_sub(path=path+'optimisation/RESUB_FAILED_', parallel=parallel, system=system, nodes=1, ppn=processors,
-							walltime=walltime, mem=memory, start=-1, end=-1, failed_only=True)
+	qsub_names = molecule.make_opt_sub(prefs, path=path+'optimisation/RESUB_FAILED_', start=-1, end=-1, failed_only=True)
 
 	print(good, ' successful optimisations, ', bad, ' failed, out of ', len(statuss))
+
+	molecule.print_xyzs(path=path + 'optimisation/')
 
 	print('Created ', len(qsub_names), ' qsub files to resubmit failed calculations')
 	if system == 'BC3':
@@ -112,29 +93,10 @@ def process_opt(molecule, prefs, path):
 
 # Setup NMR gaussian com files
 def setup_nmr(molecule, prefs, path):
-	# Read relevant preferences
-	charge = prefs['mol']['charge']
-	multiplicity = prefs['mol']['multiplicity']
-	memory = prefs['NMR']['memory']
-	processors = prefs['NMR']['processors']
-	mixed = prefs['NMR']['mixed']
-	functional = prefs['NMR']['functional']
-	basis_set = prefs['NMR']['basisset']
-	solvent = prefs['NMR']['solvent']
-	solventmodel = prefs['NMR']['solventmodel']
-	direct_cmd_line_opt = prefs['NMR']['custom_cmd_line']
 
-	molecule.make_nmr_com(path=path, charge=charge, multiplicity=multiplicity,
-								memory=memory, processors=processors, opt=opt, freq=freq,
-								functional=functional, basis_set=basis_set, solvent=solvent,
-								solventmodel=solventmodel, grid=grid, direct_cmd_line_opt=direct_cmd_line_opt)
+	molecule.make_nmr_com(prefs, path=path)
 
-	walltime = prefs['optimisation']['walltime']
-	parallel = prefs['comp']['parallel']
-	system = prefs['comp']['system']
-
-	qsub_names = molecule.make_nmr_sub(path=path, parallel=parallel, system=system, nodes=1, ppn=processors,
-							walltime=walltime, mem=memory, start=-1, end=-1)
+	qsub_names = molecule.make_nmr_sub(prefs, path=path, start=-1, end=-1)
 
 	print('Created ', len(qsub_names), ' qsub files. . .')
 	if system == 'BC3':
