@@ -90,13 +90,11 @@ def make_nmrin(prefs, molname, xyz, type, directory=''):
 	strings.append('*')
 
 	strings.append('%epnmr')
-	strings.append('       Nuclei = all C { shift }')
-	strings.append('       Nuclei = all H { shift }')
-	strings.append('       Nuclei = all N { shift }')
-	strings.append('       Nuclei = all O { shift }')
-	strings.append('       Nuclei = all H {ssall}')
-	strings.append('       Nuclei = all C {ssall}')
-	strings.append('SpinSpinRThresh 15.0')
+	for type in prefs['NMR']['shift_nuclei']:
+		strings.append('       Nuclei = all {type:<2s} { shift }'.format(Periodic_table(type)))
+	for type in prefs['NMR']['spin_nuclei']:
+		strings.append('       Nuclei = all {type:<2s} {ssall}'.format(Periodic_table(type)))
+	strings.append('SpinSpinRThresh {0:<f}'.format(prefs['NMR']['spin_thresh']))
 	strings.append('end')
 
 	with open(comfile, 'w') as f_handle:
@@ -150,7 +148,9 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 		elif system == 'Grendel':
 			filename = path + 'submit_' + molname + '_' + tag + '_' + str(ck) + '.sh'
 		elif system == 'BC4':
-			filename = path + molnem + '_' + tag + '_' + str(ck) + '.slurm'
+			filename = path + molname + '_' + tag + '_' + str(ck) + '.slurm'
+		elif system == 'localbox':
+			filename = path + molname + '_' + tag + '_' + str(ck) + '.sh'
 		filenames.append(filename)
 		start = (ck * max) + 1
 		end = ((ck + 1) * max)
@@ -187,8 +187,15 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 				strings.append("for NUM in ${NUMBERS}; do")
 				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
-				strings.append("  qg09  $NMRNAME -l nodes={0:<1d}:ppn={1:<1d} -l walltime={2:<9s} -l mem={3:<1d}GB -N {4:>1s}_{5:<1d}_${{NUM}}".format(nodes, ppn, walltime, mem, molname, ck))
+				strings.append("  orca  $NMRNAME -l nodes={0:<1d}:ppn={1:<1d} -l walltime={2:<9s} -l mem={3:<1d}GB -N {4:>1s}_{5:<1d}_${{NUM}}".format(nodes, ppn, walltime, mem, molname, ck))
 				strings.append("  done")
+			elif system == 'BC4':
+				print('not done yet . . .')
+			elif system == 'localbox':
+				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
+				strings.append("for NUM in ${NUMBERS}; do")
+				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
+				strings.append("  orca ${NMRNAME}")
 			else:
 				print('preference value for system: ', system, ' was not recognised, accepted values are BC3 or Grendel')
 
