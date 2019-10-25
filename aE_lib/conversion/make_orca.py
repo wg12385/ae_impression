@@ -107,7 +107,7 @@ def make_submission_array(molname, comnames, path='', tag=''):
 	filename = path + molname + '_' + tag + '_COM_ARRAY'
 	with open(filename, 'w') as f:
 		for name in comnames:
-			name = name.split('/')[-1]
+			#name = name.split('/')[-1]
 			print(name, file=f)
 
 	return filename
@@ -195,7 +195,9 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 				strings.append("for NUM in ${NUMBERS}; do")
 				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
-				strings.append("  orca ${NMRNAME}")
+				strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.com/.log/')")
+				strings.append("  orca ${NMRNAME} > ${OUTNAME}")
+				strings.append("done")
 			else:
 				print('preference value for system: ', system, ' was not recognised, accepted values are BC3 or Grendel')
 
