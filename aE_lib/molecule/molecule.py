@@ -152,19 +152,19 @@ class molecule(object):
 
 
 	# make optimsation com files
-	def make_opt_com(self, prefs, path=''):
+	def make_opt_in(self, prefs, path=''):
 
 		for conformer in self.conformers:
-			conformer.generate_opt_com(prefs, path=path)
+			conformer.generate_opt_in(prefs, path=path)
 
 		self.stage = 'running-opt'
 
 	def make_opt_sub(self, prefs, path='', start=-1, end=-1, failed_only=False):
 
-		comnames = []
+		innames = []
 		for conformer in self.conformers:
 			if conformer.opt_status != 'successful' or not failed_only:
-				comnames.append(conformer.opt_com)
+				innames.append(conformer.opt_in)
 
 
 		nodes = 1
@@ -172,18 +172,18 @@ class molecule(object):
 		ppn = prefs['optimisation']['processors']
 		walltime = prefs['optimisation']['walltime']
 
-		com_array = make_orca.make_submission_array(self.molid, comnames, path=path)
-		qsub_names = make_orca.make_submission_qsub(prefs, com_array, comnames, self.molid, path=path,
+		in_array = make_orca.make_submission_array(self.molid, innames, path=path)
+		qsub_names = make_orca.make_submission_qsub(prefs, in_array, innames, self.molid, path=path,
 		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
 
 		return qsub_names
 
-	# make nmr com files
-	def make_nmr_com(self, prefs, path=''):
+	# make nmr in files
+	def make_nmr_in(self, prefs, path=''):
 
 		for conformer in self.conformers:
 			if conformer.opt_status == 'successful':
-				conformer.generate_nmr_com(prefs, path=path)
+				conformer.generate_nmr_in(prefs, path=path)
 
 		self.stage = 'running-nmr'
 
@@ -191,18 +191,18 @@ class molecule(object):
 
 		path = path + 'NMR/'
 
-		comnames = []
+		innames = []
 		for conformer in self.conformers:
 			if conformer.nmr_status != 'successful' or not failed_only:
-				comnames.append(conformer.nmr_com)
+				innames.append(conformer.nmr_in)
 
 		nodes = 1
 		mem = prefs['NMR']['memory']
 		ppn = prefs['NMR']['processors']
 		walltime = prefs['NMR']['walltime']
 
-		com_array = make_orca.make_submission_array(prefs, self.molid, comnames, path=path)
-		qsub_names = make_orca.make_submission_qsub(prefs, com_array, comnames, self.molid, path=path,
+		in_array = make_orca.make_submission_array(prefs, self.molid, innames, path=path)
+		qsub_names = make_orca.make_submission_qsub(prefs, in_array, innames, self.molid, path=path,
 		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
 
 		return qsub_names

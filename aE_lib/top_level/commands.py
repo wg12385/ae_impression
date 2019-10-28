@@ -32,11 +32,11 @@ def conformational_search(molecule, prefs, path=''):
 
 	return 0
 
-# Setup optimisation gaussian com files
+# Setup optimisation gaussian in files
 def setup_opt(molecule, prefs, path=''):
 	# Read relevant preferences
 
-	molecule.make_opt_com(prefs, path=path)
+	molecule.make_opt_in(prefs, path=path)
 
 	qsub_names = molecule.make_opt_sub(prefs, path=path, start=-1, end=-1)
 
@@ -73,17 +73,22 @@ def process_opt(molecule, prefs, path):
 		elif conformer.opt_status == 'failed':
 			bad += 1
 
-	qsub_names = molecule.make_opt_sub(prefs, path=path+'optimisation/RESUB_FAILED_', start=-1, end=-1, failed_only=True)
+	if bad >= 1:
+		qsub_names = molecule.make_opt_sub(prefs, path=path+'optimisation/RESUB_FAILED_', start=-1, end=-1, failed_only=True)
 
 	print(good, ' successful optimisations, ', bad, ' failed, out of ', len(statuss))
 
 	molecule.print_xyzs(path=path + 'optimisation/')
 
 	print('Created ', len(qsub_names), ' qsub files to resubmit failed calculations')
-	if system == 'BC3':
+	if prefs['comp']['system'] == 'BC3':
 		print('Fix the issue (check log_file for error) then submit the calculations using:')
 		for file in qsub_names:
 			print('qsub ', file)
+	elif prefs['comp']['system'] == 'Grendel':
+		print('Fix the issue (check log_file for error) then submit the calculations using:')
+		for file in qsub_names:
+			print('bash ', file)
 	else:
 		print('Fix the issue (check log_file for error) then submit the calculations using:')
 		for file in qsub_names:
@@ -91,10 +96,10 @@ def process_opt(molecule, prefs, path):
 
 	print("Resubmit failed optimisations or continue to NMR calculations with 'setup_nmr'")
 
-# Setup NMR gaussian com files
+# Setup NMR gaussian in files
 def setup_nmr(molecule, prefs, path):
 
-	molecule.make_nmr_com(prefs, path=path)
+	molecule.make_nmr_in(prefs, path=path)
 
 	qsub_names = molecule.make_nmr_sub(prefs, path=path, start=-1, end=-1)
 
@@ -129,7 +134,7 @@ def update_molecule(molecule, prefs):
 
 
 	if change_opt:
-		print('Optimisation update, making NMR com files')
+		print('Optimisation update, making NMR in files')
 		setup_nmr(molecule, prefs)
 	if change_nmr:
 		process_nmr(molecule, prefs)

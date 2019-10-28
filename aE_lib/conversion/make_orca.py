@@ -22,7 +22,7 @@ def make_optin(prefs, molname, xyz, type, directory=''):
 	if direct_cmd_line_opt:
 		instr1 = direct_cmd_line_opt
 
-	comfile = directory.strip() + molname.strip() + '_OPT.com'
+	infile = directory.strip() + molname.strip() + '_OPT.in'
 
 	strings = []
 	strings.append(instr)
@@ -45,11 +45,11 @@ def make_optin(prefs, molname, xyz, type, directory=''):
 	strings.append('     AddExtraBonds_MaxDist 5    # cutoff for distance between two atoms (default 5 Ang.)')
 	strings.append('end')
 
-	with open(comfile, 'w') as f_handle:
+	with open(infile, 'w') as f_handle:
 		for string in strings:
 			print(string, file=f_handle)
 
-	return comfile
+	return infile
 
 def make_nmrin(prefs, molname, xyz, type, directory=''):
 
@@ -77,7 +77,7 @@ def make_nmrin(prefs, molname, xyz, type, directory=''):
 	if direct_cmd_line_nmr:
 		instr = direct_cmd_line_nmr
 
-	comfile = directory.strip() + molname.strip() + '_NMR.in'
+	infile = directory.strip() + molname.strip() + '_NMR.in'
 
 	strings = []
 	strings.append(instr)
@@ -97,22 +97,22 @@ def make_nmrin(prefs, molname, xyz, type, directory=''):
 	strings.append('SpinSpinRThresh {0:<f}'.format(prefs['NMR']['spin_thresh']))
 	strings.append('end')
 
-	with open(comfile, 'w') as f_handle:
+	with open(infile, 'w') as f_handle:
 		for string in strings:
 			print(string, file=f_handle)
 
-	return comfile
+	return infile
 
-def make_submission_array(molname, comnames, path='', tag=''):
-	filename = path + molname + '_' + tag + '_COM_ARRAY'
+def make_submission_array(molname, innames, path='', tag=''):
+	filename = path + molname + '_' + tag + '_in_ARRAY'
 	with open(filename, 'w') as f:
-		for name in comnames:
+		for name in innames:
 			name = name.split('/')[-1]
 			print(name, file=f)
 
 	return filename
 
-def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, path='', tag='',
+def make_submission_qsub(prefs, in_array, innames, molname, start=-1, end=-1, path='', tag='',
 							nodes=1, ppn=8, walltime='100:00:00', mem=32,):
 
 	system = prefs['comp']['system']
@@ -120,7 +120,7 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 
 
 	max = 50
-	files = len(comnames)
+	files = len(innames)
 	if start < 0 and end < 0:
 		start = 1
 		if files > max:
@@ -167,13 +167,13 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 					strings.append("#PBS -N {0:>1s}_{1:<1d}".format(molname, ck))
 					strings.append("#PBS -t {0:>1d}-{1:<1d}".format(start, end))
 					strings.append("cd $PBS_O_WORKDIR")
-					strings.append("NMRNAME=$(gawk -v y=${{PBS_ARRAYID}} 'NR == y' {0:<5s})".format(com_array))
+					strings.append("NMRNAME=$(gawk -v y=${{PBS_ARRAYID}} 'NR == y' {0:<5s})".format(in_array))
 					strings.append("g09 $NMRNAME")
 				else:
 					strings.append("cd $PBS_O_WORKDIR")
 					strings.append("for i in $(seq {0:>1d} 1 {1:<1d});".format(start, end))
 					strings.append("do")
-					strings.append("NMRNAME=$(gawk -v y=${i} 'NR == y' {0:<5s})".format(com_array))
+					strings.append("NMRNAME=$(gawk -v y=${i} 'NR == y' {0:<5s})".format(in_array))
 					strings.append("base=${NMRNAME::${#NMRNAME}-4}")
 					strings.append("FILE=${base}.log")
 					strings.append("if test -f '$FILE'; then")
@@ -186,7 +186,7 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 			elif system == 'Grendel':
 				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 				strings.append("for NUM in ${NUMBERS}; do")
-				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
+				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(in_array))
 				strings.append("  orca  $NMRNAME -l nodes={0:<1d}:ppn={1:<1d} -l walltime={2:<9s} -l mem={3:<1d}GB -N {4:>1s}_{5:<1d}_${{NUM}}".format(nodes, ppn, walltime, mem, molname, ck))
 				strings.append("  done")
 			elif system == 'BC4':
@@ -194,10 +194,11 @@ def make_submission_qsub(prefs, com_array, comnames, molname, start=-1, end=-1, 
 			elif system == 'localbox':
 				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 				strings.append("for NUM in ${NUMBERS}; do")
-				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
-				strings.append("  orca ${NMRNAME}")
+				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(in_array))
+				strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/'")
+				strings.append("  orca ${NMRNAME} > ${OUTNAME}")
 			else:
-				print('preference value for system: ', system, ' was not recognised, accepted values are BC3 or Grendel')
+				print('preference value for system: ', system, ' was not recognised, accepted values are BC3, BC4, Grendel, localbox')
 
 			for string in strings:
 				print(string, file=f)

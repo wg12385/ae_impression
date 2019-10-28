@@ -1,6 +1,7 @@
 import numpy as np
 
 
+
 def chemread(filename, atomnumber):
 	# Read in chemical shift information from gaussian log files
 	# Values read in are actually chemical shielding tensors, need to be converted by processing function
@@ -59,8 +60,8 @@ def eread(filename):
 	E = 0
 	with open(filename, 'r') as f_handle:
 		for line in f_handle:
-			if "SCF Done:" in line:
-				items = line.split('=')[1].split()[0]
+			if "SCF Energy:" in line:
+				items = line.split(':')[1].split()[0]
 				E = float(items)
 	return E
 
@@ -68,9 +69,9 @@ def check_opt_status(filename):
 	status = 'unknown'
 	with open(filename, 'r') as f:
 		for line in f:
-			if 'Normal termination' in line:
+			if 'SUCCESS' in line:
 				status = 'successful'
-			if 'Error termination' in line:
+			if 'ERROR' in line:
 				status = 'failed'
 
 	return status

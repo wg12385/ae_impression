@@ -230,7 +230,6 @@ def mol2_to_nmrdummy(file):
 
 	return molid, types, xyz, dist, shift, shift_var, b1_coupling, var1b, b2_coupling, var2b, b3_coupling, var3b
 
-
 def split_multiple_xyx(file):
 
 	molid = file.split('/')[-1].split('.')[0]
@@ -328,6 +327,15 @@ def pybmol_to_nmrmol(mol, molid):
 	var3b = np.zeros(len(b3_coupling), dtype=np.float64)
 
 	return molid, types, xyz, dist, shift, shift_var, b1_coupling, var1b, b2_coupling, var2b, b3_coupling, var3b
+
+def generic_pybel_read(file, type):
+	mol = next(pyb.readfile(type, file))
+	type_list, types = mol_read_type(mol)
+	xyz = mol_read_xyz(mol)
+	dist = mol_read_dist(mol)
+	molid = file.split('/')[-1].split('.')[0]
+
+	return molid, xyz, types, dist
 
 
 

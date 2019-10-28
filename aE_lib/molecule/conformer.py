@@ -25,12 +25,12 @@ class conformer(object):
 		self.xyz_file = 'None'
 
 		# store location and status of optimisation files
-		self.opt_com = 'None'
+		self.opt_in = 'None'
 		self.opt_log = 'None'
 		self.opt_status = 'None'
 
 		# store location and status of NMR files
-		self.nmr_com = 'None'
+		self.nmr_in = 'None'
 		self.nmr_log = 'None'
 		self.nmr_status = 'None'
 
@@ -44,8 +44,8 @@ class conformer(object):
 		if type == 'nxyz':
 			self.molid, self.types, self.xyz, self.dist, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = nxyz_to_nmrdata(file)
 
-		elif type == 'g09':
-			self.molid, self.types, self.xyz, self.dist, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = g09_to_nmrdata(file, molid)
+		elif type == 'orca':
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = orca_to_nmrdata(file, molid)
 
 		elif type == 'sygcml':
 			self.molid, self.types, self.xyz, self.dist, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = sygcml_to_nmrdata(file)
@@ -60,41 +60,41 @@ class conformer(object):
 			self.molid, self.types, self.xyz, self.dist, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = pdb_to_nmrdummy(file)
 
 		elif type == 'xyz':
-			self.molid, self.types, self.xyz, self.dist, self.shift, self.coupling1b, self.coupling2b, self.coupling3b = xyz_to_nmrdummy(file)
+			self.molid, self.types, self.xyz, self.dist, self.shift, self.shift_var, self.b1_coupling, self.var1b, self.b2_coupling, self.var2b, self.b3_coupling, self.var3b = xyz_to_nmrdummy(file)
 
-	def generate_opt_com(self, prefs, path=''):
+	def generate_opt_in(self, prefs, path=''):
 
 		path = path + 'optimisation/'
 
-		self.opt_com = make_optin(prefs, str(self.molid), self.xyz, self.types, directory=path)
+		self.opt_in = make_optin(prefs, str(self.molid), self.xyz, self.types, directory=path, tag='OPT')
 
-		self.opt_log = self.opt_com.split('.')[0] + '.log'
+		self.opt_log = self.opt_in.split('.')[0]
 		self.opt_status = 'pre-submission'
 
-	def generate_nmr_com(self, prefs, path=''):
+	def generate_nmr_in(self, prefs, path=''):
 
 		path = path + 'NMR/'
 
-		self.nmr_com = make_nmrin(prefs, str(self.molid), self.xyz, self.types, directory=path)
+		self.nmr_in = make_nmrin(prefs, str(self.molid), self.xyz, self.types, directory=path, tag='NMR')
 
-		self.nmr_log = self.nmr_com.split('.')[0] + '.log'
+		self.nmr_log = self.nmr_in.split('.')[0] + '.log'
 		self.nmr_status = 'pre-submission'
 
 	def check_opt(self):
 		if self.opt_status == 'None':
-			print('Cannot check optimisation before com file has been created')
+			print('Cannot check optimisation before in file has been created')
 			return None
 
-		self.opt_status = check_opt_status(self.opt_log)
+		self.opt_log = self.opt_log.split('.')[0]
+		self.opt_status = check_opt_status(self.opt_log + '.log')
 
 		if self.opt_status == 'successful':
-			self.data_from_file(self.opt_log, type='g09', molid=self.molid)
-			self.energy = eread(self.opt_log)
-
+			_, self.xyz, self.types, _ = generic_pybel_read(self.opt_log + '.xyz', 'xyz')
+			self.energy = eread(self.opt_log + '_property.txt')
 
 	def check_nmr(self):
 		if self.nmr_status == 'None':
-			print('Cannot check optimisation before com file has been created')
+			print('Cannot check optimisation before in file has been created')
 			return None
 
 		self.nmr_status = check_opt_status(self.nmr_log)
