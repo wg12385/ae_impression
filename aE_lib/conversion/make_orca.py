@@ -59,15 +59,10 @@ def make_nmrin(prefs, molname, xyz, type, directory=''):
 	basis_set = prefs['NMR']['basisset']
 	aux_basis_set = prefs['NMR']['aux_basis_set']
 	solvent = prefs['NMR']['solvent']
-	direct_cmd_line_opt = prefs['NMR']['custom_cmd_line']
+	direct_cmd_line_nmr = prefs['NMR']['custom_cmd_line']
 
 
 	Periodic_table = Get_periodic_table()
-	try:
-		int(memory)
-		int(processors)
-	except:
-		return
 
 	instr = '! ' + str(functional) + ' ' + str(basis_set) + ' ' + str(aux_basis_set) + 'TightSCF' + ' NMR '
 
@@ -91,9 +86,9 @@ def make_nmrin(prefs, molname, xyz, type, directory=''):
 
 	strings.append('%epnmr')
 	for type in prefs['NMR']['shift_nuclei']:
-		strings.append('       Nuclei = all {type:<2s} { shift }'.format(Periodic_table(type)))
+		strings.append("       Nuclei = all {type:<2s}".format(type=Periodic_table[type]) + '  { shift }')
 	for type in prefs['NMR']['spin_nuclei']:
-		strings.append('       Nuclei = all {type:<2s} {ssall}'.format(Periodic_table(type)))
+		strings.append("       Nuclei = all {type:<2s}".format(type=Periodic_table[type]) + '  { ssall }')
 	strings.append('SpinSpinRThresh {0:<f}'.format(prefs['NMR']['spin_thresh']))
 	strings.append('end')
 
@@ -194,8 +189,8 @@ def make_submission_qsub(prefs, in_array, innames, molname, start=-1, end=-1, pa
 			elif system == 'localbox':
 				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 				strings.append("for NUM in ${NUMBERS}; do")
-				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
-				strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.com/.log/')")
+				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(in_array))
+				strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/')")
 				strings.append("  orca ${NMRNAME} > ${OUTNAME}")
 				strings.append("done")
 			else:

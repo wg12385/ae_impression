@@ -172,9 +172,9 @@ class molecule(object):
 		ppn = prefs['optimisation']['processors']
 		walltime = prefs['optimisation']['walltime']
 
-		in_array = make_orca.make_submission_array(self.molid, innames, path=path)
+		in_array = make_orca.make_submission_array(self.molid, innames, path=path, tag='OPT')
 		qsub_names = make_orca.make_submission_qsub(prefs, in_array, innames, self.molid, path=path,
-		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
+		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end, tag='OPT')
 
 		return qsub_names
 
@@ -201,9 +201,9 @@ class molecule(object):
 		ppn = prefs['NMR']['processors']
 		walltime = prefs['NMR']['walltime']
 
-		in_array = make_orca.make_submission_array(prefs, self.molid, innames, path=path)
+		in_array = make_orca.make_submission_array(prefs, self.molid, innames, path=path, tag='NMR')
 		qsub_names = make_orca.make_submission_qsub(prefs, in_array, innames, self.molid, path=path,
-		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end)
+		 										nodes=nodes, ppn=ppn, walltime=walltime, mem=mem, start=start, end=end, tag='NMR')
 
 		return qsub_names
 

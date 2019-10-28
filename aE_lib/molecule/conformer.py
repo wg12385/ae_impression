@@ -66,7 +66,7 @@ class conformer(object):
 
 		path = path + 'optimisation/'
 
-		self.opt_in = make_optin(prefs, str(self.molid), self.xyz, self.types, directory=path, tag='OPT')
+		self.opt_in = make_optin(prefs, str(self.molid), self.xyz, self.types, directory=path)
 
 		self.opt_log = self.opt_in.split('.')[0]
 		self.opt_status = 'pre-submission'
@@ -75,7 +75,9 @@ class conformer(object):
 
 		path = path + 'NMR/'
 
-		self.nmr_in = make_nmrin(prefs, str(self.molid), self.xyz, self.types, directory=path, tag='NMR')
+		self.nmr_in = make_nmrin(prefs, str(self.molid), self.xyz, self.types, directory=path)
+
+		print(self.nmr_in)
 
 		self.nmr_log = self.nmr_in.split('.')[0] + '.log'
 		self.nmr_status = 'pre-submission'

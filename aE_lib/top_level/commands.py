@@ -73,28 +73,27 @@ def process_opt(molecule, prefs, path):
 		elif conformer.opt_status == 'failed':
 			bad += 1
 
-	if bad >= 1:
-		qsub_names = molecule.make_opt_sub(prefs, path=path+'optimisation/RESUB_FAILED_', start=-1, end=-1, failed_only=True)
-
 	print(good, ' successful optimisations, ', bad, ' failed, out of ', len(statuss))
 
 	molecule.print_xyzs(path=path + 'optimisation/')
 
-	print('Created ', len(qsub_names), ' qsub files to resubmit failed calculations')
-	if prefs['comp']['system'] == 'BC3':
-		print('Fix the issue (check log_file for error) then submit the calculations using:')
-		for file in qsub_names:
-			print('qsub ', file)
-	elif prefs['comp']['system'] == 'Grendel':
-		print('Fix the issue (check log_file for error) then submit the calculations using:')
-		for file in qsub_names:
-			print('bash ', file)
-	else:
-		print('Fix the issue (check log_file for error) then submit the calculations using:')
-		for file in qsub_names:
-			print('bash ', file)
+	if bad >= 1:
+		qsub_names = molecule.make_opt_sub(prefs, path=path+'optimisation/RESUB_FAILED_', start=-1, end=-1, failed_only=True)
+		print('Created ', len(qsub_names), ' qsub files to resubmit failed calculations')
+		if prefs['comp']['system'] == 'BC3':
+			print('Fix the issue (check log_file for error) then submit the calculations using:')
+			for file in qsub_names:
+				print('qsub ', file)
+		elif prefs['comp']['system'] == 'Grendel':
+			print('Fix the issue (check log_file for error) then submit the calculations using:')
+			for file in qsub_names:
+				print('bash ', file)
+		else:
+			print('Fix the issue (check log_file for error) then submit the calculations using:')
+			for file in qsub_names:
+				print('bash ', file)
 
-	print("Resubmit failed optimisations or continue to NMR calculations with 'setup_nmr'")
+		print("Resubmit failed optimisations or continue to NMR calculations with 'setup_nmr'")
 
 # Setup NMR gaussian in files
 def setup_nmr(molecule, prefs, path):
