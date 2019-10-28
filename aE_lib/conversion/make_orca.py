@@ -194,9 +194,10 @@ def make_submission_qsub(prefs, in_array, innames, molname, start=-1, end=-1, pa
 			elif system == 'localbox':
 				strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 				strings.append("for NUM in ${NUMBERS}; do")
-				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(in_array))
-				strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/'")
+				strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(com_array))
+				strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.com/.log/')")
 				strings.append("  orca ${NMRNAME} > ${OUTNAME}")
+				strings.append("done")
 			else:
 				print('preference value for system: ', system, ' was not recognised, accepted values are BC3, BC4, Grendel, localbox')
 
