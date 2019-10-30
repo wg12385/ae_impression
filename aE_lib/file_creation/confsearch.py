@@ -10,7 +10,7 @@ def make_confsearch_script(scriptname, pickle_file, molecule, smiles, aE_dir='..
 	strings.append("sys.path.append('{dir:<10s}')".format(dir=aE_dir))
 	strings.append('import pickle')
 	strings.append('from file_creation.structure_formats import xyz')
-	strings.append("file = '{0:<10s}'".format( pickle_file.split('/')[-1]))
+	strings.append("file = '{0:<10s}'".format(pickle_file.split('/')[-1]))
 	strings.append("molecule = pickle.load(open(file, 'rb'))")
 	strings.append("molecule.generate_conformers('{smiles:<10s}', path='{path:<10s}', iterations={its:<10d}".format(smiles=smiles,
 																												path=path,

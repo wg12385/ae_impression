@@ -12,6 +12,7 @@ def conformational_search(molecule, prefs, pickle_file, path=''):
 
 	system = prefs['comp']['system']
 	python_env = prefs['comp']['python_env']
+	aE_dir = prefs['comp']['aE_directory']
 	memory = prefs['conf_search']['memory']
 	processors = prefs['conf_search']['processors']
 	walltime = prefs['conf_search']['walltime']
