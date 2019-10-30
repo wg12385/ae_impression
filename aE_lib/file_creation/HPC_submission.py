@@ -33,7 +33,7 @@ def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltim
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
 		strings.append("#PBS -l walltime={0:<9s}".format(walltime))
 		strings.append("#PBS -l mem={0:<1d}GB".format(mem))
-		strings.append("#PBD -N {0:<10s}".format(name))
+		strings.append("#PBD -N {0:<10s}".format(jobname))
 		strings.append("cd $PBS_O_WORKDIR")
 	elif system == 'BC4':
 		# sbatch version
