@@ -24,7 +24,7 @@ def get_chunks(files, end=-1, start=-1, max=50):
 
 	return chunks
 
-def make_HPC_header(name='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3'):
+def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3'):
 
 	strings = []
 
