@@ -10,7 +10,13 @@ import pybel as pyb
 import os
 import glob
 
+import pickle
+
 from top_level.commands import *
+import top_level.CMD_confsearch as CMD_confsearch
+import top_level.CMD_optimisation as CMD_opt
+import top_level.CMD_nmr as CMD_nmr
+import top_level.CMD_resubmission as CMD_resub
 from top_level.progress import check_proceed
 from top_level.user_util import yes_or_no
 
@@ -32,6 +38,14 @@ if __name__ == "__main__":
 	print(args.Molecule, args.Command)
 	# Print pretty banner
 	print_header()
+
+	# make sure path is directory
+	if args.path[-1] != "/":
+		args.path.append("/")
+
+	pickle_file = args.path + args.Molecule + '.pkl'
+	backup_file = args.path + args.Molecule + 'BACKUP.pkl'
+
 	# Check for / Read preferences file
 	pref_file = args.path+args.prefs
 	if os.path.isfile(pref_file):
@@ -51,8 +65,7 @@ if __name__ == "__main__":
 			print('ERROR: Must supply xyz file to initialise molecule')
 			sys.exit(0)
 
-		filename = args.path + args.Molecule + '.pkl'
-		if os.path.isfile(filename):
+		if os.path.isfile(pickle_file):
 			print('Molecule', args.Molecule, 'already exists, do you want to overwrite this molecule ?')
 			answer = yes_or_no()
 			if not answer:
@@ -62,28 +75,32 @@ if __name__ == "__main__":
 
 		# Load xyz coords and types from xyz file, create molecule object
 		molecule = moleculeclass(path=args.path, from_file=args.xyz_file, from_type='xyz')
-		molecule.save_molecule_to_file()
+		pickle.dump(molecule, open(pickle_file, "wb"))
 
 
 		#molecule = moleculeclass(init_xyz, init_types, name=args.Molecule, path=args.path)
 	# If not initialising, get molecule from file
 	else:
 		# Load molecule object
-		filename = args.Molecule + '.pkl'
-		molecule = moleculeclass(from_file=filename, path=args.path, from_type='pickle')
+		molecule = pickle.load(open(pickle_file, "rb"))
+
+
 
 	# Get molecule status, print to user
 	status = molecule.stage
 	print('Molecule ', molecule.molid, ' stage: ', status)
+	'''
 	proceed, molecule = check_proceed(status, args.Command, molecule, args.path)
 	if not proceed:
 		print('Exiting. . .')
 		sys.exit(0)
+	'''
 
 	if args.Command == 'undo':
-		molecule.load_molecule(path=args.path+'BACKUP_')
+		molecule = pickle.load(open(backup_file, "rb"))
+		pickle.dump(molecule, open(pickle_file, "wb"))
 	else:
-		molecule.save_molecule_to_file(path=args.path+'BACKUP_')
+		pickle.dump(molecule, open( backup_file, "wb"))
 
 	# Conformational Search command
 	if args.Command == 'conf_search':
@@ -97,27 +114,27 @@ if __name__ == "__main__":
 			pass
 
 		# Do conformational search
-		conformational_search(molecule, prefs, path=args.path)
+		CMD_confsearch.conformational_search(molecule, prefs, path=args.path)
 		# Save molecule in pickle file
-		molecule.save_molecule_to_file(path=args.path)
+		pickle.dump(molecule, open(pickle_file, "wb"))
 		print('Conformational search complete, number of conformers generated:', len(molecule.conformers))
 
 
 	elif args.Command == 'setup_opt':
 		print('Generating optimisation ORCA input files for molecule, ', args.Molecule)
 		try:
-			os.mkdir(args.path+'optimisation')
+			os.mkdir(args.path+'optimisation/')
 		except:
 			pass
-		setup_opt(molecule, prefs, path=args.path)
-		molecule.save_molecule_to_file(path=args.path)
+		CMD_opt.setup_optimisation(molecule, prefs, path=args.path)
+		molecule.stage = 'opt'
+		pickle.dump(molecule, open(pickle_file, "wb"))
 
 	elif args.Command == 'process_opt':
 		print('Processing optimisation log files')
-		process_opt(molecule, prefs, path=args.path)
+		CMD_opt.process_optimisation(molecule, prefs, path=args.path)
 
-		molecule.save_molecule_to_file(path=args.path)
-
+		pickle.dump(molecule, open(pickle_file, "wb"))
 
 	elif args.Command == 'setup_nmr':
 		print('Generating NMR ORCA input files for molecule, ', args.Molecule)
@@ -125,17 +142,47 @@ if __name__ == "__main__":
 			os.mkdir(args.path+'NMR')
 		except:
 			pass
-		setup_nmr(molecule, prefs, path=args.path)
-		molecule.save_molecule_to_file(path=args.path)
+		CMD_nmr.setup_nmr(molecule, prefs, path=args.path)
+		molecule.stage = 'nmr'
+		pickle.dump(molecule, open(pickle_file, "wb"))
 
 	elif args.Command == 'process_nmr':
-		process_nmr(molecule)
-		molecule.save_molecule_to_file(path=args.path)
+		try:
+			os.mkdir(args.path+'OUTPUT/')
+		except:
+			pass
+		CMD_nmr.process_nmr(molecule)
+		molecule.stage = 'post'
+		pickle.dump(molecule, open(pickle_file, "wb"))
+
+
+	elif args.Command == 'resub_failed':
+		print('Preparing files for resubmission')
+		CMD_resub.setup_resubmission(molecule, prefs, path=args.path)
+		pickle.dump(molecule, open(pickle_file, "wb"))
+
 
 	elif args.Command == 'check_status':
-		molecule.save_molecule_to_file(path=args.path)
+		pickle.dump(molecule, open(pickle_file, "wb"))
 
 	elif args.Command == 'update':
 		status = check_status(molecule)
 		update_molecule(molecule)
-		molecule.save_molecule_to_file(path=args.path)
+		pickle.dump(molecule, open(pickle_file, "wb"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###

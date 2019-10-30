@@ -1,5 +1,8 @@
 import sys
 sys.path.append('aE_lib')
+
+from file_creation import orca_submission as orcasub
+
 from conversion.convert import xyz_to_nmrdummy, nmrmol_to_xyz
 import pybel as pyb
 
@@ -16,19 +19,48 @@ def conformational_search(molecule, prefs, path=''):
 		mol = next(pyb.readfile('xyz', file))
 
 	# Get smiles string using pybel mol object
-	smiles = mol.write("smi")
-
 	# Read relevant preferences
 	iterations = prefs['conf_search']['iterations']
 	maxconfs = prefs['conf_search']['maxconfs']
 	RMSthresh = prefs['conf_search']['RMSthresh']
 	Ethresh = prefs['conf_search']['Ethresh']
-	# Run conformational search
-	molecule.generate_conformers(smiles, path=path,
-				iterations=iterations, RMSthresh=RMSthresh,
-				maxconfs=maxconfs, Ethresh=Ethresh)
 
-	molecule.print_xyzs(path=path+'conf_search/')
+	system = prefs['comp']['system']
+	pythn_env = prefs['comp']['python_env']
+	memory = prefs['conf_search']['memory']
+	processors = prefs['conf_search']['processors']
+	walltime = prefs['conf_search']['walltime']
+
+	smiles = mol.write("smi")
+
+	if system == 'localbox':
+		# Run conformational search
+		molecule.generate_conformers(smiles, path=path,
+					iterations=iterations, RMSthresh=RMSthresh,
+					maxconfs=maxconfs, Ethresh=Ethresh)
+
+		molecule.print_xyzs(path=path+'conf_search/')
+	else:
+
+		if system == 'BC3':
+			outname = path +
+			strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(1, processors))
+			strings.append("#PBS -l walltime={0:<9s}".format(walltime))
+			strings.append("#PBS -l mem={0:<1d}GB".format(memory))
+			strings.append("cd $PBS_O_WORKDIR")
+			strings.append("source activate {0:<1s}").format(python_env)
+
+
+		strings.append('filename = args.Molecule + '.pkl'
+		molecule = moleculeclass(from_file=filename, path=args.path, from_type='pickle')
+		strings.append("molecule.generate_conformers({smiles:<10s}, path={path:<10s}, iterations={its:<10d}".format(smiles=smiles,
+																													path=path,
+																													its=iterations))
+		strings.append(", RMSthresh={RMS:<10f}, maxconfs={maxconfs:<10d}, Ethresh={Ethresh:<10f})".format(RMS=RMSthresh,
+																										maxconfs=maxconfs,
+																										Ethresh=Ethresh))
+																										# write code to do submission scripts for conf search
+		#with open(path + 'conf_search/conf_search.sh')
 
 	return 0
 
@@ -36,11 +68,12 @@ def conformational_search(molecule, prefs, path=''):
 def setup_opt(molecule, prefs, path=''):
 	# Read relevant preferences
 
-	molecule.make_opt_in(prefs, path=path)
+	for conformer in molecule.conformers:
+		conformer.optin = orcasub.make_optin(prefs, conformer, path)
 
 	qsub_names = molecule.make_opt_sub(prefs, path=path, start=-1, end=-1)
 
-	molecule.print_xyzs(path=path+'optimisation/')
+
 
 	print('Created ', len(qsub_names), ' qsub files. . .')
 	if prefs['comp']['system'] == 'BC3':
@@ -115,6 +148,8 @@ def setup_nmr(molecule, prefs, path):
 
 # Process NMR log files
 def process_nmr():
+
+	mo
 
 	return status
 
