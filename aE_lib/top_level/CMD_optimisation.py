@@ -16,7 +16,10 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 		for file in opt_files:
 			print(file, file=f)
 
-	header = HPCsub.make_HPC_header(prefs)
+	system = prefs['comp']['system']
+	memory = prefs['optimisation']['memory']
+	processors = prefs['optimisation']['processors']
+	walltime = prefs['optimisation']['walltime']
 
 	files = len(opt_files)
 	chunks = HPCsub.get_chunks(files)
@@ -25,6 +28,10 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 		end = ((ck + 1) * max)
 		if end > files:
 			end = files
+
+		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_optimisation'
+		header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
+
 		strings = HPCsub.make_HPC_orca_batch_submission(prefs, IN_ARRAY, start, end, ck)
 
 		if prefs['comp']['system'] == 'BC3':

@@ -22,6 +22,16 @@ def setup_resubmission(molecule, prefs, path=''):
 
 	for tag, in_files in zip(['OPT', 'NMR'], [opt_files, nmr_files]):
 
+		system = prefs['comp']['system']
+		if tag == 'OPT':
+			memory = prefs['opt']['memory']
+			processors = prefs['opt']['processors']
+			walltime = prefs['opt']['walltime']
+		if tag == 'NMR':
+			memory = prefs['nmr']['memory']
+			processors = prefs['nmr']['processors']
+			walltime = prefs['nmr']['walltime']
+
 		files = len(in_files)
 		chunks = HPCsub.get_chunks(files)
 		for ck in range(chunks):
@@ -29,6 +39,10 @@ def setup_resubmission(molecule, prefs, path=''):
 			end = ((ck + 1) * max)
 			if end > files:
 				end = files
+
+			jobname = 'aE_' + molecule.molid + '_' + str(ck) + tag +  '_RESUB'
+			header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
+
 			strings = HPCsub.make_orca_batch_submission(prefs, in_files, start, end, ck)
 
 			if prefs['comp']['system'] == 'BC3':

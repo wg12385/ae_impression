@@ -24,7 +24,7 @@ def get_chunks(files, end=-1, start=-1, max=50):
 
 	return chunks
 
-def make_HPC_header(system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3'):
+def make_HPC_header(name='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3'):
 
 	strings = []
 
@@ -33,6 +33,8 @@ def make_HPC_header(system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3')
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
 		strings.append("#PBS -l walltime={0:<9s}".format(walltime))
 		strings.append("#PBS -l mem={0:<1d}GB".format(mem))
+		strings.append("#PBD -N {0:<10s}".format(name))
+		strings.append("cd $PBS_O_WORKDIR")
 	elif system == 'BC4':
 		# sbatch version
 		strings.append('# submission script for BC4')
