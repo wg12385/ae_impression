@@ -11,30 +11,35 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 		conformer.opt_status = 'pre-submission'
 		opt_files.append(conformer.opt_in)
 
+	IN_ARRAY = 'optimisation/OPT_IN_ARRAY.txt'
+	with open(path + IN_ARRAY, 'w') as f:
+		for file in opt_files:
+			print(file, file=f)
+
 	header = HPCsub.make_HPC_header(prefs)
 
 	files = len(opt_files)
 	chunks = HPCsub.get_chunks(files)
-	for ck in chunks:
+	for ck in range(chunks):
 		start = (ck * max) + 1
 		end = ((ck + 1) * max)
 		if end > files:
 			end = files
-		strings = HPCsub.make_orca_batch_submission(prefs, opt_files, start, end, ck)
+		strings = HPCsub.make_HPC_orca_batch_submission(prefs, IN_ARRAY, start, end, ck)
 
 		if prefs['comp']['system'] == 'BC3':
-			filename = path + 'OPT_' molecule.molid + '_' + str(ck) + '.qsub'
+			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.qsub'
 		elif prefs['comp']['system'] == 'BC4':
-			filename = path + 'OPT_' molecule.molid + '_' + str(ck) + '.slurm'
+			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.slurm'
 		elif prefs['comp']['system'] == 'localbox':
-			filename = path + 'OPT_' molecule.molid + '_' + str(ck) + '.sh'
+			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.sh'
 		with open(filename, 'w') as f:
 			for string in header:
 				print(string, file=f)
 			for string in strings:
 				print(string, file=f)
 
-	print('Created ', len(chunks), ' files. . .')
+	print('Created ', chunks, ' submission files. . .')
 	if prefs['comp']['system'] == 'BC3':
 		print('Submit the calculations using:')
 		for file in qsub_names:

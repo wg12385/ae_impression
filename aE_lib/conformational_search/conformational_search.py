@@ -1,7 +1,6 @@
 import sys
 from rdkit import Chem
 from rdkit.Chem import AllChem
-from conversion.pybel_plugins import mol_read_xyz
 import pybel as pyb
 import numpy as np
 

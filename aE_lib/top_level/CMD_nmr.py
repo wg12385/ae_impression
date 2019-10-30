@@ -3,7 +3,7 @@ import file_read.orca_read as orcaread
 import file_creation.orca_submission as orcasub
 import file_creation.structure_formats.nmredata as nmredata
 
-def setup_nmr(molecule, prefs, path='', ids=[])
+def setup_nmr(molecule, prefs, path='', ids=[]):
 
 	nmr_files = []
 	for conformer in molecule.conformers:
@@ -12,6 +12,11 @@ def setup_nmr(molecule, prefs, path='', ids=[])
 			conformer.nmr_log = conformer.nmr_in.split('.') + '.log'
 			conformer.nmr_status = 'pre-submission'
 			nmr_files.append(conformer.nmr_in)
+
+	IN_ARRAY = 'nmr/NMR_IN_ARRAY.txt'
+	with open(path + IN_ARRAY, 'w') as f:
+		for file in opt_files:
+			print(file, file=f)
 
 	header = HPCsub.make_HPC_header(prefs)
 
@@ -22,21 +27,21 @@ def setup_nmr(molecule, prefs, path='', ids=[])
 		end = ((ck + 1) * max)
 		if end > files:
 			end = files
-		strings = HPCsub.make_orca_batch_submission(prefs, nmr_files, start, end, ck)
+		strings = HPCsub.make_orca_batch_submission(prefs, IN_ARRAY, start, end, ck)
 
 		if prefs['comp']['system'] == 'BC3':
-			filename = path + 'NMR_' molecule.molid + '_' + str(ck) + '.qsub'
+			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.qsub'
 		elif prefs['comp']['system'] == 'BC4':
-			filename = path + 'NMR_' molecule.molid + '_' + str(ck) + '.slurm'
+			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.slurm'
 		elif prefs['comp']['system'] == 'localbox':
-			filename = path + 'NMR_' molecule.molid + '_' + str(ck) + '.sh'
+			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.sh'
 		with open(filename, 'w') as f:
 			for string in header:
 				print(string, file=f)
 			for string in strings:
 				print(string, file=f)
 
-	print('Created ', len(qsub_names), ' qsub files. . .')
+	print('Created ', chunks, ' submission files. . .')
 	if prefs['comp']['system'] == 'BC3':
 		print('Submit the calculations using:')
 		for file in qsub_names:
@@ -65,7 +70,7 @@ def process_nmr(molecule, prefs, path=''):
 
 		if conformer.nmr_status != status:
 			process = True
-			outname = path + 'OUTPUT/' + molecule.molid + '_' conformer.molid + '.nmredata.sdf'
+			outname = path + 'OUTPUT/' + molecule.molid + '_' + conformer.molid + '.nmredata.sdf'
 			nmredata.nmrmol_to_nmredata(molecule, outname)
 
 		conformer.nmr_status = status

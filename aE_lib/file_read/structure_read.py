@@ -11,4 +11,4 @@ def generic_pybel_read(file, type):
 
 	coupling_len = pybel_bonds.get_coupling_lengths(mol, types, maxlen=6)
 
-	return xyz, types, dist, conn_table, coupling_len
+	return xyz, types, conn_table, coupling_len

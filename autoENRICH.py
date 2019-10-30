@@ -12,7 +12,6 @@ import glob
 
 import pickle
 
-from top_level.commands import *
 import top_level.CMD_confsearch as CMD_confsearch
 import top_level.CMD_optimisation as CMD_opt
 import top_level.CMD_nmr as CMD_nmr
@@ -74,7 +73,8 @@ if __name__ == "__main__":
 				print('Overwriting molecule. . .')
 
 		# Load xyz coords and types from xyz file, create molecule object
-		molecule = moleculeclass(path=args.path, from_file=args.xyz_file, from_type='xyz')
+		molecule = moleculeclass(name=args.Molecule, path=args.path, molid=args.Molecule)
+		molecule.read_structure(args.path + args.xyz_file, 'xyz')
 		pickle.dump(molecule, open(pickle_file, "wb"))
 
 
@@ -114,10 +114,9 @@ if __name__ == "__main__":
 			pass
 
 		# Do conformational search
-		CMD_confsearch.conformational_search(molecule, prefs, path=args.path)
+		CMD_confsearch.conformational_search(molecule, prefs, pickle_file, path=args.path)
 		# Save molecule in pickle file
 		pickle.dump(molecule, open(pickle_file, "wb"))
-		print('Conformational search complete, number of conformers generated:', len(molecule.conformers))
 
 
 	elif args.Command == 'setup_opt':

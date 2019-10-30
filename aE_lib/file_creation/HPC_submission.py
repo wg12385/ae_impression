@@ -1,7 +1,7 @@
 # make batch / submission scripts for HPC jobs
 
 
-def get_chunks(len_files, end=-1, start=-1, max=50):
+def get_chunks(files, end=-1, start=-1, max=50):
 	if start < 0 and end < 0:
 		start = 1
 		if files > max:
@@ -24,7 +24,7 @@ def get_chunks(len_files, end=-1, start=-1, max=50):
 
 	return chunks
 
-def make_HPC_header(prefs):
+def make_HPC_header(system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3'):
 
 	strings = []
 
@@ -44,7 +44,7 @@ def make_HPC_header(prefs):
 def make_HPC_orca_batch_submission(prefs, in_array, start, end, ck=0):
 	strings = []
 	strings.append('#!/bin/bash')
-	if system == 'BC3':
+	if prefs['comp']['system'] == 'BC3':
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
 		strings.append("#PBS -l walltime={0:<9s}".format(walltime))
 		strings.append("#PBS -l mem={0:<1d}GB".format(mem))
@@ -70,12 +70,12 @@ def make_HPC_orca_batch_submission(prefs, in_array, start, end, ck=0):
 			strings.append("  fi")
 			strings.append("done")
 
-	elif system == 'BC4':
+	elif prefs['comp']['system'] =='BC4':
 		print('not done yet . . .')
-	elif system == 'localbox':
+	elif prefs['comp']['system'] == 'localbox':
 		strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 		strings.append("for NUM in ${NUMBERS}; do")
-		strings.append("  NMRNAME=$(head -n${{NUM}} {0:<5s} | tail -1)".format(in_array))
+		strings.append("  NMRNAME=$(head -n${{NUM}}" + " {0:<5s} | tail -1)".format(in_array))
 		strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/')")
 		strings.append("  orca ${NMRNAME} > ${OUTNAME}")
 		strings.append("done")

@@ -8,8 +8,8 @@ import glob
 # global molecule object, contains everything for one auto-ENRICH run
 class molecule(nmrmol):
 
-	def __init__(self):
-		nmrmol.__init(self))
+	def __init__(self, molid, path=''):
+		nmrmol.__init__(self, molid, path)
 
 		self.conformers = []
 		self.stage = 'init'
@@ -27,21 +27,20 @@ class molecule(nmrmol):
 
 	# do conformational searching
 	def generate_conformers(self, smiles, path='', iterations=100, RMSthresh=1, maxconfs=100, Ethresh=100000):
-		xyzs, energies = conf_search.torsional_search(self, smiles, path=self.path,
+		xyzs, energies = conf_search.torsional_search(self, smiles, path=path,
 								iterations=iterations, RMSthresh=RMSthresh)
 		print('Initial search complete,', len(xyzs), 'conformers found')
 
 		xyzs, energies = conf_search.select_conformers(xyzs, energies, maxconfs=maxconfs, Ethresh=Ethresh)
 
 		for x, xyz in enumerate(xyzs):
-			new_conf = conformerclass(xyz, self.types, x)
+			new_conf = conformerclass(str(x), path=path)
+			new_conf.xyz = xyz
+			new_conf.types = self.types
+			new_conf.conn = self.conn
+			new_conf.coupling_len = self.coupling_len
 			new_conf.energy = energies[x]
 			self.conformers.append(new_conf)
-
-		for conformer in self.conformers:
-			file = conformer.print_xyz(self.path + 'conf_search/')
-			conformer.xyz_file = file
-
 
 		self.stage = 'pre-opt'
 

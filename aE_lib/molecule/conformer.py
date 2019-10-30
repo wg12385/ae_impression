@@ -1,13 +1,11 @@
 import numpy as np
 import glob
-from conversion.convert import *
-from conversion.read_orca import eread, check_opt_status, check_nmr_status
-from conversion.make_orca import make_optin, make_nmrin, make_submission_array, make_submission_qsub
+from .nmrmol import nmrmol
 
 class conformer(nmrmol):
 
-	def __init__(self):
-		nmrmol.__init(self))
+	def __init__(self, molid, path=''):
+		nmrmol.__init__(self, path=path, molid=molid)
 
 		# store location of conf search xyz file
 		self.xyz_file = 'None'
