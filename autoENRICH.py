@@ -85,7 +85,6 @@ if __name__ == "__main__":
 		molecule = pickle.load(open(pickle_file, "rb"))
 
 
-
 	# Get molecule status, print to user
 	status = molecule.stage
 	print('Molecule ', molecule.molid, ' stage: ', status)
