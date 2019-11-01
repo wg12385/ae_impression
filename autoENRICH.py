@@ -73,7 +73,7 @@ if __name__ == "__main__":
 				print('Overwriting molecule. . .')
 
 		# Load xyz coords and types from xyz file, create molecule object
-		molecule = moleculeclass(name=args.Molecule, path=args.path, molid=args.Molecule)
+		molecule = moleculeclass(molid=args.Molecule, path=args.path)
 		molecule.read_structure(args.path + args.xyz_file, 'xyz')
 		pickle.dump(molecule, open(pickle_file, "wb"))
 
