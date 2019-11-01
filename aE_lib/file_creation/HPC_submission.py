@@ -24,7 +24,7 @@ def get_chunks(files, end=-1, start=-1, max=50):
 
 	return chunks
 
-def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem='3'):
+def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem=3):
 
 	strings = []
 
@@ -43,19 +43,19 @@ def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltim
 
 	return strings
 
-def make_HPC_orca_batch_submission(prefs, in_array, start, end, ck=0):
+def make_HPC_orca_batch_submission(prefs, molname, in_array, start, end, jobname='auto-ENRICH', ck=0, nodes=1, ppn=1, mem=3, walltime="100:00:00"):
 	strings = []
 	strings.append('#!/bin/bash')
 	if prefs['comp']['system'] == 'BC3':
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
 		strings.append("#PBS -l walltime={0:<9s}".format(walltime))
 		strings.append("#PBS -l mem={0:<1d}GB".format(mem))
-		if parallel:
-			strings.append("#PBS -N {0:>1s}_{1:<1d}".format(molname, ck))
+		if prefs['comp']['parallel']:
+			strings.append("#PBS -N {0:>1s}".format(jobname))
 			strings.append("#PBS -t {0:>1d}-{1:<1d}".format(start, end))
 			strings.append("cd $PBS_O_WORKDIR")
 			strings.append("NMRNAME=$(gawk -v y=${{PBS_ARRAYID}} 'NR == y' {0:<5s})".format(in_array))
-			strings.append("OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/')")
+			strings.append("OUTNAME=$( echo $NMRNAME | sed 's/\.in/\.log/')")
 			strings.append("orca ${NMRNAME} > ${OUTNAME}")
 		else:
 			strings.append("cd $PBS_O_WORKDIR")

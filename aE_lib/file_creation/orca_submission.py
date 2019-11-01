@@ -34,7 +34,7 @@ def make_optin(prefs, mol, directory=''):
 	strings.append("* xyz {0:<1d} {1:<1d}".format(charge, multiplicity))
 
 	for i in range(len(xyz)):
-		str_type = Periodic_table[type[i]]
+		str_type = Periodic_table[types[i]]
 		string = " {0:<2s}        {1:>10.5f}        {2:>10.5f}        {3:>10.5f}".format(str_type, xyz[i][0], xyz[i][1], xyz[i][2])
 		strings.append(string)
 

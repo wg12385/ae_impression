@@ -21,8 +21,9 @@ def make_confsearch_script(scriptname, pickle_file, molecule, smiles, aE_dir='..
 
 
 	strings.append("for conformer in molecule.conformers:")
-	strings.append("\txyz_file = conformer.molid + '.xyz'")
+	strings.append("\txyz_file = 'conf_search/' +  conformer.molid + '.xyz'")
 	strings.append("\txyz.nmrmol_to_xyz(molecule, xyz_file)")
+	strings.append("pickle.dump(molecule, open(file, 'wb'))")
 
 
 	with open(path + scriptname, 'w') as f:
