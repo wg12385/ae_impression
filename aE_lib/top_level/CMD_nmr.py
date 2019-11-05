@@ -9,12 +9,12 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 	for conformer in molecule.conformers:
 		if conformer.nmr_status == 'None' and conformer.opt_status == 'successful':
 			conformer.nmr_in = orcasub.make_nmrin(prefs, conformer.molid, conformer.xyz, conformer.types,
-														path + 'nmr/')
+														path + 'NMR/')
 			conformer.nmr_log = conformer.nmr_in.split('.')[0] + '.log'
 			conformer.nmr_status = 'pre-submission'
 			nmr_files.append(conformer.nmr_in)
 
-	IN_ARRAY = 'nmr/NMR_IN_ARRAY.txt'
+	IN_ARRAY = 'NMR/NMR_IN_ARRAY.txt'
 	with open(path + IN_ARRAY, 'w') as f:
 		for file in nmr_files:
 			print(file, file=f)
