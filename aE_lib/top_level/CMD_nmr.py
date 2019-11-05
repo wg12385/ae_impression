@@ -33,9 +33,9 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 		if end > files:
 			end = files
 
-		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_NMR'
-		header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
+		#header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
+		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_NMR'
 		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, ck=ck,
 									jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
@@ -46,8 +46,6 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 		elif prefs['comp']['system'] == 'localbox':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.sh'
 		with open(filename, 'w') as f:
-			for string in header:
-				print(string, file=f)
 			for string in strings:
 				print(string, file=f)
 		qsub_names.append(filename)
