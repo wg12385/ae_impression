@@ -3,11 +3,7 @@
 # functions for creating gaussian com files
 from reference.periodic_table import Get_periodic_table
 
-def make_optin(prefs, mol, directory=''):
-
-	molname = mol.molid
-	xyz = mol.xyz
-	types = mol.types
+def make_optin(prefs, molname, xyz, types, directory=''):
 
 	charge = prefs['mol']['charge']
 	multiplicity = prefs['mol']['multiplicity']
@@ -55,11 +51,7 @@ def make_optin(prefs, mol, directory=''):
 
 	return infile
 
-def make_nmrin(prefs, mol, directory=''):
-
-	molname = mol.molid
-	xyz = mol.xyz
-	types = mol.types
+def make_nmrin(prefs, molname, xyz, types, directory=''):
 
 	charge = prefs['mol']['charge']
 	multiplicity = prefs['mol']['multiplicity']
@@ -72,7 +64,7 @@ def make_nmrin(prefs, mol, directory=''):
 
 	Periodic_table = Get_periodic_table()
 
-	instr = '! ' + str(functional) + ' ' + str(basis_set) + ' ' + str(aux_basis_set) + 'TightSCF miniprint' + ' NMR '
+	instr = '! ' + str(functional) + ' ' + str(basis_set) + ' ' + str(aux_basis_set) +  '  TightSCF miniprint' + ' NMR '
 
 	if solvent != 'none':
 		instr += ' CPCM(' + solvent + ')'
@@ -87,16 +79,16 @@ def make_nmrin(prefs, mol, directory=''):
 	strings.append("")
 	strings.append("* xyz {0:<1d} {1:<1d}".format(charge, multiplicity))
 	for i in range(len(xyz)):
-		str_type = Periodic_table[type[i]]
+		str_type = Periodic_table[types[i]]
 		string = " {0:<2s}        {1:>10.6f}        {2:>10.6f}        {3:>10.6f}".format(str_type, xyz[i][0], xyz[i][1], xyz[i][2])
 		strings.append(string)
 	strings.append('*')
 
 	strings.append('%epnmr')
 	for type in prefs['NMR']['shift_nuclei']:
-		strings.append("       Nuclei = all {type:<2s}".format(type=Periodic_table[type]) + '  { shift }')
+		strings.append("       Nuclei = all {type:<2s}".format(type=type) + '  { shift }')
 	for type in prefs['NMR']['spin_nuclei']:
-		strings.append("       Nuclei = all {type:<2s}".format(type=Periodic_table[type]) + '  { ssall }')
+		strings.append("       Nuclei = all {type:<2s}".format(type=type) + '  { ssall }')
 	strings.append('SpinSpinRThresh {0:<f}'.format(prefs['NMR']['spin_thresh']))
 	strings.append('end')
 

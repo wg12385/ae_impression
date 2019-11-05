@@ -31,7 +31,7 @@ class nmrmol(object):
 		old_xyz_array = self.xyz
 		self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, type)
 
-		if not ( np.array_equal(old_type_array, self.types) or np.array_equal(old_xyz_array, self.xyz)):
+		if not (np.array_equal(old_type_array, self.types) or np.array_equal(old_xyz_array, self.xyz)):
 			self.shift = []
 			self.shift_var = []
 			self.coupling = []

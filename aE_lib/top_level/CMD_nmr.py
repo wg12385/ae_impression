@@ -3,29 +3,31 @@ import file_read.orca_read as orcaread
 import file_creation.orca_submission as orcasub
 import file_creation.structure_formats.nmredata as nmredata
 
-def setup_nmr(molecule, prefs, path='', ids=[]):
+def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 
 	nmr_files = []
 	for conformer in molecule.conformers:
 		if conformer.nmr_status == 'None' and conformer.opt_status == 'successful':
-			conformer.nmr_in = orcasub.make_nmrin(prefs, conformer, path + 'nmr/')
-			conformer.nmr_log = conformer.nmr_in.split('.') + '.log'
+			conformer.nmr_in = orcasub.make_nmrin(prefs, conformer.molid, conformer.xyz, conformer.types,
+														path + 'nmr/')
+			conformer.nmr_log = conformer.nmr_in.split('.')[0] + '.log'
 			conformer.nmr_status = 'pre-submission'
 			nmr_files.append(conformer.nmr_in)
 
 	IN_ARRAY = 'nmr/NMR_IN_ARRAY.txt'
 	with open(path + IN_ARRAY, 'w') as f:
-		for file in opt_files:
+		for file in nmr_files:
 			print(file, file=f)
 
 	system = prefs['comp']['system']
-	memory = prefs['nmr']['memory']
-	processors = prefs['nmr']['processors']
-	walltime = prefs['nmr']['walltime']
+	memory = prefs['NMR']['memory']
+	processors = prefs['NMR']['processors']
+	walltime = prefs['NMR']['walltime']
 
 	files = len(nmr_files)
 	chunks = HPCsub.get_chunks(files)
-	for ck in chunks:
+	qsub_names = []
+	for ck in range(chunks):
 		start = (ck * max) + 1
 		end = ((ck + 1) * max)
 		if end > files:
@@ -34,7 +36,8 @@ def setup_nmr(molecule, prefs, path='', ids=[]):
 		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_NMR'
 		header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
-		strings = HPCsub.make_orca_batch_submission(prefs, IN_ARRAY, start, end, ck)
+		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, ck=ck,
+									jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
 		if prefs['comp']['system'] == 'BC3':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.qsub'
@@ -47,6 +50,7 @@ def setup_nmr(molecule, prefs, path='', ids=[]):
 				print(string, file=f)
 			for string in strings:
 				print(string, file=f)
+		qsub_names.append(filename)
 
 	print('Created ', chunks, ' submission files. . .')
 	if prefs['comp']['system'] == 'BC3':

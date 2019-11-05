@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
 	# make sure path is directory
 	if args.path[-1] != "/":
-		args.path.append("/")
+		args.path = args.path + "/"
 
 	pickle_file = args.path + args.Molecule + '.pkl'
 	backup_file = args.path + args.Molecule + 'BACKUP.pkl'

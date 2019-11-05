@@ -2,13 +2,16 @@ import sys
 from file_creation import HPC_submission as HPCsub
 import file_read.orca_read as orcaread
 import file_creation.orca_submission as orcasub
+import os
+import glob
 
 
 def setup_optimisation(molecule, prefs, path='', max=50):
 	opt_files = []
 
 	for conformer in molecule.conformers:
-		conformer.opt_in = orcasub.make_optin(prefs, conformer, path + 'optimisation/')
+		conformer.opt_in = orcasub.make_optin(prefs, conformer.molid, conformer.xyz, conformer.types,
+													path + 'optimisation/')
 		conformer.opt_log = conformer.opt_in.split('.')[0] + '.log'
 		conformer.opt_status = 'pre-submission'
 		opt_files.append('optimisation/' + conformer.opt_in.split('/')[-1])
@@ -38,7 +41,8 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 
 		#header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_optimisation'
-		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, ck=ck, jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
+		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, ck=ck,
+									jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
 		if prefs['comp']['system'] == 'BC3':
 			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.qsub'
@@ -75,6 +79,10 @@ def process_optimisation(molecule, prefs, path=''):
 			good +=1
 			conformer.read_structure(conformer.opt_log.split('.')[0] + '.xyz', type='xyz')
 			conformer.read_opt(conformer.opt_log.split('.')[0] + '_property.txt', type='orca')
+			#files_to_delete = glob.glob(conformer.opt_log.split('.')[0] + '*.tmp')
+			#for file in files_to_delete:
+			#	os.remove(file)
+
 		else:
 			bad += 1
 
