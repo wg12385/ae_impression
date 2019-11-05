@@ -73,7 +73,8 @@ def process_optimisation(molecule, prefs, path=''):
 		status = orcaread.get_opt_status(conformer.opt_log)
 		if status == 'successful':
 			good +=1
-			conformer.read_opt(file, type='orca')
+			conformer.read_structure(conformer.opt_log.split('.')[0] + '.xyz', type='xyz')
+			conformer.read_opt(conformer.opt_log.split('.')[0] + '_property.txt', type='orca')
 		else:
 			bad += 1
 
@@ -87,7 +88,7 @@ def process_optimisation(molecule, prefs, path=''):
 																								energy=conformer.energy)
 		print(string)
 
-	print(good, ' successful optimisations, ', bad, ' failed, out of ', len(statuss))
+	print(good, ' successful optimisations, ', bad, ' failed, out of ', good+bad)
 
 
 
