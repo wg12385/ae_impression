@@ -2,17 +2,22 @@ from file_creation import HPC_submission as HPCsub
 import file_read.orca_read as orcaread
 import file_creation.orca_submission as orcasub
 import file_creation.structure_formats.nmredata as nmredata
+import sys
 
 def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 
 	nmr_files = []
 	for conformer in molecule.conformers:
-		if conformer.nmr_status == 'None' and conformer.opt_status == 'successful':
+		if (conformer.nmr_status == 'None' or conformer.nmr_status == 'pre-submission') and conformer.opt_status == 'successful':
 			conformer.nmr_in = orcasub.make_nmrin(prefs, conformer.molid, conformer.xyz, conformer.types,
 														path + 'NMR/')
 			conformer.nmr_log = conformer.nmr_in.split('.')[0] + '.log'
 			conformer.nmr_status = 'pre-submission'
-			nmr_files.append(conformer.nmr_in)
+			nmr_files.append('NMR/' + conformer.nmr_in.split('/')[-1])
+
+	if len(nmr_files) == 0:
+		print('No files to submit. . .')
+		sys.exit(0)
 
 	IN_ARRAY = 'NMR/NMR_IN_ARRAY.txt'
 	with open(path + IN_ARRAY, 'w') as f:
