@@ -3,13 +3,13 @@
 def get_opt_status(file):
 	status = 'unknown'
 	try:
-		with open(filename, 'r') as f:
+		with open(file, 'r') as f:
 			for line in f:
 				if 'SUCCESS' in line:
 					status = 'successful'
 				if 'ERROR' in line:
 					status = 'failed'
-	except:
+	except Exception as e:
 		status = 'not submitted'
 
 	return status
@@ -32,10 +32,15 @@ def read_structure(file):
 
 
 def read_opt(file):
+	# SCF Energy:    -1072.8219232141
+	energy = 0.0
+	with open(file ,'r') as f:
+		for line in f:
+			if 'SCF Energy:' in line:
+				items=line.split()
+				energy = float(items[-1])
 
-
-
-	return self.xyz, energy
+	return energy
 
 def read_nmr(file):
 

@@ -39,7 +39,7 @@ class nmrmol(object):
 
 	def read_opt(self, file, type):
 		if type == 'orca':
-			self.xyz, self.types, self.conn, self.coupling_len = orca_read.read_structure(file)
+			#self.xyz, self.types, self.conn, self.coupling_len = orca_read.read_structure(file)
 			self.energy = orca_read.read_opt(file)
 
 
