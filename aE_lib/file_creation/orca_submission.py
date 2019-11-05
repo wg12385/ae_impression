@@ -84,7 +84,7 @@ def make_nmrin(prefs, molname, xyz, types, directory=''):
 		strings.append(string)
 	strings.append('*')
 
-	strings.append('%epnmr')
+	strings.append('%eprnmr')
 	for type in prefs['NMR']['shift_nuclei']:
 		strings.append("       Nuclei = all {type:<2s}".format(type=type) + '  { shift }')
 	for type in prefs['NMR']['spin_nuclei']:
