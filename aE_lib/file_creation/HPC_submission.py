@@ -28,6 +28,8 @@ def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltim
 
 	strings = []
 
+	# NEED BC4 AND GPU VERSION
+
 	if system == 'BC3':
 		strings.append('# submission script for BC3')
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
