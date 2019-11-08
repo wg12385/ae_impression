@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import json
 sys.path.append('aE_lib/')
 
 from util.flag_handler import targetflag, flag_combos
@@ -49,9 +50,9 @@ if __name__ == "__main__":
 							action="store", dest='searchmethod', default='grid',
 							choices=['grid', 'gaussian', 'random'])
 	parser.add_argument('--param_ranges', help='Dictionary of parameter ranges for HPS',
-							action="store", dest='param_ranges', default={})
+							action="store", dest='param_ranges', default='{}')
 	parser.add_argument('--param_logs', help='Dictionary (truth values only) for each parameter specifying whether parameter is on a log scale',
-							action="store", dest='param_logs', default={})
+							action="store", dest='param_logs', default='{}')
 	parser.add_argument('--cv_steps', help='Number of cross validations to perform',
 	 						action="store", dest='cv_steps', default=5)
 	parser.add_argument('--epochs', help='Number of HPS iterations to perform',
@@ -77,7 +78,7 @@ if __name__ == "__main__":
 
 	# Optional argments for grid search
 	parser.add_argument('--grid_density', help='Point density for grid search',
-	 						action="store", dest='grid_density', default='localbox')
+	 						action="store", dest='grid_density', default=10)
 
 	# Optional arguments for gaussian search
 	parser.add_argument('--kappa', help='Kappa value for gaussian process HPS',
@@ -100,6 +101,9 @@ if __name__ == "__main__":
 	if not flag_combos.check_combination(args.modelflag, args.featureflag):
 		print('Invalid model and feature combination: ', args.modelflag, args.featureflag)
 		sys.exit(0)
+
+	args.param_ranges = json.loads(args.param_ranges)
+	args.param_logs = json.loads(args.param_logs)
 
 	# Print pretty banner
 	print_header_IMP()

@@ -17,28 +17,32 @@ def setup_trainmodel(args):
 	mem = args.memory
 
 	jobname = 'IMP_' + args.modelflag + '_' + args.featureflag + '_' + args.targetflag + '_' + args.searchmethod + '_HPS'
+	submission_file = jobname + '.submit'
 	header = make_HPC_header(jobname, system=args.system, nodes=1, ppn=args.processors, walltime=args.walltime, mem=args.memory)
+	strings = []
 	strings.append('')
-	strings.append('source activate {env:<10s}'.format(env=python_env))
-	strings.append('IMPRESSION train --modelflag {model:<10s}  --featureflag {feature:<10s} \ '.format(model=args.modelflag,
+	strings.append('shopt -s expand_aliases')
+	strings.append('source ~/.bashrc')
+	strings.append("source activate {env:<10s}".format(env=python_env))
+	strings.append("IMPRESSION train --modelflag '{model:<s}'  --featureflag '{feature:<s}' \\".format(model=args.modelflag,
 																									feature=args.featureflag))
-	strings.append('				 --paramflag {param:<10s}  --searchmethod {search:<10s} \ '.format(param=args.targetflag,
+	strings.append("				 --targetflag '{param:<s}'  --searchmethod '{search:<s}'  \\".format(param=args.targetflag,
 																									search=args.searchmethod))
-	strings.append('				 --paramranges {param:<10s} \ '.format(param=args.param_ranges))
-	strings.append('				 --paramlogs {param:<10s} \ '.format(param=args.param_logs))
-	strings.append('				 --cv_steps {cv_steps:<10s}\ '.format(cv_steps=args.cv_steps))
+	strings.append("				 --param_ranges '{param:<s}'  \\".format(param=str(args.param_ranges)))
+	strings.append("				 --param_logs '{param:<s}'  \\".format(param=str(args.param_logs)))
+	strings.append("				 --cv_steps {cv_steps:<d} \\".format(cv_steps=args.cv_steps))
 
-	if args.searchmethod == 'grid':
-		strings.append('				 --grid_density {grid_density:<10s}\ '.format(grid_density=args.grid_density))
+	if args.searchmethod == "grid":
+		strings.append("				 --grid_density {grid_density:<d} \\".format(grid_density=args.grid_density))
 
-	elif args.searchmethod == 'gaussian':
-		strings.append('				 --epochs {epochs:<10s}\ '.format(epochs=args.epochs))
-		strings.append('				 --kappa {kappa:<10s}\ '.format(kappa=args.kappa))
-		strings.append('				 --xi {xi:<10s}\ '.format(xi=args.xi))
-		strings.append('				 --random {random:<10s}\ '.format(random=args.random))
+	elif args.searchmethod == "gaussian":
+		strings.append("				 --epochs {epochs:<d} \\".format(epochs=args.epochs))
+		strings.append("				 --kappa {kappa:<f} \\".format(kappa=args.kappa))
+		strings.append("				 --xi {xi:<f} \\".format(xi=args.xi))
+		strings.append("				 --random {random:<d} \\".format(random=args.random))
 
-	elif args.searchmethod == 'random':
-		strings.append('				 --epochs {epochs:<10s}\ '.format(epochs=args.epochs))
+	elif args.searchmethod == "random":
+		strings.append("				 --epochs {epochs:<d} \\".format(epochs=args.epochs))
 
 
 	with open(submission_file, 'w') as f:
