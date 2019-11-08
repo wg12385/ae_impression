@@ -20,7 +20,7 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 	if len(target[0]) == 1:
 		for i in range(mol.types):
-			if mol.types = target[0]:
+			if mol.types == target[0]:
 				x.append(reps[i])
 				y.append(mol.shift[i])
 				r.append([mol.molid, i])
@@ -44,7 +44,7 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 def get_aSLATM_mbtypes(mols):
 
-	if len(mols) = 0:
+	if len(mols) == 0:
 		mbtypes = [[1],[1,1], [1,1,1], [1,1,6], [1,1,7], [1,1,8], [1,1,9], [1,6], [1,6,1], [1,6,6], [1,6,7], [1,6,8], [1,6,9], [1,7], [1,7,1], [1,7,6], [1,7,7], [1,7,8], [1,7,9], [1,8], [1,8,1], [1,8,6], [1,8,7], [1,8,8], [1,8,9], [1,9], [1,9,1], [1,9,6], [1,9,7], [1,9,8], [1,9,9], [6], [6,1], [6,1,1], [6,1,6], [6,1,7], [6,1,8], [6,1,9], [6,6], [6,6,1], [6,6,6], [6,6,7], [6,6,8], [6,6,9], [6,7], [6,7,1], [6,7,6], [6,7,7], [6,7,8], [6,7,9], [6,8], [6,8,1], [6,8,6], [6,8,7], [6,8,8], [6,8,9], [6,9], [6,9,1], [6,9,6], [6,9,7], [6,9,8], [6,9,9], [7],[7,1], [7,1,1], [7,1,6], [7,1,7], [7,1,8], [7,1,9], [7,6], [7,6,1], [7,6,6], [7,6,7], [7,6,8], [7,6,9], [7,7], [7,7,1], [7,7,6], [7,7,7], [7,7,8], [7,7,9], [7,8], [7,8,1], [7,8,6], [7,8,7], [7,8,8], [7,8,9], [7,9], [7,9,1], [7,9,6], [7,9,7], [7,9,8], [7,9,9], [8], [8,1], [8,1,1], [8,1,6], [8,1,7], [8,1,8], [8,1,9], [8,6], [8,6,1], [8,6,6], [8,6,7], [8,6,8], [8,6,9], [8,7], [8,7,1], [8,7,6], [8,7,7], [8,7,8], [8,7,9], [8,8], [8,8,1], [8,8,6], [8,8,7], [8,8,8], [8,8,9], [8,9], [8,9,1], [8,9,6], [8,9,7], [8,9,8], [8,9,9], [9], [9,1], [9,1,1], [9,1,6], [9,1,7], [9,1,8], [9,1,9], [9,6], [9,6,1], [9,6,6], [9,6,7], [9,6,8], [9,6,9], [9,7], [9,7,1], [9,7,6], [9,7,7], [9,7,8], [9,7,9], [9,8], [9,8,1], [9,8,6], [9,8,7], [9,8,8], [9,8,9], [9,9], [9,9,1], [9,9,6], [9,9,7], [9,9,8], [9,9,9]]
 
 	else:
@@ -74,7 +74,7 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 			if len(target[0]) == 1:
 				for i in range(mol.types):
-					if mol.types = target[0]:
+					if mol.types == target[0]:
 						x.append(reps[i])
 						y.append(mol.shift[i])
 						r.append([mol.molid, i])
@@ -115,7 +115,7 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 		if len(target[0]) == 1:
 			for i in range(mol.types):
-				if mol.types = target[0]:
+				if mol.types == target[0]:
 					x.append(reps[i])
 					y.append(mol.shift[i])
 					r.append([mol.molid, i])
@@ -158,7 +158,7 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 		if len(target[0]) == 1:
 			for i in range(mol.types):
-				if mol.types = target[0]:
+				if mol.types == target[0]:
 					x.append(reps[i])
 					y.append(mol.shift[i])
 					r.append([mol.molid, i])

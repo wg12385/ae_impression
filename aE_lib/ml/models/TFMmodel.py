@@ -1,11 +1,14 @@
 
+from ml.models.model import genericmodel
+
+class TFMmodel(genericmodel):
 
 
-class TFMmodel(model):
-
-	self.x = []
-	self.y = []
+	def __init__(self):
+		self.x = []
+		self.y = []
 
 
 
 	def train(self):
+		print('not written yet')

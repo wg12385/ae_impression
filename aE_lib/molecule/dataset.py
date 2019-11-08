@@ -1,6 +1,6 @@
 
-from nmrmol import nmrmol
-from IMPRESSION.features import QML_features, TFM_features
+from .nmrmol import nmrmol
+from ml.features import QML_features, TFM_features
 
 class dataset(object):
 

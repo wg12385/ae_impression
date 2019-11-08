@@ -4,7 +4,7 @@ from bayes_opt import BayesianOptimization
 from bayes_opt import UtilityFunction
 from bayes_opt.observer import JSONLogger
 from bayes_opt.event import Events
-from bayes_opt.util import load_log
+from bayes_opt.util import load_logs
 
 import numpy as np
 

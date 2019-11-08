@@ -48,7 +48,7 @@ def setup_trainmodel(args):
 			print(string, file=f)
 
 
-def train_model(args):
+def trainmodel(args):
 
 	print(args.training_set)
 	sys.exit(0)

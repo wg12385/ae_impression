@@ -8,6 +8,8 @@ from util.flag_handler import targetflag, flag_combos
 
 from top_level import CMD_trainmodel, CMD_predict, CMD_compare
 
+from util.header import print_header_IMP
+
 
 
 if __name__ == "__main__":
@@ -50,7 +52,7 @@ if __name__ == "__main__":
 							action="store", dest='param_ranges', default={})
 	parser.add_argument('--param_logs', help='Dictionary (truth values only) for each parameter specifying whether parameter is on a log scale',
 							action="store", dest='param_logs', default={})
-	parser.add_argment('--cv_steps', help='Number of cross validations to perform',
+	parser.add_argument('--cv_steps', help='Number of cross validations to perform',
 	 						action="store", dest='cv_steps', default=5)
 	parser.add_argument('--epochs', help='Number of HPS iterations to perform',
 							action="store", dest='epochs', default=200)
@@ -59,26 +61,26 @@ if __name__ == "__main__":
 
 
 	# Optional system arguments
-	parser.add_argment('--python_env', help='Name of python environment to be used',
+	parser.add_argument('--python_env', help='Name of python environment to be used',
 							action="store", dest='python_env', default='env_IMP')
-	parser.add_argment('--system', help='System currently running',
+	parser.add_argument('--system', help='System currently running',
 	 						action="store", dest='system', default='localbox')
-	parser.add_argment('--memory', help='Memory needed in submission scripts',
+	parser.add_argument('--memory', help='Memory needed in submission scripts',
 	 						action="store", dest='memory', default=3)
-	parser.add_argment('--processors', help='Processors needed in submission scripts',
+	parser.add_argument('--processors', help='Processors needed in submission scripts',
 	 						action="store", dest='processors', default=1)
-	parser.add_argment('--walltime', help='Walltime required for submission',
+	parser.add_argument('--walltime', help='Walltime required for submission',
 	 						action="store", dest='walltime', default='100:00:00')
 
 	# Optional argments for predict
 
 
 	# Optional argments for grid search
-	parser.add_argment('--grid_density', help='Point density for grid search',
+	parser.add_argument('--grid_density', help='Point density for grid search',
 	 						action="store", dest='grid_density', default='localbox')
 
 	# Optional arguments for gaussian search
-	parser.add_argment('--kappa', help='Kappa value for gaussian process HPS',
+	parser.add_argument('--kappa', help='Kappa value for gaussian process HPS',
 	 						action="store", dest='kappa', default=5.0)
 	parser.add_argument('--xi', help='Xi value for gaussian process HPS',
 							action="store", dest='xi', default=0.1)
@@ -96,7 +98,7 @@ if __name__ == "__main__":
 		sys.exit(0)
 	# check flag combination
 	if not flag_combos.check_combination(args.modelflag, args.featureflag):
-		print('Invalid model and feature combination')
+		print('Invalid model and feature combination: ', args.modelflag, args.featureflag)
 		sys.exit(0)
 
 	# Print pretty banner
