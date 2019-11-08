@@ -2,8 +2,9 @@
 
 import argparse
 import sys
+sys.path.append('aE_lib/')
 
-from util.flag_handler import param_flag, flag_combos
+from util.flag_handler import targetflag, flag_combos
 
 from top_level import CMD_trainmodel, CMD_predict, CMD_compare
 
@@ -114,21 +115,16 @@ if __name__ == "__main__":
 
 
 	elif args.Command == "predict":
-
-
-
-		do some stuff
+		print('Not done yet')
 
 
 
 	elif args.Command == 'compare':
-
-
-		do some other stuff
+		print('Not done yet')
 
 
 	elif args.Command == 'test':
-		run test code
+		print('Not done yet')
 
 
 

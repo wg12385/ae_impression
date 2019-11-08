@@ -1,6 +1,6 @@
 
-from file_creation.HPS_submission import make_HPC_header
-from IMPRESSION.train_model import HPS
+from file_creation.HPC_submission import make_HPC_header
+from ml.HPS import HPS
 from molecule.dataset import dataset
 from molecule.nmrmol import nmrmol
 import sys
