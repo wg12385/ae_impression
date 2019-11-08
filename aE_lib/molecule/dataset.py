@@ -66,9 +66,11 @@ class dataset(object):
 				r.extend(r)
 
 		elif featureflag == 'BCAI':
-			self.x, self.y, self.r = TFM_features.get_BCAI_features(mol, targetflag, cutoff)
+			x, y, r = TFM_features.get_BCAI_features(mol, targetflag, cutoff)
 
-
+		self.x = np.asarray(x)
+		self.y = np.asarray(y)
+		self.r = r
 
 	def get_features_fromfiles(self, files, featureflag='CMAT', targetflag='CCS', cutoff=5.0, max=400, mbtypes=[], elements=[]):
 
@@ -130,8 +132,9 @@ class dataset(object):
 				y.extend(y)
 				r.extend(r)
 
-
-
+		self.x = np.asarray(x)
+		self.y = np.asarray(y)
+		self.r = r
 
 
 

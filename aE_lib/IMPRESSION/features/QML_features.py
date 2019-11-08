@@ -2,6 +2,12 @@
 import qml
 from util.flag_handler.targetflag import flag_to_target
 
+
+# all features for QML are of the shape: [n, p, r]
+# where n is the number of "features", each n is a single NMR environment
+# p is the number of sub environment features needed in each NMR environment
+# r is the representation itself
+
 def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 	target = flag_to_target(targetflag)

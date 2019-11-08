@@ -64,13 +64,13 @@ def train_model(args):
 		dset = dataset()
 		if args.store_datasets:
 			dataset.get_mols(files, type='nmredata')
-			x, y, r = dataset.get_features_frommols(files, args.featureflag, args.targetflag, args.cutoff)
+			dataset.get_features_frommols(files, args.featureflag, args.targetflag, args.cutoff)
 			pickle.dump(dataset, open('training_set.pkl', 'wb'))
 		else:
-			x, y, r = dataset.get_features_fromfiles(files, args.featureflag, args.targetflag, args.cutoff)
+			dataset.get_features_fromfiles(files, args.featureflag, args.targetflag, args.cutoff)
 
 
-	HPS(x, y, modelflag=args.modelflag, featureflag=args.featureflag, searchflag=args.searchmethod,
+	HPS(dataset.x, dataset.y, modelflag=args.modelflag, featureflag=args.featureflag, searchflag=args.searchmethod,
  				id='test_model', logfile=args.logfile, param_ranges=args.param_ranges,
 				param_logs=args.param_logs, grid_density=args.grid_density, cv_steps=args.cv_steps,
 				epochs=args.epochs, kappa=args.kappa, xi=args.xi, random=args.random)
