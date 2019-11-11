@@ -16,7 +16,7 @@ def get_opt_status(file):
 
 def get_nmr_status(file):
 	status = 'unknown'
-	with open(filename, 'r') as f:
+	with open(file, 'r') as f:
 		for line in f:
 			if 'SUCCESS' in line:
 				status = 'successful'
