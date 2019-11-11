@@ -78,7 +78,7 @@ def process_nmr(molecule, prefs, path=''):
 		status = orcaread.get_nmr_status(conformer.nmr_log)
 		if status == 'successful':
 			good +=1
-			conformer.read_nmr(file, type='orca')
+			conformer.read_nmr(conformer.nmr_log, type='orca')
 		else:
 			bad += 1
 

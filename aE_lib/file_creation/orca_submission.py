@@ -62,6 +62,7 @@ def make_nmrin(prefs, molname, xyz, types, directory=''):
 	aux_basis_set = prefs['NMR']['aux_basis_set']
 	solvent = prefs['NMR']['solvent']
 	direct_cmd_line_nmr = prefs['NMR']['custom_cmd_line']
+	processors = prefs['NMR']['processors']
 
 
 	Periodic_table = Get_periodic_table()
