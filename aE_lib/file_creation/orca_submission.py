@@ -15,6 +15,8 @@ def make_optin(prefs, molname, xyz, types, directory=''):
 	Periodic_table = Get_periodic_table()
 
 	instr = '! ' + str(functional) + ' ' + str(basis_set) + ' TightSCF OPT miniprint'
+	if processors != 1:
+		instr += ' PAL{0:<d}'.format(processors)
 
 	if solvent != 'none':
 		instr += ' CPCM(' + solvent + ')'
@@ -65,6 +67,9 @@ def make_nmrin(prefs, molname, xyz, types, directory=''):
 	Periodic_table = Get_periodic_table()
 
 	instr = '! ' + str(functional) + ' ' + str(basis_set) + ' ' + str(aux_basis_set) +  '  TightSCF miniprint' + ' NMR '
+
+	if processors != 1:
+		instr += ' PAL{0:<d}'.format(processors)
 
 	if solvent != 'none':
 		instr += ' CPCM(' + solvent + ')'

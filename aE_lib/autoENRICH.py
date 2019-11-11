@@ -39,8 +39,9 @@ if __name__ == "__main__":
 	print_header_aE()
 
 	# make sure path is directory
-	if args.path[-1] != "/":
-		args.path = args.path + "/"
+	if len(args.path) > 0:
+		if args.path[-1] != "/":
+			args.path = args.path + "/"
 
 	pickle_file = args.path + args.Molecule + '.pkl'
 	backup_file = args.path + args.Molecule + 'BACKUP.pkl'
@@ -88,6 +89,7 @@ if __name__ == "__main__":
 	# Get molecule status, print to user
 	status = molecule.stage
 	print('Molecule ', molecule.molid, ' stage: ', status)
+	
 	'''
 	proceed, molecule = check_proceed(status, args.Command, molecule, args.path)
 	if not proceed:

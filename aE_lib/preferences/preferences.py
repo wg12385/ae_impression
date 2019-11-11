@@ -35,8 +35,8 @@ def write_default_prefs(file):
 	prefs['comp']['aE_directory'] = "../../aE/"
 
 	prefs['optimisation'] = {}
-	prefs['optimisation']['memory'] = 3
-	prefs['optimisation']['processors'] = 1
+	prefs['optimisation']['memory'] = 12
+	prefs['optimisation']['processors'] = 4
 	prefs['optimisation']['opt'] = 'tight'
 	prefs['optimisation']['freq'] = False
 	prefs['optimisation']['functional'] = 'mPW1PW'
@@ -48,8 +48,8 @@ def write_default_prefs(file):
 	prefs['optimisation']['walltime'] = '100:00:00'
 
 	prefs['NMR'] = {}
-	prefs['NMR']['memory'] = 3
-	prefs['NMR']['processors'] = 1
+	prefs['NMR']['memory'] = 12
+	prefs['NMR']['processors'] = 4
 	prefs['NMR']['functional'] = 'wB97X-D3'
 	prefs['NMR']['basisset'] = '6-311g(d,p)'
 	prefs['NMR']['aux_basis_set'] = 'def2/JK'
