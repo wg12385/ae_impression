@@ -89,7 +89,7 @@ if __name__ == "__main__":
 	# Get molecule status, print to user
 	status = molecule.stage
 	print('Molecule ', molecule.molid, ' stage: ', status)
-	
+
 	'''
 	proceed, molecule = check_proceed(status, args.Command, molecule, args.path)
 	if not proceed:
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 			os.mkdir(args.path+'OUTPUT/')
 		except:
 			pass
-		CMD_nmr.process_nmr(molecule)
+		CMD_nmr.process_nmr(molecule, prefs, path=args.path)
 		molecule.stage = 'post'
 		pickle.dump(molecule, open(pickle_file, "wb"))
 
