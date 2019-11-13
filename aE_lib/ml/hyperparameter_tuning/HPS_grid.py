@@ -30,7 +30,7 @@ def grid_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', logf
 	# create search grid
 	for param in param_ranges:
 		if check_logs:
-			if param_logs[param]:
+			if param_logs[param] == 'log':
 				search_grid[param] = np.logspace(param_ranges[param][0], param_ranges[param][1], grid_density, endpoint=True)
 			else:
 				search_grid[param] = np.linspace(param_ranges[param][0], param_ranges[param][1], grid_density, endpoint=True)
@@ -38,7 +38,7 @@ def grid_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', logf
 			search_grid[param] = np.linspace(param_ranges[param][0], param_ranges[param][1], grid_density, endpoint=True)
 
 	# create list of parameter sets to test
-	for i in range(grid_density ** num_params):
+	for i in range(grid_density ** len(param_ranges.keys())):
 		param_point = {}
 		xx = 0
 		for param in search_grid.keys():
@@ -50,7 +50,7 @@ def grid_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', logf
 
 	strings = []
 	strings.append('HPS GRID SEARCH')
-	strings.append(modelflag + '   ' + featureflag + '   ' + paramflag)
+	strings.append(modelflag + '   ' + featureflag + '   ' + targetflag)
 	for param in param_ranges.keys():
 		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
 																	low=param_ranges[param][0],
@@ -59,7 +59,7 @@ def grid_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', logf
 	strings.append('START')
 	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
 	for param in param_ranges.keys():
-		string = string + '\t{param:<15s}'.format(param)
+		string = string + '\t{param:<15s}'.format(param=param)
 	strings.append(string)
 	with open(logfile, 'w') as f:
 		for string in strings:
@@ -95,6 +95,105 @@ def grid_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', logf
 	print('Optimised model saved in ', outname)
 
 	return score
+
+
+
+def full_grid_search(dataset, modelflag='KRR', featureflag='CMAT', targetflag='CCS',
+ 				id='test_model', logfile='GS.log',
+ 				param_ranges={}, param_logs={}, grid_density=11, cv_steps=5):
+
+	# define grid
+	search_grid = {}
+	search_list = []
+	size_list = []
+
+	# determine whether log dictionary was provided
+	if len(param_logs) == 0:
+		check_logs = False
+	else:
+		check_logs = True
+
+	# create search grid
+	for param in param_ranges:
+		if check_logs:
+			if param_logs[param] == 'log':
+				search_grid[param] = np.logspace(param_ranges[param][0], param_ranges[param][1], grid_density, endpoint=True)
+			else:
+				search_grid[param] = np.linspace(param_ranges[param][0], param_ranges[param][1], grid_density, endpoint=True)
+		else:
+			search_grid[param] = np.linspace(param_ranges[param][0], param_ranges[param][1], grid_density, endpoint=True)
+
+	# create list of parameter sets to test
+	for i in range(grid_density ** len(param_ranges.keys())):
+		param_point = {}
+		xx = 0
+		for param in search_grid.keys():
+			idx = int(i / grid_density ** xx) % grid_density
+			param_point[param] = search_grid[param][idx]
+			xx += 1
+		search_list.append(param_point)
+
+
+	strings = []
+	strings.append('HPS GRID SEARCH')
+	strings.append(modelflag + '   ' + featureflag + '   ' + targetflag)
+	for param in param_ranges.keys():
+		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
+																	low=param_ranges[param][0],
+																	high=param_ranges[param][1]))
+	strings.append('')
+	strings.append('START')
+	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
+	for param in param_ranges.keys():
+		string = string + '\t{param:<15s}'.format(param=param)
+	strings.append(string)
+	with open(logfile, 'w') as f:
+		for string in strings:
+			print(string, file=f)
+
+	BEST_SCORE = 999.9999999
+	BEST_PARAMS = {}
+	for p, params in enumerate(search_list):
+
+
+		dataset.get_features_frommols(featureflag, targetflag, params=params)
+
+		assert len(dataset.x) > 0
+		assert len(dataset.y) > 0
+
+		if modelflag == 'KRR':
+			model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=params)
+		elif modelflag == 'FCHL':
+			model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=params)
+		elif modelflag == 'TFM':
+			model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=params)
+
+		model.params = params
+
+		y_pred = model.cv_predict(cv_steps)
+
+		score = np.mean(np.absolute(y_pred - dataset.y))
+
+		with open(logfile, 'a') as f:
+			string = '{i:<10d}\t{score:<10.5f}'.format(i=p, score=score)
+			for param in params.keys():
+				string = string + '\t{param:<15.4g}'.format(param=params[param])
+
+		if score < BEST_SCORE:
+			BEST_SCORE = score
+			BEST_PARAMS = params
+			print('score  = ', BEST_SCORE)
+
+	# create optimised model and save
+	model.params = BEST_PARAMS
+	model.train()
+
+	outname = id + '_model.pkl'
+	pickle.dump(model, open(outname, "wb"))
+
+	print('Optimised model saved in ', outname)
+
+	return dataset, BEST_SCORE
 
 
 

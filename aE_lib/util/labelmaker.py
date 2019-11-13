@@ -1,12 +1,12 @@
 from reference.periodic_table import Get_periodic_table
 
-def labelmaker(cpl, mol):
+def labelmaker(i, j, mol):
 	Periodic_table = Get_periodic_table()
-	lent = len(cpl)-3
+	lent = mol.coupling_len[i][j]
 	label = str(lent) + str('J')
-	if mol.types[int(cpl[0])] >= mol.types[int(cpl[lent])]:
-		label = label + str(Periodic_table[mol.types[int(cpl[0])]]) + str(Periodic_table[mol.types[int(cpl[lent])]])
+	if mol.types[int(i)] >= mol.types[int(j)]:
+		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
 	else:
-		label = label + str(Periodic_table[mol.types[int(cpl[lent])]]) + str(Periodic_table[mol.types[int(cpl[0])]])
+		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
 
 	return label

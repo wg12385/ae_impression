@@ -1,5 +1,6 @@
 import numpy as np
-from file_read import orca_read, g09_read, structure_read
+import sys
+from file_read import orca_read, g09_read, nmredata_read, structure_read
 import pickle
 
 
@@ -47,12 +48,17 @@ class nmrmol(object):
 		if type == 'orca':
 			self.xyz, self.types, self.conn, self.coupling_len = orca_read.read_structure(file)
 			self.shift, self.coupling = orca_read.read_nmr(file)
-		if type == 'g09':
-			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, type)
-			self.shift, self.coupling = g09_read.read_nmr(file)
-		if type == 'nmredata':
-			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, 'sdf')
-			self.shift, self.shift_var, self.coupling, self.coupling_var = nmredata_read.read_nmr(file)
+		elif type == 'g09':
+			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, 'g09')
+			self.shift, self.coupling = g09_read.read_nmr(file, len(self.types))
+			self.shift_var = np.zeros((len(self.types)), dtype=np.float64)
+			self.coupling_var = np.zeros((len(self.types), len(self.types)), dtype=np.float64)
+		elif type == 'nmredata':
+			self.xyz, self.types, self.conn, _ = structure_read.fast_generic_pybel_read(file, 'sdf')
+			self.shift, self.shift_var, self.coupling, self.coupling_var, self.coupling_len = nmredata_read.read_nmr(file, len(self.types))
+		else:
+			print('Type not recognised {0:<s} . . .'.format(type))
+			sys.exit(0)
 
 	def save_pickle(file):
 		pickle.dump(self, open(file, "wb"))

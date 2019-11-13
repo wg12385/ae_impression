@@ -1,3 +1,5 @@
+import numpy as np
+
 
 def get_opt_status(file):
 	status = 'unknown'
@@ -36,8 +38,52 @@ def read_opt(file):
 
 	return self.xyz, energy
 
-def read_nmr(file):
+def read_nmr(file, atomnumber):
+
+	shift_array = np.zeros(atomnumber, dtype=np.float64)
+
+	switch = False
+	with open(file, 'r') as f_handle:
+		for line in f_handle:
+			if "SCF GIAO Magnetic shielding tensor (ppm)" in line:
+				switch = True
+			if "Fermi Contact" in line:
+				switch = False
+
+			if switch:
+				if "Isotropic" in line:
+					items = line.split()
+					try:
+						num = int(items[0])
+					except:
+						continue
+
+					shift_array[num-1] = float(items[4])
 
 
+	couplings = np.zeros((atomnumber, atomnumber), dtype=float)
+	with open(file, 'r') as f:
+		skip = True
+		for line in f:
+			if "Total nuclear spin-spin coupling J (Hz):" in line:
+				skip = False
+				continue
+			elif "End of Minotr" in line:
+				skip = True
+				continue
+			elif skip:
+				continue
 
-	return shift, coupling
+			if "D" not in line:
+				tokens = line.split()
+				i_indices = np.asarray(tokens, dtype=int)
+			else:
+				tokens = line.split()
+				index_j = int(tokens[0]) - 1
+				for i in range(len(tokens)-1):
+					index_i = i_indices[i] - 1
+					coupling = float(tokens[i+1].replace("D","E"))
+					couplings[index_i][index_j] = coupling
+					couplings[index_j][index_i] = coupling
+
+	return shift_array, couplings

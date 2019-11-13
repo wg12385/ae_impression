@@ -57,7 +57,7 @@ def get_coupling_lengths(mol, types, maxlen=6):
 			length = 999
 			for path in coupling_paths:
 				if len(path) < length and len(path) != 0:
-					length = len(path)
+					length = len(path) - 1
 
 			if length > maxlen+1:
 				length = 0

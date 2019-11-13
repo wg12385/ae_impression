@@ -4,7 +4,7 @@ def check_combination(modelflag, featureflag):
 
 
 	if modelflag == 'KRR':
-		if featureflag != 'CMAT' and featureflag != 'aSLATM':
+		if featureflag not in ['CMAT', 'aSLATM', 'ACSF']:
 			return False
 
 	elif modelflag == 'FCHL':

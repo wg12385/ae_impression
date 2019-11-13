@@ -1,6 +1,7 @@
 # define functions to produce QML based features
 import qml
-from util.flag_handler.targetflag import flag_to_target
+from util.flag_handler.hdl_targetflag import flag_to_target
+import numpy as np
 
 
 # all features for QML are of the shape: [n, p, r]
@@ -16,29 +17,30 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 	y = []
 	r = []
 
-	reps = qml.fchl.generate_representation(mol.xyz, mol.types, max, cut_distance=cutoff)
+	for mol in mols:
+		reps = qml.fchl.generate_representation(mol.xyz, mol.types, max, cut_distance=cutoff)
 
-	if len(target[0]) == 1:
-		for i in range(mol.types):
-			if mol.types == target[0]:
-				x.append(reps[i])
-				y.append(mol.shift[i])
-				r.append([mol.molid, i])
+		if len(target) == 1:
+			for i in range(len(mol.types)):
+				if mol.types[i] == target[0]:
+					x.append([reps[i]])
+					y.append(mol.shift[i])
+					r.append([mol.molid, i])
 
-	if len(target[0]) == 3:
-		for i in range(mol.types):
-			for j in range(mol.types):
-				if i == j:
-					continue
-				if mol.types[i] != target[1] and mol.types[j] != target[2]:
-					continue
+		if len(target) == 3:
+			for i in range(len(mol.types)):
+				for j in range(len(mol.types)):
+					if i == j:
+						continue
+					if mol.types[i] != target[1] and mol.types[j] != target[2]:
+						continue
 
-				if mol.coupling_len[i][j] != target[0]:
-					continue
+					if mol.coupling_len[i][j] != target[0]:
+						continue
 
-				x.append([reps[i], reps[j]])
-				y.append(mol.coupling[i][j])
-				r.append([mol.molid, i, j])
+					x.append([reps[i], reps[j]])
+					y.append(mol.coupling[i][j])
+					r.append([mol.molid, i, j])
 
 	return x, y, r
 
@@ -49,39 +51,41 @@ def get_aSLATM_mbtypes(mols):
 
 	else:
 		nuclear_charges = []
-		for tmp_mol in self.mols:
+		for tmp_mol in mols:
 			nuclear_charges.append(tmp_mol.types)
 		mbtypes = qml.representations.get_slatm_mbtypes(nuclear_charges)
 
 	return mbtypes
 
-def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400):
+def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[]):
 
 		target = flag_to_target(targetflag)
 
 		x = []
 		y = []
 		r = []
-		nuclear_charges = []
-		for tmp_mol in self.mols:
-			nuclear_charges.append(tmp_mol.types)
-		mbtypes = qml.representations.get_slatm_mbtypes(nuclear_charges)
+
+		if len(mbtypes) == 0:
+			mbtypes = get_aSLATM_mbtypes([])
+
 
 		for mol in mols:
 			reps = qml.representations.generate_slatm(mol.xyz, mol.types, mbtypes,
 					unit_cell=None, local=True, sigmas=[0.05,0.05], dgrids=[0.03,0.03],
 					rcut=cutoff, alchemy=False, pbc='000', rpower=6)
 
-			if len(target[0]) == 1:
-				for i in range(mol.types):
-					if mol.types == target[0]:
-						x.append(reps[i])
+			reps = np.asarray(reps)
+
+			if len(target) == 1:
+				for i in range(len(mol.types)):
+					if mol.types[i] == target[0]:
+						x.append([reps[i]])
 						y.append(mol.shift[i])
 						r.append([mol.molid, i])
 
-			if len(target[0]) == 3:
-				for i in range(mol.types):
-					for j in range(mol.types):
+			if len(target) == 3:
+				for i in range(len(mol.types)):
+					for j in range(len(mol.types)):
 						if i == j:
 							continue
 						if mol.types[i] != target[1] and mol.types[j] != target[2]:
@@ -113,18 +117,19 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 						central_cutoff = cutoff, central_decay = -1, interaction_cutoff = 1e6, interaction_decay = -1,
 						indices = None)
 
-		if len(target[0]) == 1:
-			for i in range(mol.types):
-				if mol.types == target[0]:
-					x.append(reps[i])
+		if len(target) == 1:
+			for i in range(len(mol.types)):
+				if mol.types[i] == int(target[0]):
+					x.append([reps[i]])
 					y.append(mol.shift[i])
 					r.append([mol.molid, i])
 
-		if len(target[0]) == 3:
-			for i in range(mol.types):
-				for j in range(mol.types):
+		if len(target) == 3:
+			for i in range(len(mol.types)):
+				for j in range(len(mol.types)):
 					if i == j:
 						continue
+
 					if mol.types[i] != target[1] and mol.types[j] != target[2]:
 						continue
 
@@ -137,35 +142,36 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 	return x, y, r
 
-def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400):
+def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[]):
 
 	target = flag_to_target(targetflag)
 
 	x = []
 	y = []
 	r = []
+	'''
 	elements = set()
-	for tmp_mol in self.mols:
+	for tmp_mol in mols:
 		elements = elements.union(tmp_mol.types)
 	elements = sorted(list(elements))
-
+	'''
 	for mol in mols:
 		# need to put in defaults
-		reps = qml.representations.generate_acsf(self.types, self.xyz, elements=elements)
+		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=elements)
 												#, nRs2=nRs2, nRs3=nRs3,
 												#nTs=nTs, eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
 												#bin_min=bin_min, gradients=gradients)
 
-		if len(target[0]) == 1:
-			for i in range(mol.types):
-				if mol.types == target[0]:
-					x.append(reps[i])
+		if len(target) == 1:
+			for i in range(len(mol.types)):
+				if mol.types[i] == target[0]:
+					x.append([reps[i]])
 					y.append(mol.shift[i])
 					r.append([mol.molid, i])
 
-		if len(target[0]) == 3:
-			for i in range(mol.types):
-				for j in range(mol.types):
+		if len(target) == 3:
+			for i in range(len(mol.types)):
+				for j in range(len(mol.types)):
 					if i == j:
 						continue
 					if mol.types[i] != target[1] and mol.types[j] != target[2]:
