@@ -30,6 +30,9 @@ if __name__ == "__main__":
 	parser.add_argument('--type', help='File type',
 							action="store", dest='type', default='g09')
 
+	parser.add_argument('--out_dir', help='output directory',
+							action="store", dest='out_dir', default='')
+
 	args = vars(parser.parse_args())
 
 	if args['Command'] == 'convert_to_nmredata':
@@ -39,8 +42,9 @@ if __name__ == "__main__":
 			mol = nmrmol(molid=f)
 			mol.read_structure(file, args['type'])
 			mol.read_nmr(file, args['type'])
-			outname = file.split('.')[0] + '.nmredata.sdf'
-			nmredata.nmrmol_to_nmredata(mol, outname)
+			outname = file.split('/')[-1].split('.')[0]
+			outfile = args['out_dir'] + outname + '.nmredata.sdf'
+			nmredata.nmrmol_to_nmredata(mol, outfile)
 
 
 

@@ -52,18 +52,22 @@ def run_wizard(args):
 				if model in ['KRR', 'FCHL', 'NN', 'TFM']:
 					args['modelflag'] = model
 					check = True
+			if model == 'FCHL':
+				args['featureflag'] = 'FCHL'
+				check = True
+				combocheck = True
+			else:
+				# Feature ##############################################################################
+				check = False
+				while not check:
+					feature = input("What type of input features do you want ? CMAT, aSLATM, FCHL, ACSF, BCAI : \n")
+					if feature in ['CMAT', 'aSLATM', 'FCHL', 'ACSF', 'BCAI']:
+						args['featureflag'] = feature
+						check = True
 
-			# Feature ##############################################################################
-			check = False
-			while not check:
-				feature = input("What type of input features do you want ? CMAT, aSLATM, FCHL, ACSF, BCAI : \n")
-				if feature in ['CMAT', 'aSLATM', 'FCHL', 'ACSF', 'BCAI']:
-					args['feature'] = feature
-					check = True
-
-			combocheck = flag_combos.check_combination(args['modelflag'], args['feature'])
-			if not combocheck:
-				print('Invalid combination of model and feature, try again . . .')
+				combocheck = flag_combos.check_combination(args['modelflag'], args['featureflag'])
+				if not combocheck:
+					print('Invalid combination of model and feature, try again . . .')
 
 		# Target ##############################################################################
 		check = False
@@ -95,41 +99,40 @@ def run_wizard(args):
 				args['feature_optimisation'] = 'False'
 				check = True
 
-		# Feature file ##############################################################################
-		if args['feature_optimisation'] == 'True':
-			check = False
-			while not check:
-				file = input("File containing pre-made features dataset object: \n")
-				try:
-					a = open(file, 'r')
-					check = True
-				except Exception as e:
-					print(e)
-
-		args['param_ranges'], args['param_logs'] = paramdict.construct_param_dict(args['modelflag'], args['feature'], args['targetflag'])
-
-		# Search method ##############################################################################
-		check = False
-		while not check:
-			for param in args['param_ranges'].keys():
-				IP = input("Select range for parameter (min, max, log) {param:<10s}: default = {min:<10f}, {max:<10f}, {log:<10s} \n".format(param=param,
-																													min=args['param_ranges'][param][0],
-																													max=args['param_ranges'][param][1],
-																													log=args['param_logs'][param]))
-				if len(IP) == 0:
-					check = True
-				else:
+			# Feature file ##############################################################################
+			if args['feature_optimisation'] == 'False':
+				check = False
+				while not check:
+					file = input("File containing pre-made features dataset object: \n")
 					try:
-						range = [float(IP.split(',')[0]), float(IP.split(',')[1])]
-						log = IP.split(',')[2]
-
-						args['param_ranges'][param] = range
-						args['para_logs'][param] = log
-
+						a = open(file, 'r')
 						check = True
-
 					except Exception as e:
 						print(e)
+
+		args['param_ranges'], args['param_logs'] = paramdict.construct_param_dict(args['modelflag'], args['featureflag'], args['targetflag'])
+
+		# Parameters ##############################################################################
+		for param in args['param_ranges'].keys():
+			check = False
+			IP = input("Select range for parameter (min, max, log) {param:<10s}: default = {min:<10f}, {max:<10f}, {log:<10s} \n".format(param=param,
+																												min=args['param_ranges'][param][0],
+																												max=args['param_ranges'][param][1],
+																												log=args['param_logs'][param]))
+			if len(IP) == 0:
+				check = True
+			else:
+				try:
+					range = [float(IP.split(',')[0]), float(IP.split(',')[1])]
+					log = IP.split(',')[2]
+
+					args['param_ranges'][param] = range
+					args['param_logs'][param] = log
+
+					check = True
+
+				except Exception as e:
+					print(e)
 
 
 
@@ -167,7 +170,7 @@ def run_wizard(args):
 			check = False
 			while not check:
 				try:
-					kappa = input("Specify number of epochs to run: default = {0:<10f} \n".format(args['epochs']))
+					epochs = input("Specify number of epochs to run: default = {0:<10f} \n".format(args['epochs']))
 					if len(epochs) == 0:
 						check = True
 					else:
@@ -209,7 +212,7 @@ def run_wizard(args):
 					if len(random) == 0:
 						check = True
 					else:
-						args['random'] = int(xi)
+						args['random'] = int(random)
 						check = True
 				except Exception as e:
 					print(e)

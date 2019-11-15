@@ -118,6 +118,7 @@ if __name__ == "__main__":
 
 	# Parse arguments into args object
 	args = vars(parser.parse_args())
+	
 	COMMAND = args['Command']
 	if args['prefs'] == 'wizard':
 		args = run_wizard(args)
