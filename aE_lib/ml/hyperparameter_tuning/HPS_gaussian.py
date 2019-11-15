@@ -87,10 +87,11 @@ def gaussian_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', 
 			string = '{i:<10d}\t{score:<10.5f}'.format(i=p, score=score)
 			for param in next_point_to_probe.keys():
 				string = string + '\t{param:<15.4g}'.format(next_point_to_probe[param])
-
+			print(string, file=f)
 		if score < BEST_SCORE:
 			BEST_SCORE = score
 			BEST_PARAMS = params
+			print('Score = ', BEST_SCORE)
 
 
 	# create optimised model and save
