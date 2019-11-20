@@ -7,9 +7,8 @@ import sys
 
 class KRRmodel(genericmodel):
 
-	def __init__(self, id='KRRmodel', x=[], y=[], params={}, model_args={},
-	 											feature='CMAT', target='HCS'):
-		genericmodel.__init__(self, id, x, y, params, model_args, feature, target)
+	def __init__(self, id='KRRmodel', x=[], y=[], params={}, model_args={}):
+		genericmodel.__init__(self, id, x, y, params, model_args)
 		self.alpha = []
 
 

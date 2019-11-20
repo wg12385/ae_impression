@@ -6,9 +6,8 @@ import copy
 
 class FCHLmodel(genericmodel):
 
-	def __init__(self, id='FCHLmodel', x=[], y=[], params={}, model_args={},
-	 											feature='CMAT', target='HCS'):
-		genericmodel.__init__(self, id, x, y, params, model_args, feature, target)
+	def __init__(self, id='FCHLmodel', x=[], y=[], params={}, model_args={}):
+		genericmodel.__init__(self, id, x, y, params, model_args)
 
 
 	def train(self):
