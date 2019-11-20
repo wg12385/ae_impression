@@ -24,7 +24,7 @@ def setup_logfile(args):
 
 def HPS_iteration(args, BEST_SCORE, BEST_PARAMS):
 
-	if args.feature_optimisation == 'True':
+	if args['feature_optimisation'] == 'True':
 		dataset.get_features_frommols(args['featureflag'], args['targetflag'], params=next_point_to_probe)
 
 	assert len(dataset.x) > 0
