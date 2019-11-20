@@ -53,14 +53,9 @@ def gaussian_search(dataset, args):
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
 
-	# create optimised model and save
-	model.params = BEST_PARAMS
-	model.train()
 
-	outname = id + '_model.pkl'
-	pickle.dump(model, open(outname, "wb"))
-	generic.save_var_models(model, outname, args['cv_fold'])
-	print('Optimised model saved in ', outname)
+	generic.save_models(dataset, BEST_PARAMS, args)
+	print('Optimised model(s) saved in ', outname)
 
 	return dataset, BEST_SCORE
 

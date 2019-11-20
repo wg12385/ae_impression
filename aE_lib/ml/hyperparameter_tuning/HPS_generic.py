@@ -57,7 +57,19 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PAR
 
 	return BEST_SCORE, BEST_PARAMS
 
-def save_var_models(model, name, fold):
+def save_models(dataset, BEST_PARAMS, args):
+
+	if args['modelflag'] == 'KRR':
+		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+	elif args['modelflag'] == 'FCHL':
+		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+	elif args['modelflag'] == 'TFM':
+		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+
+	model.train()
+
+	outname = args['featureflag'] + '_model.pkl'
+	pickle.dump(model, open(outname, "wb"))
 
 	kf = KFold(n_splits=fold)
 	kf.get_n_splits(model.train_x)

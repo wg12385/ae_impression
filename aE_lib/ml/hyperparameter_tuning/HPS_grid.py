@@ -46,13 +46,7 @@ def grid_search(dataset, args):
 		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(p, dataset, args, next_point_to_probe=next_point_to_probe,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
-	# create optimised model and save
-	model.params = BEST_PARAMS
-	model.train()
-
-	outname = id + '_model.pkl'
-	pickle.dump(model, open(outname, "wb"))
-	generic.save_var_models(model, outname, args['cv_fold'])
+	generic.save_models(dataset, BEST_PARAMS, args)
 	print('Optimised model saved in ', outname)
 
 	return dataset, BEST_SCORE
