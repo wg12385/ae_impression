@@ -9,7 +9,7 @@ import sys
 def random_search(dataset, args):
 
 	# determine whether log dictionary was provided
-	if len(param_logs) == 0:
+	if len(args['param_logs']) == 0:
 		check_logs = False
 	else:
 		check_logs = True
@@ -27,7 +27,7 @@ def random_search(dataset, args):
 
 		if check_logs:
 			for param in args['param_ranges'].keys():
-				if param_logs[param] == 'log':
+				if args['param_logs'][param] == 'log':
 					next_point_to_probe[param] = 10**next_point_to_probe[param]
 
 

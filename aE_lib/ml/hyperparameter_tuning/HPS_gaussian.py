@@ -14,7 +14,7 @@ from ml.hyperparameter_tuning import HPS_generic as generic
 def gaussian_search(dataset, args):
 
 	# determine whether log dictionary was provided
-	if len(param_logs) == 0:
+	if len(args['param_logs']) == 0:
 		check_logs = False
 	else:
 		check_logs = True
@@ -46,7 +46,7 @@ def gaussian_search(dataset, args):
 
 		if check_logs:
 			for param in args['param_ranges'].keys():
-				if param_logs[param] == 'log':
+				if args['param_logs'][param] == 'log':
 					next_point_to_probe[param] = 10**next_point_to_probe[param]
 
 		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(args, BEST_SCORE, BEST_PARAMS)
