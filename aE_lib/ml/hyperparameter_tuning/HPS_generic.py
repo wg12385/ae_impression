@@ -22,7 +22,7 @@ def setup_logfile(args):
 		for string in strings:
 			print(string, file=f)
 
-def HPS_iteration(args, BEST_SCORE, BEST_PARAMS):
+def HPS_iteration(dataset, args, params, BEST_SCORE, BEST_PARAMS):
 
 	if args['feature_optimisation'] == 'True':
 		dataset.get_features_frommols(args['featureflag'], args['targetflag'], params=next_point_to_probe)

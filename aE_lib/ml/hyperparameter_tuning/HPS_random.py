@@ -31,7 +31,8 @@ def random_search(dataset, args):
 					next_point_to_probe[param] = 10**next_point_to_probe[param]
 
 
-		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(args, BEST_SCORE, BEST_PARAMS)
+		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(dataset, args, params=next_point_to_probe,
+															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
 	# create optimised model and save
 	model.params = BEST_PARAMS
