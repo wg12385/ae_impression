@@ -5,7 +5,7 @@ import numpy as np
 
 def setup_logfile(args):
 	strings = []
-	strings.append('HPS ' + args['searchmethod'] + ' SEARCH')
+	strings.append('HPS ' + args['searchflag'] + ' SEARCH')
 	strings.append(args['modelflag'] + '   ' + args['featureflag'] + '   ' + args['targetflag'])
 	for param in args['param_ranges'].keys():
 		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
