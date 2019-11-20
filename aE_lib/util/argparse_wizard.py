@@ -136,6 +136,19 @@ def run_wizard(args):
 
 
 
+		# grid density ##############################################################################
+		check = False
+		while not check:
+			try:
+				cv = input("Specify number of cross validation iterations: default = {0:<10f} \n".format(args['cv_steps']))
+				if len(cv) == 0:
+					check = True
+				else:
+					args['cv_steps'] = int(cv)
+					check = True
+			except Exception as e:
+				print(e)
+
 
 		if args['searchmethod'] == 'grid':
 			# grid density ##############################################################################

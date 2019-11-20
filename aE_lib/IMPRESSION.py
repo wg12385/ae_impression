@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
 	# Parse arguments into args object
 	args = vars(parser.parse_args())
-	
+
 	COMMAND = args['Command']
 	if args['prefs'] == 'wizard':
 		args = run_wizard(args)
@@ -141,6 +141,7 @@ if __name__ == "__main__":
 			print(E)
 			print('Exiting. . .')
 			sys.exit(0)
+
 	args['Command'] = COMMAND
 	# check param flag:
 	param = hdl_targetflag.flag_to_target(args['targetflag'])

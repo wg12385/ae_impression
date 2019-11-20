@@ -151,7 +151,7 @@ def full_gaussian_search(dataset, modelflag='KRR', featureflag='CMAT', targetfla
 	BEST_PARAMS = {}
 	for e in range(epochs):
 
-		if random > 0 and _%random == 0:
+		if random > 0 and e%random == 0:
 			next_point_to_probe = {}
 			for param in param_ranges.keys():
 				next_point_to_probe[param] = np.random.uniform(param_ranges[param][0], param_ranges[param][1])
@@ -184,6 +184,7 @@ def full_gaussian_search(dataset, modelflag='KRR', featureflag='CMAT', targetfla
 			string = '{i:<10d}\t{score:<10.5f}'.format(i=e, score=score)
 			for param in next_point_to_probe.keys():
 				string = string + '\t{param:<15.4g}'.format(param=next_point_to_probe[param])
+			print(string, file=f)
 
 		if score < BEST_SCORE:
 			BEST_SCORE = score
