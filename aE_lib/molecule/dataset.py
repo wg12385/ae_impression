@@ -27,7 +27,9 @@ class dataset(object):
 			#print(mol.coupling_len)
 
 
-	def get_features_frommols(self, featureflag='CMAT', targetflag='CCS', max=400, params={}):
+	def get_features_frommols(self, featureflag='CMAT', targetflag='CCS', params={}):
+
+		max = 400
 
 		x = []
 		y = []
@@ -152,8 +154,30 @@ class dataset(object):
 		self.r = r
 
 
+	def assign_from_ml(self, pred_y, var, zero=True):
+		assert len(self.r) == 0, print('Something went wrong, nothing to assign')
 
+		for mol in self.mols:
+			for r, ref in enumerate(self.r):
+				if mol.molid != ref[0]:
+					continue
 
+				if zero:
+					mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
+					mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
+
+				if len(ref) == 2:
+					for t in range(mol.types):
+						if ref[1] == t:
+							mol.shift[t] = pred_y[r]
+							mol.shift_var[t] = var[r]
+
+				elif len(ref) == 3:
+					for t1 in range(mol.types):
+						for t2 in range(mol.types):
+							if ref[1] == t1 and ref[2] == t2:
+								mol.coupling[t1][t2] = pred_y[r]
+								mol.coupling_var[t1][t2] = var[r]
 
 
 

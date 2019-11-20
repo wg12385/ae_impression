@@ -1,6 +1,6 @@
 
 from file_creation.HPC_submission import make_HPC_header
-from ml.HPS import HPS, Full_HPS
+from ml.HPS import HPS
 from molecule.dataset import dataset
 from molecule.nmrmol import nmrmol
 import pickle
@@ -52,11 +52,7 @@ def trainmodel(args):
 			if args['store_datasets']:
 				pickle.dump(dset, open('training_set.pkl', 'wb'))
 
-		dset, score = Full_HPS(dset, modelflag=args['modelflag'], featureflag=args['featureflag'], targetflag=args['targetflag'],
-	 			searchflag=args['searchmethod'],
- 				id='test_model', logfile=args['logfile'], param_ranges=args['param_ranges'],
-				param_logs=args['param_logs'], grid_density=args['grid_density'], cv_steps=args['cv_steps'],
-				epochs=args['epochs'], kappa=args['kappa'], xi=args['xi'], random=args['random'])
+		dset, score = HPS(dset, args)
 
 		if args['store_datasets']:
 			pickle.dump(dset, open('OPT_training_set.pkl', 'wb'))
@@ -67,11 +63,7 @@ def trainmodel(args):
 		assert len(dset.x) > 0
 		assert len(dset.y) > 0
 
-		HPS(dset, modelflag=args['modelflag'], featureflag=args['featureflag'], targetflag=args['targetflag'],
-	 			searchflag=args['searchmethod'],
- 				id='test_model', logfile=args['logfile'], param_ranges=args['param_ranges'],
-				param_logs=args['param_logs'], grid_density=args['grid_density'], cv_steps=args['cv_steps'],
-				epochs=args['epochs'], kappa=args['kappa'], xi=args['xi'], random=args['random'])
+		HPS(dset, args)
 
 
 

@@ -37,15 +37,16 @@ if __name__ == "__main__":
 
 	parser.add_argument('--training_set', help='Training dataset file(s), either single csv/pkl file or one/multiple nmredata files',
 						 action="store", dest='training_set', default='None')
-	parser.add_argument('--test_set1', help='Testing dataset 1',
-						 action="store", dest='test_set1', default='None')
-	parser.add_argument('--test_set2', help='Testing dataset 2',
-						 action="store", dest='test_set2', default='None')
-	parser.add_argument('--test_set3', help='Testing dataset 3',
-						 action="store", dest='test_set3', default='None')
+
 
 	parser.add_argument('--store_datasets', help='Option to store datasets as pickle files for later use',
 						 action="store", dest='store_datasets', default='False')
+
+
+	parser.add_argument('--target_list', help='Optional list of targets to go through',
+						 action="store", dest='target_list', default=[])
+	parser.add_argument('--targetflag', help='parameter to test',
+							action="store", dest='targetflag', default='CCS')
 
 	# Optional arguments for train/test
 	parser.add_argument('--modelflag', help='type of model to use',
@@ -56,9 +57,6 @@ if __name__ == "__main__":
 							choices=['CMAT', 'aSLATM', 'FCHL', 'ACSF', 'BCAI'])
 	parser.add_argument('--cutoff', help='cutoff distance for features',
 							action="store", dest='cutoff', default=5.0)
-
-	parser.add_argument('--targetflag', help='parameter to test',
-							action="store", dest='targetflag', default='CCS')
 
 	# Optional argments for train
 	parser.add_argument('--searchmethod', help='Method for hyper-parameter search',
@@ -95,6 +93,12 @@ if __name__ == "__main__":
 							 action="store", dest='walltime', default='100:00:00')
 
 	# Optional argments for predict
+	parser.add_argument('--var', help='Number of pre-prediction variance models',
+						action="store", dest='var', default=0)
+	parser.add_argument('--models', help='Existing model(s) to use, list',
+						 action="store", dest='models', default=['None'])
+	parser.add_argument('--test_sets', help='Testing dataset(s), either lists of file search patterns or individual files, list',
+						 action="store", dest='test_sets', default='None')
 
 
 	# Optional argments for grid search
@@ -159,7 +163,12 @@ if __name__ == "__main__":
 	# set up submission file for model training
 	if args['Command'] == "setup_train":
 
-		CMD_trainmodel.setup_trainmodel(args)
+		if len(target_list) > 0:
+			for target in target_list:
+				args['targetflag'] = target
+				CMD_trainmodel.setup_trainmodel(args)
+		else:
+			CMD_trainmodel.setup_trainmodel(args)
 
 		print('Training submission file created . . .')
 
@@ -169,8 +178,11 @@ if __name__ == "__main__":
 		CMD_trainmodel.trainmodel(args)
 
 
+	elif args['Command'] == "setup_predict":
+		CMD_predict.setup_predict(args)
+
 	elif args['Command'] == "predict":
-		print('Not done yet')
+		CMD_predict.predict(args)
 
 
 

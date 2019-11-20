@@ -10,11 +10,13 @@ from sklearn.model_selection import KFold
 
 class genericmodel(object):
 
-	def __init__(self, id='genericmodel', train_x=[], train_y=[], params={}):
+	def __init__(self, id='genericmodel', train_x=[], train_y=[], params={},
+									model_args={}):
 
 		self.train_x = train_x
 		self.train_y = train_y
 
 		self.params = params
+		self.args = model_args
 
 		self.trained = False

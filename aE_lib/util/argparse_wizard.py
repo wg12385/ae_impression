@@ -5,7 +5,7 @@ from util.flag_handler import hdl_targetflag, flag_combos, paramdict
 def run_wizard(args):
 
 	# code to run user through selection of input arguments for selected command
-	if args['Command'] == 'setup_train':
+	if args['Command'] == 'setup_train' or args['Command'] == 'train':
 		# Training set ##############################################################################
 		check = False
 		while not check:
@@ -72,13 +72,19 @@ def run_wizard(args):
 		# Target ##############################################################################
 		check = False
 		while not check:
-			target = input("What is the target parameter ? XCS or nJXY : \n")
-			param = hdl_targetflag.flag_to_target(target)
-			if param == 0:
-				print('Invalid parameter flag')
-			else:
-				args['targetflag'] = target
-				check = True
+			target_list = input("What target parameter(s) are you interested in ? XCS or nJXY, e.g. ['HCS', 'CCS', '1JCH'] : \n")
+			check = True
+			args['target_list'] = target_list
+			if type(target_list) != list:
+				check = False
+				print('Not a list. . .')
+				continue
+			args['targetflag'] = target_list[0]
+			for target in target_list:
+				param = hdl_targetflag.flag_to_target(target)
+				if param == 0:
+					print('Invalid parameter flag')
+					check = False
 
 		# Search method ##############################################################################
 		check = False
@@ -230,6 +236,34 @@ def run_wizard(args):
 				except Exception as e:
 					print(e)
 
+	elif args['Command'] == 'setup_predict' or args['Command'] == 'predict':
+		# Model(s) ##############################################################################
+		check = False
+		while not check:
+			try:
+				models = input("Specify models to make predictions from (list): \n")
+				if type(models) != list:
+					print('not a list')
+					continue
+				for model in models:
+					a = open(model, 'r')
+					check = True
+				args['models'] = models
+			except Exception as e:
+				print(e)
+
+		# var model(s) ##############################################################################
+		check = False
+		while not check:
+			var = input("How many models are used for pre-prediction variance ? Default=0\n variance models need to be of the format <model_file_name>_n.pkl")
+			if len(var) == 0:
+				args['var'] = 0
+				check = True
+			else:
+				try:
+					args['var'] = int(var)
+				except Exception as e:
+					print(e)
 
 	return args
 

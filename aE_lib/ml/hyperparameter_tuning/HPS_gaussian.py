@@ -1,4 +1,4 @@
-from ml.models import FCHLmodel, KRRmodel, TFMmodel
+
 import bayes_opt as bayes
 from bayes_opt import BayesianOptimization
 from bayes_opt import UtilityFunction
@@ -7,21 +7,11 @@ from bayes_opt.event import Events
 from bayes_opt.util import load_logs
 
 import pickle
-
 import numpy as np
 
+from ml.hyperparameter_tuning import HPS_generic as generic
 
-def gaussian_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', logfile='gaussian.log',
- 				param_ranges={}, param_logs={}, cv_steps=5, epochs=500, kappa=5, xi=0.1, random=0):
-
-	# create model
-	if modelflag == 'KRR':
-		model = KRRmodel.KRRmodel(id, x, y, params={})
-	elif modelflag == 'FCHL':
-		model = FCHLmodel.FCHLmodel(id, x, y, params={})
-	elif modelflag == 'TFM':
-		model = TFMmodel.TFMmodel(id, x, y, params={})
-
+def gaussian_search(dataset, args):
 
 	# determine whether log dictionary was provided
 	if len(param_logs) == 0:
@@ -30,8 +20,8 @@ def gaussian_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', 
 		check_logs = True
 
 	pbounds = {}
-	for param in param_ranges.keys():
-		pbounds[param] = (param_ranges[param][0], param_ranges[param][1])
+	for param in args['param_ranges'].keys():
+		pbounds[param] = (args['param_ranges'][param][0], args['param_ranges'][param][1])
 
 	optimizer = BayesianOptimization(
 		f=None,
@@ -39,158 +29,27 @@ def gaussian_search(x, y, modelflag='KRR', featureflag='CMAT', id='test_model', 
 		verbose=0, # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
 		random_state=None
 	)
-	utility = UtilityFunction(kind="ucb", kappa=kappa, xi=xi)
+	utility = UtilityFunction(kind="ucb", kappa=args['kappa'], xi=args['xi'])
 
-	strings = []
-	strings.append('HPS GRID SEARCH')
-	strings.append(modelflag + '   ' + featureflag + '   ' + paramflag)
-	for param in param_ranges.keys():
-		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
-																	low=param_ranges[param][0],
-																	high=param_ranges[param][1]))
-	strings.append('')
-	strings.append('START')
-	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
-	for param in param_ranges.keys():
-		string = string + '\t{param:<15s}'.format(param)
-	strings.append(string)
-	with open(logfile, 'w') as f:
-		for string in strings:
-			print(string, file=f)
-
-
+	generic.setup_logfile(args)
 
 	BEST_SCORE = 999.999
 	BEST_PARAMS = {}
-	for _ in range(epochs):
+	for e in range(args['epochs']):
 
-		if random > 0 and _%random == 0:
+		if args['random'] > 0 and e%args['random'] == 0:
 			next_point_to_probe = {}
-			for param in param_ranges.keys():
-				next_point_to_probe[param] = np.random.uniform(param_ranges[param][0], param_ranges[param][1])
-
+			for param in args['param_ranges'].keys():
+				next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
 		if check_logs:
-			for param in param_ranges.keys():
+			for param in args['param_ranges'].keys():
 				if param_logs[param] == 'log':
 					next_point_to_probe[param] = 10**next_point_to_probe[param]
 
-		model.params = next_point_to_probe
-
-		y_pred = model.cv_predict(cv_steps)
-
-		score = np.mean(np.absolute(y_pred - y))
-
-		with open(logfile, 'a') as f:
-			string = '{i:<10d}\t{score:<10.5f}'.format(i=p, score=score)
-			for param in next_point_to_probe.keys():
-				string = string + '\t{param:<15.4g}'.format(next_point_to_probe[param])
-			print(string, file=f)
-		if score < BEST_SCORE:
-			BEST_SCORE = score
-			BEST_PARAMS = params
-			print('Score = ', BEST_SCORE)
-
-
-	# create optimised model and save
-	model.params = BEST_PARAMS
-	model.train()
-
-	outname = id + '_model.pkl'
-	pickle.dump(open(outname, "wb"))
-	print('Optimised model saved in ', outname)
-
-	return score
-
-
-
-def full_gaussian_search(dataset, modelflag='KRR', featureflag='CMAT', targetflag='CCS', id='test_model', logfile='gaussian.log',
- 				param_ranges={}, param_logs={}, cv_steps=5, epochs=500, kappa=5, xi=0.1, random=0):
-
-
-	# determine whether log dictionary was provided
-	if len(param_logs) == 0:
-		check_logs = False
-	else:
-		check_logs = True
-
-	pbounds = {}
-	for param in param_ranges.keys():
-		pbounds[param] = (param_ranges[param][0], param_ranges[param][1])
-
-	optimizer = BayesianOptimization(
-		f=None,
-		pbounds=pbounds,
-		verbose=0, # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
-		random_state=None
-	)
-	utility = UtilityFunction(kind="ucb", kappa=kappa, xi=xi)
-
-	strings = []
-	strings.append('HPS GRID SEARCH')
-	strings.append(modelflag + '   ' + featureflag + '   ' + targetflag)
-	for param in param_ranges.keys():
-		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
-																	low=param_ranges[param][0],
-																	high=param_ranges[param][1]))
-	strings.append('')
-	strings.append('START')
-	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
-	for param in param_ranges.keys():
-		string = string + '\t{param:<15s}'.format(param=param)
-	strings.append(string)
-	with open(logfile, 'w') as f:
-		for string in strings:
-			print(string, file=f)
-
-
-
-	BEST_SCORE = 999.999
-	BEST_PARAMS = {}
-	for e in range(epochs):
-
-		if random > 0 and e%random == 0:
-			next_point_to_probe = {}
-			for param in param_ranges.keys():
-				next_point_to_probe[param] = np.random.uniform(param_ranges[param][0], param_ranges[param][1])
-		else:
-			next_point_to_probe = optimizer.suggest(utility)
-
-		if check_logs:
-			for param in param_ranges.keys():
-				if param_logs[param] == 'log':
-					next_point_to_probe[param] = 10**next_point_to_probe[param]
-
-		dataset.get_features_frommols(featureflag, targetflag, params=next_point_to_probe)
-
-		assert len(dataset.x) > 0
-		assert len(dataset.y) > 0
-
-		# create model
-		if modelflag == 'KRR':
-			model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe)
-		elif modelflag == 'FCHL':
-			model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=next_point_to_probe)
-		elif modelflag == 'TFM':
-			model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe)
-
-		y_pred = model.cv_predict(cv_steps)
-
-		score = np.mean(np.absolute(y_pred - dataset.y))
-
-		with open(logfile, 'a') as f:
-			string = '{i:<10d}\t{score:<10.5f}'.format(i=e, score=score)
-			for param in next_point_to_probe.keys():
-				string = string + '\t{param:<15.4g}'.format(param=next_point_to_probe[param])
-			print(string, file=f)
-
-		if score < BEST_SCORE:
-			BEST_SCORE = score
-			BEST_PARAMS = next_point_to_probe
-
-			print('score  = ', BEST_SCORE)
+		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(args, BEST_SCORE, BEST_PARAMS)
 
 
 	# create optimised model and save
@@ -199,6 +58,7 @@ def full_gaussian_search(dataset, modelflag='KRR', featureflag='CMAT', targetfla
 
 	outname = id + '_model.pkl'
 	pickle.dump(model, open(outname, "wb"))
+	generic.save_var_models(model, outname, args['cv_fold'])
 	print('Optimised model saved in ', outname)
 
 	return dataset, BEST_SCORE
