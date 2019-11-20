@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
 	if args['Command'] == "train":
 		if args['logfile'] == '':
-			args['logfile'] = args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '_' + args['searchmethod'] + '.log'
+			args['logfile'] = args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '_' + args['searchflag'] + '.log'
 		CMD_trainmodel.trainmodel(args)
 
 
