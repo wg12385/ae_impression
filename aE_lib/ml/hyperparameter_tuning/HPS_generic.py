@@ -32,11 +32,11 @@ def HPS_iteration(dataset, args, params, BEST_SCORE, BEST_PARAMS):
 
 	# create model
 	if args['modelflag'] == 'KRR':
-		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=params, model_args=args)
+		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
-		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=params, model_args=args)
+		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
-		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=params, model_args=args)
+		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 
 	y_pred = model.cv_predict(args['cv_steps'])
 
