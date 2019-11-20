@@ -91,7 +91,7 @@ def run_wizard(args):
 		while not check:
 			searchmethod = input("What search method should be used ? grid, gaussian, random : \n")
 			if searchmethod in ['grid', 'gaussian', 'random']:
-				args['searchmethod'] = searchmethod
+				args['searchflag'] = searchmethod
 				check = True
 
 		# Feature optimisation ##############################################################################

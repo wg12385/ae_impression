@@ -59,8 +59,8 @@ if __name__ == "__main__":
 							action="store", dest='cutoff', default=5.0)
 
 	# Optional argments for train
-	parser.add_argument('--searchmethod', help='Method for hyper-parameter search',
-							action="store", dest='searchmethod', default='grid',
+	parser.add_argument('--searchflag', help='Method for hyper-parameter search',
+							action="store", dest='searchflag', default='grid',
 							choices=['grid', 'gaussian', 'random'])
 	parser.add_argument('--feature_optimisation', help='HPS includes feature parameters',
 							action="store", dest='feature_optimisation', default='True',
