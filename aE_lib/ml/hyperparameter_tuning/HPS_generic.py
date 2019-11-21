@@ -71,7 +71,7 @@ def save_models(dataset, BEST_PARAMS, args):
 	outname = args['featureflag'] + '_model.pkl'
 	pickle.dump(model, open(outname, "wb"))
 
-	kf = KFold(n_splits=fold)
+	kf = KFold(n_splits=args['cv_steps'])
 	kf.get_n_splits(model.train_x)
 
 	i = 0
