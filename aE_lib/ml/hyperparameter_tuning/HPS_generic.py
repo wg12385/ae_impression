@@ -92,8 +92,7 @@ def save_models(dataset, BEST_PARAMS, args):
 		outfile = outname.split('.')[0] + '_' + str(i) + '.pkl'
 		pickle.dump(tmp_model, open(outfile, "wb"))
 
-
-
+	return outname
 
 
 

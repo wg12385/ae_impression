@@ -54,7 +54,7 @@ def gaussian_search(dataset, args):
 
 
 
-	generic.save_models(dataset, BEST_PARAMS, args)
+	outname = generic.save_models(dataset, BEST_PARAMS, args)
 	print('Optimised model(s) saved in ', outname)
 
 	return dataset, BEST_SCORE
