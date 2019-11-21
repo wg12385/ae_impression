@@ -2,6 +2,7 @@ from ml.models import FCHLmodel, KRRmodel, TFMmodel
 from sklearn.model_selection import KFold
 import pickle
 import numpy as np
+import copy
 
 def setup_logfile(args):
 	strings = []
