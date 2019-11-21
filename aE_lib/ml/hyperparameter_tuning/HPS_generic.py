@@ -89,8 +89,8 @@ def save_models(dataset, BEST_PARAMS, args):
 
 		tmp_model.train()
 
-		outname = name.split('.')[0] + '_' + str(i) + '.pkl'
-		pickle.dump(tmp_model, open(outname, "wb"))
+		outfile = outname.split('.')[0] + '_' + str(i) + '.pkl'
+		pickle.dump(tmp_model, open(outfile, "wb"))
 
 
 
