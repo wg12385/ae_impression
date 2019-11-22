@@ -41,7 +41,6 @@ if __name__ == "__main__":
 
 		for f, file in enumerate(glob.glob(args['files'])):
 
-			sys.exit(0)
 			print(file)
 			mol = nmrmol(molid=f)
 			mol.read_structure(file, args['type'])
