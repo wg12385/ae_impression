@@ -68,7 +68,7 @@ class nmrmol(object):
 				continue
 
 			for i in range(len(self.shift)):
-				if periodic_table(self.types[i]) == nucleus:
+				if periodic_table[self.types[i]] == nucleus:
 					self.shift[i] = (self.shift[i] - factor[1]) / float(factor[0])
 
 
