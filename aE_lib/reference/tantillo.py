@@ -18,7 +18,7 @@ def Get_tantillo_factors(basis_set='6-311g(d,p)', functional='wb97xd'):
 	'''
 	try:
 		dir_path = os.path.dirname(os.path.realpath(__file__))
-		json_file = dir_path + '/scaling_factors/' + re.sub(r'\W+', '', functional+basis_set) + '.json'
+		json_file = dir_path + '/scaling_factors/' + re.sub(r'\W+', '', functional+'_'+basis_set) + '.json'
 		tantillo = json.load(open(json_file, 'r'))
 	except Exception as e:
 		print(e)
@@ -35,7 +35,7 @@ def Calculate_new_factors(exp_mols, dft_mols, functional, basis_set):
 
 
 	dir_path = os.path.dirname(os.path.realpath(__file__))
-	json_file = dir_path + '/scaling_factors/' + re.sub(r'\W+', '', functional+basis_set) + '.json'
+	json_file = dir_path + '/scaling_factors/' + re.sub(r'\W+', '', functional+'_'+basis_set) + '.json'
 	json.dump(tantillo, open(json_file, 'w'), indent=4)
 
 
