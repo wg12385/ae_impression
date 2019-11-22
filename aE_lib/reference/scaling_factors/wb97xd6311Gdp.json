@@ -1,6 +1,6 @@
 {
     "functional": "wb97xd",
-    "basis_set": "6-311G(d,p)",
+    "basis_set": "6-311g(d,p)",
     "H": [
         -1.0719,
         32.1254

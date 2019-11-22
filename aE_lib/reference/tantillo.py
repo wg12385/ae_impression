@@ -4,7 +4,7 @@ import re
 import sys
 import os
 
-def Get_tantillo_factors(basis_set='6-311G(d,p)', functional='wb97xd'):
+def Get_tantillo_factors(basis_set='6-311g(d,p)', functional='wb97xd'):
 	'''
 	tantillo=	{}
 	tantillo['functional'] = functional
