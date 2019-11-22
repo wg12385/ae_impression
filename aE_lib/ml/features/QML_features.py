@@ -19,7 +19,6 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 	for mol in mols:
 		reps = qml.fchl.generate_representation(mol.xyz, mol.types, max, cut_distance=cutoff)
-
 		if len(target) == 1:
 			for i in range(len(mol.types)):
 				if mol.types[i] == target[0]:

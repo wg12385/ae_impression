@@ -19,7 +19,7 @@ class dataset(object):
 	def get_mols(self, files, type):
 		self.mols = []
 		for file in files:
-			id = file.split('.')[0].split('_')[-1]
+			id = file.split('.')[0].split('/')[-1].split('_')[0]
 			mol = nmrmol(molid=id)
 			mol.read_nmr(file, type)
 			self.mols.append(mol)
@@ -155,26 +155,27 @@ class dataset(object):
 
 
 	def assign_from_ml(self, pred_y, var, zero=True):
-		assert len(self.r) == 0, print('Something went wrong, nothing to assign')
+		assert len(self.r) > 0, print('Something went wrong, nothing to assign')
 
 		for mol in self.mols:
+
+			if zero:
+				mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
+				mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
+
 			for r, ref in enumerate(self.r):
 				if mol.molid != ref[0]:
 					continue
 
-				if zero:
-					mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
-					mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
-
 				if len(ref) == 2:
-					for t in range(mol.types):
+					for t in range(len(mol.types)):
 						if ref[1] == t:
 							mol.shift[t] = pred_y[r]
 							mol.shift_var[t] = var[r]
 
 				elif len(ref) == 3:
-					for t1 in range(mol.types):
-						for t2 in range(mol.types):
+					for t1 in range(len(mol.types)):
+						for t2 in range(len(mol.types)):
 							if ref[1] == t1 and ref[2] == t2:
 								mol.coupling[t1][t2] = pred_y[r]
 								mol.coupling_var[t1][t2] = var[r]

@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 from file_read import orca_read, g09_read, nmredata_read, structure_read
+from reference.periodic_table import Get_periodic_table
 import pickle
 
 
@@ -59,6 +60,17 @@ class nmrmol(object):
 		else:
 			print('Type not recognised {0:<s} . . .'.format(type))
 			sys.exit(0)
+
+	def scale_shifts(self, scaling_factors={}):
+		periodic_table = Get_periodic_table()
+		for nucleus, factor in scaling_factors.items():
+			if nucleus in ['basis_set', 'functional']:
+				continue
+
+			for i in range(len(self.shift)):
+				if periodic_table(self.types[i]) == nucleus:
+					self.shift[i] = (self.shift[i] - factor[1]) / float(factor[0])
+
 
 	def save_pickle(file):
 		pickle.dump(self, open(file, "wb"))

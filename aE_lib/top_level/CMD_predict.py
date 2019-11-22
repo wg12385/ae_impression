@@ -2,7 +2,8 @@ import pickle
 #from ml.PREDICT import predict_from_model
 from molecule.dataset import dataset
 from file_creation.structure_formats.nmredata import nmrmol_to_nmredata
-
+import sys
+import numpy as np
 import glob
 
 def setup_predict(args):
@@ -35,49 +36,74 @@ def setup_predict(args):
 
 def predict(args):
 
-	files = glob.glob(args['training_set'])
-	dset = dataset()
-	dset.get_mols(files, type='nmredata')
+	for files_set in args['test_sets']:
+		parts = files_set.split('/')
+		path = ''
+		for part in parts[:-1]:
+			path = path + part + '/'
 
-	for m, model_file in enumerate(args['models']):
+		files = glob.glob(files_set)
+		if len(files) == 0:
+			print ('No file(s) found matching ', args['training_set'])
+			sys.exit(0)
+		dset = dataset()
+		dset.get_mols(files, type='nmredata')
+		if len(dset.mols) == 0:
+			print('No molecules loaded. . .')
+			sys.exit(0)
 
-		print('Predicting from model: ', model_file)
+		for m, model_file in enumerate(args['models']):
 
-		model = pickle.load(open(model_file, 'rb'))
+			print('Predicting from model: ', model_file)
 
-		dset.get_features_frommols(featureflag=model.args['featureflag'],
-					modelflag=model.args['targetflag'], params=model.params)
-		assert len(dset.mols) > 0
+			model = pickle.load(open(model_file, 'rb'))
 
-		if args['store_datasets']:
-			pickle.dump(dset, open('OPT_training_set.pkl', 'wb'))
+			dset.get_features_frommols(featureflag=model.args['featureflag'],
+						targetflag=model.args['targetflag'], params=model.params)
+			assert len(dset.x) > 0, print('No features made. . . ')
 
-		y_pred = model.predict(dset.x)
+			if args['store_datasets']:
+				pickle.dump(dset, open('OPT_training_set.pkl', 'wb'))
 
-		v_preds = []
-		for i in range(args['var']):
-			var_model_file = model_file.split('.')[0] + '_' + str(i) + '.pkl'
+			y_pred = model.predict(dset.x)
+			assert len(y_pred) == len(dset.y)
 
-			try:
-				var_model = pickle.load(open(var_model_file, 'rb'))
-			except Exception as e:
-				print(e)
-				continue
+			v_preds = []
+			for i in range(args['var']):
+				var_model_file = model_file.split('.pkl')[0] + '_' + str(i+1) + '.pkl'
 
-			assert model.args['featureflag'] == var_model.args['featureflag']
-			assert model.args['targetflag'] == var_model.args['targetflag']
-			assert model.param == var_model.params
+				try:
+					var_model = pickle.load(open(var_model_file, 'rb'))
+				except Exception as e:
+					print(e)
+					continue
 
-			v_preds.append(var_model.predict(dset.x))
+				assert model.args['featureflag'] == var_model.args['featureflag']
+				assert model.args['targetflag'] == var_model.args['targetflag']
+				assert model.params == var_model.params
 
-		var = np.var(np.asarray(v_preds), axis=0)
+				print('\tPredicting from ', var_model_file)
+				tmp_preds = var_model.predict(dset.x)
+				v_preds.append(tmp_preds)
 
-		if m != 0:
-			dset.assign_from_ml(y_pred, var, zero=False)
+			if args['var'] > 0:
+				var = np.var(np.asarray(v_preds), axis=0)
+			else:
+				var = np.zeros(len(y_pred), dtype=np.float64)
 
-	for mol in dset.mols:
-		outname = 'IMP_' + mol.molid + '.nmredata.sdf'
-		nmrmol_to_nmredata(mol, outname)
+
+			## Currently not being zero'd properly, and values look really wrong.
+
+			if m == 0:
+				dset.assign_from_ml(y_pred, var, zero=True)
+			else:
+				dset.assign_from_ml(y_pred, var, zero=False)
+
+		for mol in dset.mols:
+			outname = path + 'IMP_' + mol.molid + '.nmredata.sdf'
+			nmrmol_to_nmredata(mol, outname)
+
+	print('Done')
 
 
 

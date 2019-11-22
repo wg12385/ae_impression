@@ -98,7 +98,7 @@ if __name__ == "__main__":
 	parser.add_argument('--models', help='Existing model(s) to use, list',
 						 action="store", dest='models', default=['None'])
 	parser.add_argument('--test_sets', help='Testing dataset(s), either lists of file search patterns or individual files, list',
-						 action="store", dest='test_sets', default='None')
+						 action="store", dest='test_sets', default=['None'])
 
 
 	# Optional argments for grid search
@@ -132,7 +132,12 @@ if __name__ == "__main__":
 
 		with open(pref_file, 'r') as fp:
 			args = json.load(fp)
-
+	elif args['prefs'] == 'generate':
+		pref_file = 'IMPRESSION_settings.json'
+		args['prefs'] = pref_file
+		json.dump(args, open(pref_file, 'w'), indent=4)
+		print('Template preferences file generated')
+		sys.exit()
 	elif len(args['prefs']) == 0:
 		pass
 	else:
@@ -141,7 +146,7 @@ if __name__ == "__main__":
 			with open(args['prefs'], 'r') as json_file:
 				args = json.load(json_file)
 		except Exception as E:
-			print('Error reading preferences file ', file)
+			print('Error reading preferences file ', args['prefs'])
 			print(E)
 			print('Exiting. . .')
 			sys.exit(0)

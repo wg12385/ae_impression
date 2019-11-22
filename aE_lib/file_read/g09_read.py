@@ -38,6 +38,23 @@ def read_opt(file):
 
 	return self.xyz, energy
 
+
+def read_functional(file):
+	functional = ''
+	basisset = ''
+	with open(file, 'r') as f:
+		for line in f:
+			# assumes nmrcommand of format:
+			# #T nmr(stuff)functional/basisset stuff...
+			if '#T nmr' in line:
+				items = line.split()
+				nmrcommand = items[1]
+				functional = nmrcommand.split(')')[1].split('/')[0]
+				basisset = nmrcommand.split('/')[1]
+
+	return functional, basisset
+
+
 def read_nmr(file, atomnumber):
 
 	shift_array = np.zeros(atomnumber, dtype=np.float64)
