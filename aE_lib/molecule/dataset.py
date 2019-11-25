@@ -19,7 +19,7 @@ class dataset(object):
 	def get_mols(self, files, type):
 		self.mols = []
 		for file in files:
-			id = file.split('.')[0].split('/')[-1].split('_')[0]
+			id = split('/')[-1].split('_')[0]
 			mol = nmrmol(molid=id)
 			mol.read_nmr(file, type)
 			self.mols.append(mol)
