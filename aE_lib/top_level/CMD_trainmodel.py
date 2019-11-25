@@ -18,7 +18,7 @@ def setup_trainmodel(args):
 	walltime = args['walltime']
 	mem = args['memory']
 
-	jobname = 'IMP_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '_' + args['searchmethod'] + '_HPS'
+	jobname = 'IMP_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '_' + args['searchflag'] + '_HPS'
 	submission_file = jobname + '.submit'
 	header = make_HPC_header(jobname, system=args['system'], nodes=1, ppn=args['processors'], walltime=args['walltime'], mem=args['memory'])
 	strings = []
