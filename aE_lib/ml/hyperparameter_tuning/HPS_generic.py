@@ -16,7 +16,7 @@ def setup_logfile(args):
 	strings.append('START')
 	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
 	for param in args['param_ranges'].keys():
-		string = string + '\t{param:<15s}'.format(param=param)
+		string = string + '\t{param:<20s}'.format(param=param)
 	strings.append(string)
 
 	with open(args['logfile'], 'w') as f:
@@ -48,7 +48,7 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PAR
 	with open(args['logfile'], 'a') as f:
 		string = '{i:<10d}\t{score:<10.5f}'.format(i=iter, score=score)
 		for param in next_point_to_probe.keys():
-			string = string + '\t{param:<15.4g}'.format(param=next_point_to_probe[param])
+			string = string + '\t{param:<20.4g}'.format(param=next_point_to_probe[param])
 		print(string, file=f)
 
 	if score < BEST_SCORE:
