@@ -131,9 +131,8 @@ if __name__ == "__main__":
 		#pref_file = 'settings_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
 		#args['prefs'] = pref_file
 		#json.dump(args, open(pref_file, 'w'), indent=4)
-
-		with open(pref_file, 'r') as fp:
-			args = json.load(fp)
+		#with open(pref_file, 'r') as fp:
+		#	args = json.load(fp)
 	elif args['prefs'] == 'generate':
 		pref_file = 'IMPRESSION_settings.json'
 		args['prefs'] = pref_file
@@ -191,6 +190,12 @@ if __name__ == "__main__":
 
 
 	elif args['Command'] == "setup_predict":
+		args['targetflag'] = ''
+		args['modelflag'] = ''
+		args['featureflag'] = ''
+		pref_file = 'settings_predict' + '.json'
+		args['prefs'] = pref_file
+		json.dump(args, open(pref_file, 'w'), indent=4)
 		CMD_predict.setup_predict(args)
 
 	elif args['Command'] == "predict":
