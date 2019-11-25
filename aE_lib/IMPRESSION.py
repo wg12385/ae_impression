@@ -97,6 +97,8 @@ if __name__ == "__main__":
 						action="store", dest='var', default=0)
 	parser.add_argument('--models', help='Existing model(s) to use, list',
 						 action="store", dest='models', default=['None'])
+	parser.add_argument('--model', help='Current prediction model',
+						action="store", dest='model', default='None')
 	parser.add_argument('--test_sets', help='Testing dataset(s), either lists of file search patterns or individual files, list',
 						 action="store", dest='test_sets', default=['None'])
 
@@ -126,9 +128,9 @@ if __name__ == "__main__":
 	COMMAND = args['Command']
 	if args['prefs'] == 'wizard':
 		args = run_wizard(args)
-		pref_file = 'settings_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
-		args['prefs'] = pref_file
-		json.dump(args, open(pref_file, 'w'), indent=4)
+		#pref_file = 'settings_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
+		#args['prefs'] = pref_file
+		#json.dump(args, open(pref_file, 'w'), indent=4)
 
 		with open(pref_file, 'r') as fp:
 			args = json.load(fp)

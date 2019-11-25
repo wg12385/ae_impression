@@ -267,6 +267,28 @@ def run_wizard(args):
 				except Exception as e:
 					print(e)
 
+		# input_datasets ##############################################################################
+		check = False
+		while not check:
+			testsets = input("Specify set(s) of molecules to predict\n")
+			args['test_sets'] = testsets.split()
+			check = True
+			for tset in testsets:
+				if '*' in tset:
+					try:
+						files = glob.glob(tset)
+						a = open(files[0], 'r')
+					except Exception as e:
+						check = False
+						print(e)
+
+				else:
+					try:
+						a = open(tset, 'r')
+					except Exception as e:
+						check = False
+						print(e)
+
 	return args
 
 
