@@ -157,7 +157,7 @@ def run_wizard(args):
 				print(e)
 
 
-		if args['searchmethod'] == 'grid':
+		if args['searchflag'] == 'grid':
 			# grid density ##############################################################################
 			check = False
 			while not check:
@@ -171,7 +171,7 @@ def run_wizard(args):
 				except Exception as e:
 					print(e)
 
-		elif args['searchmethod'] == 'random':
+		elif args['searchflag'] == 'random':
 			# epochs ##############################################################################
 			check = False
 			while not check:
@@ -185,7 +185,7 @@ def run_wizard(args):
 				except Exception as e:
 					print(e)
 
-		elif args['searchmethod'] == 'gaussian':
+		elif args['searchflag'] == 'gaussian':
 			# epochs ##############################################################################
 			check = False
 			while not check:
