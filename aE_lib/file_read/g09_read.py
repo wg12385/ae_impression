@@ -47,10 +47,16 @@ def read_functional(file):
 			# assumes nmrcommand of format:
 			# #T nmr(stuff)functional/basisset stuff...
 			if '#T nmr' in line:
-				items = line.split()
-				nmrcommand = items[1]
-				functional = nmrcommand.split(')')[1].split('/')[0]
-				basisset = nmrcommand.split('/')[1]
+				try:
+					items = line.split()
+					nmrcommand = items[2]
+					functional = nmrcommand.split('/')[0]
+					basisset = nmrcommand.split('/')[1]
+				
+					break
+				except Exception as e:
+					print(line, items)
+					print(e)
 
 	return functional, basisset
 
