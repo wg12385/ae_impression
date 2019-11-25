@@ -126,7 +126,7 @@ if __name__ == "__main__":
 	COMMAND = args['Command']
 	if args['prefs'] == 'wizard':
 		args = run_wizard(args)
-		pref_file = 'IMPRESSION_settings.json'
+		pref_file = 'settings_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
 		args['prefs'] = pref_file
 		json.dump(args, open(pref_file, 'w'), indent=4)
 
@@ -171,6 +171,9 @@ if __name__ == "__main__":
 		if len(args['target_list']) > 0:
 			for target in args['target_list']:
 				args['targetflag'] = target
+				pref_file = 'settings_HPS_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
+				args['prefs'] = pref_file
+				json.dump(args, open(pref_file, 'w'), indent=4)
 				CMD_trainmodel.setup_trainmodel(args)
 		else:
 			CMD_trainmodel.setup_trainmodel(args)
