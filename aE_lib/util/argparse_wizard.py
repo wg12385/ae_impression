@@ -256,13 +256,14 @@ def run_wizard(args):
 		# var model(s) ##############################################################################
 		check = False
 		while not check:
-			var = input("How many models are used for pre-prediction variance ? Default=0\n variance models need to be of the format <model_file_name>_n.pkl")
+			var = input("How many models are used for pre-prediction variance ? Default=0\n variance models need to be of the format <model_file_name>_n.pkl\n")
 			if len(var) == 0:
 				args['var'] = 0
 				check = True
 			else:
 				try:
 					args['var'] = int(var)
+					check = True
 				except Exception as e:
 					print(e)
 
