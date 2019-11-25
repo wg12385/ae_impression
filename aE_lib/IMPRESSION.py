@@ -153,15 +153,16 @@ if __name__ == "__main__":
 			sys.exit(0)
 
 	args['Command'] = COMMAND
-	# check param flag:
-	param = hdl_targetflag.flag_to_target(args['targetflag'])
-	if param == 0:
-		print('Invalid parameter flag')
-		sys.exit(0)
-	# check flag combination
-	if not flag_combos.check_combination(args['modelflag'], args['featureflag']):
-		print('Invalid model and feature combination: ', args['modelflag'], args['featureflag'])
-		sys.exit(0)
+	if COMMAND != 'predict':
+		# check param flag:
+		param = hdl_targetflag.flag_to_target(args['targetflag'])
+		if param == 0:
+			print('Invalid parameter flag')
+			sys.exit(0)
+		# check flag combination
+		if not flag_combos.check_combination(args['modelflag'], args['featureflag']):
+			print('Invalid model and feature combination: ', args['modelflag'], args['featureflag'])
+			sys.exit(0)
 
 	# Print pretty banner
 	print_header_IMP()
