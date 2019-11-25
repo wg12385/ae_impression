@@ -49,7 +49,7 @@ def trainmodel(args):
 			dset.get_mols(files, type='nmredata')
 			assert len(dset.mols) > 0
 
-			if args['store_datasets']:
+			if args['store_datasets'] == 'True':
 				pickle.dump(dset, open('training_set.pkl', 'wb'))
 
 		dset, score = HPS(dset, args)
