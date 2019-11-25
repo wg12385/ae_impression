@@ -72,15 +72,16 @@ def run_wizard(args):
 		# Target ##############################################################################
 		check = False
 		while not check:
-			target_list = input("What target parameter(s) are you interested in ? XCS or nJXY, e.g. ['HCS', 'CCS', '1JCH'] : \n")
+			target_list = input("What target parameter(s) are you interested in ? XCS or nJXY, e.g. HCS CCS 1JCH : \n")
 			check = True
-			args['target_list'] = target_list
-			if type(target_list) != list:
+			args['target_list'] = target_list.split()
+
+			if type(args['target_list']) != list:
 				check = False
-				print('Not a list. . .')
+				print(args['target_list'], 'Not a list. . .')
 				continue
-			args['targetflag'] = target_list[0]
-			for target in target_list:
+
+			for target in args['target_list']:
 				param = hdl_targetflag.flag_to_target(target)
 				if param == 0:
 					print('Invalid parameter flag')
