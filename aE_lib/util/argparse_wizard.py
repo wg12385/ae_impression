@@ -242,14 +242,14 @@ def run_wizard(args):
 		check = False
 		while not check:
 			try:
-				models = input("Specify models to make predictions from (list): \n")
-				if type(models) != list:
+				models = input("Specify models to make predictions from: \n")
+				args['models'] = models.split()
+				if type(args['models']) != list:
 					print('not a list')
 					continue
-				for model in models:
+				for model in args['models']:
 					a = open(model, 'r')
 					check = True
-				args['models'] = models
 			except Exception as e:
 				print(e)
 
