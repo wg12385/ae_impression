@@ -28,12 +28,12 @@ class FCHLmodel(genericmodel):
 		for d in range(dimensions):
 			# append kernel for each representation set
 			k.append(qml.fchl.get_atomic_symmetric_kernels(Xr[d], verbose=False,
-					two_body_scaling=np.sqrt(8), three_body_scaling=1.6,
-					two_body_width=0.2, three_body_width=np.pi,
-					two_body_power=4.0, three_body_power=2.0,
-					cut_start=1.0, cut_distance=self.params['cutoff'],
+					two_body_scaling=self.params['two_body_scaling'], three_body_scaling=self.params['three_body_scaling'],
+					two_body_width=self.params['two_body_width'], three_body_width=self.params['three_body_width'],
+					two_body_power=self.params['two_body_power'], three_body_power=self.params['three_body_power'],
+					cut_start=self.params['cut_start'], cut_distance=self.params['cutoff'],
 					fourier_order=1, alchemy="periodic-table",
-					alchemy_period_width=1.6, alchemy_group_width=1.6,
+					alchemy_period_width=self.params['alchemy_period_width'], alchemy_group_width=self.params['alchemy_group_width'],
 					kernel="gaussian", kernel_args={'sigma':[self.params['sigma']]})[0] + self.params['lamda'] * np.identity(Xr[d].shape[0]))
 		# loop through kernels
 		K = k[0]

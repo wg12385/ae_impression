@@ -100,7 +100,8 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 		return x, y, r
 
 
-def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400):
+def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400,
+				central_decay=-1, interaction_cutoff =1e6, interaction_decay=-1):
 
 	target = flag_to_target(targetflag)
 
@@ -113,8 +114,8 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 	for mol in mols:
 		reps = qml.representations.generate_atomic_coulomb_matrix(mol.types, mol.xyz, size = max, sorting = "distance",
-						central_cutoff = cutoff, central_decay = -1, interaction_cutoff = 1e6, interaction_decay = -1,
-						indices = None)
+						central_cutoff = cutoff, central_decay = central_decay, interaction_cutoff = interaction_cutoff,
+						interaction_decay = interaction_decay, indices = None)
 
 		if len(target) == 1:
 			for i in range(len(mol.types)):
@@ -141,7 +142,8 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 
 	return x, y, r
 
-def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[]):
+def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], nRs2=3, nRs3=3, nTs=3, eta2=1,
+									eta3=1, zeta=1, acut=5, bin_min=0.8):
 
 	target = flag_to_target(targetflag)
 
@@ -156,10 +158,10 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[]):
 	'''
 	for mol in mols:
 		# need to put in defaults
-		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=elements)
-												#, nRs2=nRs2, nRs3=nRs3,
-												#nTs=nTs, eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
-												#bin_min=bin_min, gradients=gradients)
+		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=elements,
+												nRs2=int(nRs2), nRs3=int(nRs3),
+												nTs=int(nTs), eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
+												bin_min=bin_min, gradients=gradients)
 
 		if len(target) == 1:
 			for i in range(len(mol.types)):

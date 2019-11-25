@@ -50,7 +50,8 @@ class dataset(object):
 				if len(mol.types) > max:
 					max = len(mol.types)
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'], max)
+				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'], max, central_decay=params['central_decay'],
+														interaction_cutoff=params['interaction_cutoff'], interaction_decay=params['interaction_decay'])
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
@@ -73,7 +74,9 @@ class dataset(object):
 				elements = elements.union(tmp_mol.types)
 			elements = sorted(list(elements))
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params['cutoff'], elements=elements)
+				_x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params['cutoff'], elements=elements, nRs2=params['nRs2'],
+												nRs3=params['nRs3'], nTs=params['nTs'], eta2=params['eta2'], eta3=params['eta3'], zeta=params['zeta'],
+												acut=params['acut'], bin_min=params['bin_min'])
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
