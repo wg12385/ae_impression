@@ -8,9 +8,6 @@ import glob
 
 def setup_predict(args):
 
-	model = pickle.load(open(args['model'], 'rb'))
-
-
 	# NEED TO MAKE GPU VERSION
 	python_env = args['python_env']
 	system = args['system']

@@ -273,7 +273,7 @@ def run_wizard(args):
 			testsets = input("Specify set(s) of molecules to predict\n")
 			args['test_sets'] = testsets.split()
 			check = True
-			for tset in testsets:
+			for tset in args['test_sets']:
 				if '*' in tset:
 					try:
 						files = glob.glob(tset)
