@@ -168,8 +168,8 @@ if __name__ == "__main__":
 	# set up submission file for model training
 	if args['Command'] == "setup_train":
 
-		if len(target_list) > 0:
-			for target in target_list:
+		if len(args['target_list']) > 0:
+			for target in args['target_list']:
 				args['targetflag'] = target
 				CMD_trainmodel.setup_trainmodel(args)
 		else:
