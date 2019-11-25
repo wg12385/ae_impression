@@ -21,7 +21,7 @@ def random_search(dataset, args):
 	BEST_PARAMS = {}
 	next_point_to_probe = {}
 
-	for _ in range(args['epochs']):
+	for _ in range(int(args['epochs'])):
 		for param in args['param_ranges'].keys():
 			next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 

@@ -35,7 +35,7 @@ def gaussian_search(dataset, args):
 
 	BEST_SCORE = 999.999
 	BEST_PARAMS = {}
-	for e in range(args['epochs']):
+	for e in range(int(args['epochs'])):
 
 		if args['random'] > 0 and e%args['random'] == 0:
 			next_point_to_probe = {}
