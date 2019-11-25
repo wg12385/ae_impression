@@ -69,7 +69,7 @@ def save_models(dataset, BEST_PARAMS, args):
 
 	model.train()
 
-	outname = args['targetflag'] + '_model.pkl'
+	outname = args['targetflag'] + args['featureflag'] + args['searchflag'] + '_model.pkl'
 	pickle.dump(model, open(outname, "wb"))
 
 	kf = KFold(n_splits=args['cv_steps'])
