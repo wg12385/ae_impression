@@ -183,6 +183,8 @@ if __name__ == "__main__":
 	if args['Command'] == "train":
 		if args['logfile'] == '':
 			args['logfile'] = args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '_' + args['searchflag'] + '.log'
+
+		print('Traning model: ', args['modelflag'] , args['featureflag'], args['targetflag'], args['searchflag'])
 		CMD_trainmodel.trainmodel(args)
 
 
