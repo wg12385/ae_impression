@@ -1,4 +1,4 @@
-from ml.models import FCHLmodel, KRRmodel, TFMmodel
+from ml.models import FCHLmodel, KRRmodel, NNmodel, TFMmodel
 from sklearn.model_selection import KFold
 import pickle
 import numpy as np
@@ -36,6 +36,8 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PAR
 		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
 		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
+	elif args['modelflag'] == 'NN':
+		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 
