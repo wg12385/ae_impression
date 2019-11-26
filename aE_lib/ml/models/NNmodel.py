@@ -35,6 +35,7 @@ class NNmodel(genericmodel):
 				Xr[i].extend(x[i])
 		Xr = np.asarray(Xr)
 
+		print(Xr.shape)
 
 		self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
 		self.net.add(Activation('relu'))
