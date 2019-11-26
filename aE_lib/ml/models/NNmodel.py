@@ -41,7 +41,7 @@ class NNmodel(genericmodel):
 
 		if self.params['hidden_layers'] > 1:
 			for layer in range(int(self.params['hidden_layers'])-1):
-				self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr.shape, kernel_initializer='random_uniform'))
+				self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
 				self.net.add(Activation('relu'))
 		self.net.add(Flatten())
 
