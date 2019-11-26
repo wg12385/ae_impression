@@ -54,7 +54,7 @@ def trainmodel(args):
 
 		dset, score = HPS(dset, args)
 
-		if args['store_datasets']:
+		if args['store_datasets'] == 'True':
 			pickle.dump(dset, open('OPT_training_set.pkl', 'wb'))
 
 
