@@ -21,9 +21,6 @@ class NNmodel(genericmodel):
 	def train(self):
 		self.net = Sequential()
 
-		print(self.train_x.shape)
-		print('FIX CODE FOR THIS SHAPE')
-
 		dimensions = self.train_x.shape[1]
 
 		# reshape x array:
@@ -31,7 +28,8 @@ class NNmodel(genericmodel):
 		for _ in range(dimensions):
 			Xr.append([])
 		for x in self.train_x:
-			for i in range(dimensions):
+			Xi = x[0]
+			for i in range(1, dimensions):
 				Xr[i].extend(x[i])
 		Xr = np.asarray(Xr)
 
