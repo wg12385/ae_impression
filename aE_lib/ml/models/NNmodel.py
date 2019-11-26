@@ -28,9 +28,9 @@ class NNmodel(genericmodel):
 		for _ in range(dimensions):
 			Xr.append([])
 		for x in self.train_x:
-			Xi = x[0]
+			Xr = x[0]
 			for i in range(1, dimensions):
-				Xr[i].extend(x[i])
+				Xr.extend(x[i])
 		Xr = np.asarray(Xr)
 
 		print(Xr.shape)
