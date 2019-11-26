@@ -36,22 +36,22 @@ class NNmodel(genericmodel):
 		Xr = np.asarray(Xr)
 
 
-		self.net.add(Dense(self.params['hidden_neurons'], input_shape=Xr.shape, kernel_initializer='random_uniform'))
+		self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
 		self.net.add(Activation('relu'))
 
 		if self.params['hidden_layers'] > 1:
-			for layer in range(self.params['hidden_layers']-1):
-				self.net.add(Dense(self.params['hidden_neurons'], input_shape=Xr.shape, kernel_initializer='random_uniform'))
+			for layer in range(int(self.params['hidden_layers'])-1):
+				self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr.shape, kernel_initializer='random_uniform'))
 				self.net.add(Activation('relu'))
 		self.net.add(Flatten())
 
-		self.net.add(Dense(1, input_dim=self.params['hidden_neurons'], kernel_initializer='random_uniform'))
+		self.net.add(Dense(1, input_dim=int(self.params['hidden_neurons']), kernel_initializer='random_uniform'))
 		optzer = RMSprop(lr=10**self.params['learning_rate'], rho=0.9, epsilon=None, decay=0.0)
 		self.net.compile(optimizer=optzer, loss='mse')
 
 		es = EarlyStopping(monitor='loss', mode='min', verbose=1)
 
-		self.net.fit(Xr, self.train_y, epochs=self.params['nn_epochs'], batch_size=self.params['batch_size'], verbose=1, callbacks=[es])
+		self.net.fit(Xr, self.train_y, epochs=int(self.params['nn_epochs']), batch_size=int(self.params['batch_size']), verbose=1, callbacks=[es])
 		self.trained = True
 
 	def predict(self, test_x):
