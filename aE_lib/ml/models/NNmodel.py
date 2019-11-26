@@ -21,22 +21,22 @@ class NNmodel(genericmodel):
 		print(self.train_x.shape)
 		print('FIX CODE FOR THIS SHAPE')
 
-		self.net.add(Dense(self.params['hdn_neurons'], input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
+		self.net.add(Dense(self.params['hidden_neurons'], input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
 		self.net.add(Activation('relu'))
 
-		if self.params['hdn_layers'] > 1:
-			for layer in range(self.params['hdn_layers']-1):
-				self.net.add(Dense(self.params['hdn_neurons'], input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
+		if self.params['hidden_layers'] > 1:
+			for layer in range(self.params['hidden_layers']-1):
+				self.net.add(Dense(self.params['hidden_neurons'], input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
 				self.net.add(Activation('relu'))
 		self.net.add(Flatten())
 
-		self.net.add(Dense(1, input_dim=self.params['hdn_neurons'], kernel_initializer='random_uniform'))
+		self.net.add(Dense(1, input_dim=self.params['hidden_neurons'], kernel_initializer='random_uniform'))
 		optzer = RMSprop(lr=10**self.params['learning_rate'], rho=0.9, epsilon=None, decay=0.0)
 		self.net.compile(optimizer=optzer, loss='mse')
 
 		es = EarlyStopping(monitor='loss', mode='min', verbose=1)
 
-		self.net.fit(self.train_x, self.train_y, epochs=self.params['epochs'], batch_size=self.params['batch_size'], verbose=1, callbacks=[es])
+		self.net.fit(self.train_x, self.train_y, epochs=self.params['nn_epochs'], batch_size=self.params['batch_size'], verbose=1, callbacks=[es])
 		self.trained = True
 
 	def predict(self, test_x):

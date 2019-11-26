@@ -49,7 +49,21 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 		param_logs['alchemy_group_width'] = 'lin'
 
 	elif modelflag == 'NN':
-		# add some params
+		param_ranges['hidden_neurons'] = [1, 100]
+		param_logs['hidden_neurons'] = 'lin'
+
+		param_ranges['hidden_layers'] = [1, 10]
+		param_logs['hidden_layers'] = 'lin'
+
+		param_ranges['learning_rate'] = [-5, 2]
+		param_logs['learning_rate'] = 'log'
+
+		param_ranges['nn_epochs'] = [1, 100]
+		param_logs['nn_epochs'] = 'lin'
+
+		param_ranges['batch_size'] = [1, 100]
+		param_logs ['batch_size'] = 'lin'
+
 		pass
 
 	elif modelflag == 'TFM':
