@@ -1,6 +1,7 @@
 
 import glob
 from util.flag_handler import hdl_targetflag, flag_combos, paramdict
+import os
 
 def run_wizard(args):
 
@@ -26,6 +27,7 @@ def run_wizard(args):
 
 			if not check:
 				args['training_set'] = input("Training set: \n")
+
 
 		# Store datasets ##############################################################################
 		check = False
@@ -288,6 +290,21 @@ def run_wizard(args):
 					except Exception as e:
 						check = False
 						print(e)
+
+	# output directory ###################################################################
+	check = False
+	while not check:
+		output_dir = input("Set output directory ? default is current directory \n")
+		if len(output_dir) == 0:
+			output_dir = './'
+		elif output_dir[-s] != '/':
+			output_dir = output_dir + '/'
+
+		if os.path.isdir(output_dir):
+			args['output_dir'] = output_dir
+			check = True
+
+
 
 	return args
 

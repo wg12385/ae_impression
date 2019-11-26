@@ -160,7 +160,8 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], 
 		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=[1, 6, 7, 8, 9, 14, 15, 16, 17, 35],
 												nRs2=int(nRs2), nRs3=int(nRs3),
 												nTs=int(nTs), eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
-												bin_min=bin_min, gradients=False)
+												bin_min=bin_min, gradients=False, pad=1010)
+
 
 		if len(target) == 1:
 			for i in range(len(mol.types)):
