@@ -66,12 +66,14 @@ def save_models(dataset, BEST_PARAMS, args):
 		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'FCHL':
 		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+	elif args['modelflag'] == 'NN':
+		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 
 	model.train()
 
-	outname = args['targetflag'] + args['featureflag'] + args['searchflag'] + '_model.pkl'
+	outname = args['modelflag'] + '_' + args['targetflag'] + '_' + args['featureflag'] + '_' + args['searchflag'] + '_model.pkl'
 	pickle.dump(model, open(outname, "wb"))
 
 	kf = KFold(n_splits=args['cv_steps'])

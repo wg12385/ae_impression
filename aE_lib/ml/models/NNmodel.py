@@ -21,54 +21,30 @@ class NNmodel(genericmodel):
 	def train(self):
 		self.net = Sequential()
 
-		dimensions = self.train_x.shape[1]
-
-		# reshape x array:
-		Xr = []
-		for _ in range(dimensions):
-			Xr.append([])
-		for x in self.train_x:
-			Xr = x[0]
-			for i in range(1, dimensions):
-				Xr.extend(x[i])
-		Xr = np.asarray(Xr)
-
-		print(Xr.shape)
-
-		self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
+		self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
 		self.net.add(Activation('relu'))
 
 		if self.params['hidden_layers'] > 1:
 			for layer in range(int(self.params['hidden_layers'])-1):
-				self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
+				self.net.add(Dense(int(self.params['hidden_neurons']), input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
 				self.net.add(Activation('relu'))
 		self.net.add(Flatten())
 
 		self.net.add(Dense(1, input_dim=int(self.params['hidden_neurons']), kernel_initializer='random_uniform'))
-		optzer = RMSprop(lr=10**self.params['learning_rate'], rho=0.9, epsilon=None, decay=0.0)
+		optzer = RMSprop(lr=10**self.params['learning_rate'], rho=0.9)
 		self.net.compile(optimizer=optzer, loss='mse')
 
 		es = EarlyStopping(monitor='loss', mode='min', verbose=1)
 
-		self.net.fit(Xr, self.train_y, epochs=int(self.params['nn_epochs']), batch_size=int(self.params['batch_size']), verbose=1, callbacks=[es])
+		self.net.fit(self.train_x, self.train_y, epochs=int(self.params['nn_epochs']), batch_size=int(self.params['batch_size']), verbose=1, callbacks=[es])
 		self.trained = True
 
 	def predict(self, test_x):
 
-		dimensions = test_x.shape[1]
+		print(self.train_x.shape, test_x.shape)
+		pred_y = self.net.predict(test_x, batch_size=None)
 
-		# reshape x array:
-		Xe = []
-		for _ in range(dimensions):
-			Xe.append([])
-		for x in test_x:
-			for i in range(dimensions):
-				Xe[i].extend(x[i])
-		Xe = np.asarray(Xe)
-
-
-		pred_y = self.net.predict(Xe, batch_size=None)
-
+		return pred_y
 
 	def cv_predict(self, fold):
 		kf = KFold(n_splits=fold)
