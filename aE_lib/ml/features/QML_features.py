@@ -142,7 +142,7 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400,
 
 	return x, y, r
 
-def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=755, elements=[], nRs2=3, nRs3=3, nTs=3, eta2=1,
+def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], nRs2=3, nRs3=3, nTs=3, eta2=1,
 									eta3=1, zeta=1, acut=5, bin_min=0.8):
 
 	target = flag_to_target(targetflag)
@@ -151,16 +151,13 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=755, elements=[], 
 	y = []
 	r = []
 
-	elements = set()
 	for tmp_mol in mols:
 		if len(tmp_mol.types) > max:
 			max = len(tmp_mol.types)
-		elements = elements.union(tmp_mol.types)
-	elements = sorted(list(elements))
 
 	for mol in mols:
 		# need to put in defaults
-		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=elements,
+		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=[1, 6, 7, 8, 9, 14, 15, 16, 17, 35],
 												nRs2=int(nRs2), nRs3=int(nRs3),
 												nTs=int(nTs), eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
 												bin_min=bin_min, gradients=False)
