@@ -24,12 +24,24 @@ class NNmodel(genericmodel):
 		print(self.train_x.shape)
 		print('FIX CODE FOR THIS SHAPE')
 
-		self.net.add(Dense(self.params['hidden_neurons'], input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
+		dimensions = self.train_x.shape[1]
+
+		# reshape x array:
+		Xr = []
+		for _ in range(dimensions):
+			Xr.append([])
+		for x in self.train_x:
+			for i in range(dimensions):
+				Xr[i].extend(x[i])
+		Xr = np.asarray(Xr)
+
+
+		self.net.add(Dense(self.params['hidden_neurons'], input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
 		self.net.add(Activation('relu'))
 
 		if self.params['hidden_layers'] > 1:
 			for layer in range(self.params['hidden_layers']-1):
-				self.net.add(Dense(self.params['hidden_neurons'], input_shape=self.train_x[0].shape, kernel_initializer='random_uniform'))
+				self.net.add(Dense(self.params['hidden_neurons'], input_shape=Xr[0].shape, kernel_initializer='random_uniform'))
 				self.net.add(Activation('relu'))
 		self.net.add(Flatten())
 
@@ -39,12 +51,24 @@ class NNmodel(genericmodel):
 
 		es = EarlyStopping(monitor='loss', mode='min', verbose=1)
 
-		self.net.fit(self.train_x, self.train_y, epochs=self.params['nn_epochs'], batch_size=self.params['batch_size'], verbose=1, callbacks=[es])
+		self.net.fit(Xr, self.train_y, epochs=self.params['nn_epochs'], batch_size=self.params['batch_size'], verbose=1, callbacks=[es])
 		self.trained = True
 
 	def predict(self, test_x):
 
-		pred_y = self.net.predict(test_x, batch_size=None)
+		dimensions = test_x.shape[1]
+
+		# reshape x array:
+		Xe = []
+		for _ in range(dimensions):
+			Xe.append([])
+		for x in test_x:
+			for i in range(dimensions):
+				Xe[i].extend(x[i])
+		Xe = np.asarray(Xe)
+
+
+		pred_y = self.net.predict(Xe, batch_size=None)
 
 
 	def cv_predict(self, fold):
