@@ -100,7 +100,7 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 		return x, y, r
 
 
-def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400,
+def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=100,
 				central_decay=-1, interaction_cutoff =1e6, interaction_decay=-1):
 
 	target = flag_to_target(targetflag)
@@ -108,10 +108,11 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=400,
 	x = []
 	y = []
 	r = []
+	'''
 	for mol in mols:
 		if len(mol.types) > max:
 			max = len(mol.types)
-
+	'''
 	for mol in mols:
 		reps = qml.representations.generate_atomic_coulomb_matrix(mol.types, mol.xyz, size = max, sorting = "distance",
 						central_cutoff = cutoff, central_decay = central_decay, interaction_cutoff = interaction_cutoff,

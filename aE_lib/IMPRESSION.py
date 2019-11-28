@@ -13,6 +13,8 @@ from top_level import CMD_trainmodel, CMD_predict, CMD_compare
 from util.header import print_header_IMP
 
 import ast
+import tracemalloc
+
 
 import sys
 
@@ -22,7 +24,7 @@ def trace(frame, event, arg):
 
 #sys.settrace(trace)
 
-
+tracemalloc.start()
 
 
 if __name__ == "__main__":
@@ -186,7 +188,7 @@ if __name__ == "__main__":
 		if args['logfile'] == '':
 			args['logfile'] = args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '_' + args['searchflag'] + '.log'
 
-		print('Traning model: ', args['modelflag'] , args['featureflag'], args['targetflag'], args['searchflag'])
+		print('Training model: ', args['modelflag'] , args['featureflag'], args['targetflag'], args['searchflag'])
 		CMD_trainmodel.trainmodel(args)
 
 
@@ -215,6 +217,12 @@ if __name__ == "__main__":
 
 
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+
+	print("[ Top 10 ]")
+	for stat in top_stats[:10]:
+	    print(stat)
 
 
 

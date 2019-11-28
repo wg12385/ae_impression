@@ -10,16 +10,21 @@ class FCHLmodel(genericmodel):
 		genericmodel.__init__(self, id, x, y, params, model_args)
 
 
-	def train(self):
+	def train(self,  train_x=[], train_y=[]):
 		k = []
 
-		dimensions = self.train_x.shape[1]
+		if len(train_x) == 0:
+			train_x = self.train_x
+		if len(train_y) == 0:
+			train_y = self.train_y
+
+		dimensions = train_x.shape[1]
 
 		# reshape x array:
 		Xr = []
 		for _ in range(dimensions):
 			Xr.append([])
-		for x in self.train_x:
+		for x in train_x:
 			for i in range(dimensions):
 				Xr[i].append(x[i])
 		Xr = np.asarray(Xr)
@@ -42,18 +47,22 @@ class FCHLmodel(genericmodel):
 				# multiply kernels so result is k1 * k2 * k3 ...
 				K = K * k[i]
 
-		# get the KRR prefactors, i.e. this is the training of the network
-		self.alpha = qml.math.cho_solve(K, self.train_y)
+		# get the KRR prefactors, i.e. this is the training of the model
+		self.alpha = qml.math.cho_solve(K, train_y)
 
 		# report training state
 		self.trained = True
 
 
-	def predict(self, test_x):
+	def predict(self, test_x, train_x=[]):
 		ks = []
-		assert test_x.shape[1] == self.train_x.shape[1]
 
-		dimensions = self.train_x.shape[1]
+		if len(train_x) == 0:
+			train_x = self.train_x
+		
+		assert test_x.shape[1] == train_x.shape[1]
+
+		dimensions = train_x.shape[1]
 
 		# reshape x arrays:
 		Xe = []
@@ -64,7 +73,7 @@ class FCHLmodel(genericmodel):
 		for x in test_x:
 			for i in range(dimensions):
 				Xe[i].append(x[i])
-		for x in self.train_x:
+		for x in train_x:
 			for i in range(dimensions):
 				Xr[i].append(x[i])
 		Xe = np.asarray(Xe)
@@ -95,25 +104,23 @@ class FCHLmodel(genericmodel):
 
 		return y_pred
 
-	def cv_predict(self, fold):
-		kf = KFold(n_splits=fold)
-		kf.get_n_splits(self.train_x)
-		pred_y = []
-		for train_index, test_index in kf.split(self.train_x):
 
-			tmp_train_x = np.asarray(self.train_x[train_index])
-			tmp_train_y = self.train_y[train_index]
-			tmp_test_x = np.asarray(self.train_x[test_index])
-			tmp_test_y = self.train_y[test_index]
 
-			tmp_model = copy.deepcopy(self)
-			tmp_model.train_x = tmp_train_x
-			tmp_model.train_y = tmp_train_y
 
-			tmp_model.train()
 
-			pred_y.extend(tmp_model.predict(tmp_test_x))
 
-		pred_y = np.asarray(pred_y)
 
-		return pred_y
+
+
+
+
+
+
+
+
+
+
+
+
+
+##
