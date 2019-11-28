@@ -31,6 +31,8 @@ class dataset(object):
 
 		max = 100
 
+		print(params)
+
 		x = []
 		y = []
 		r = []

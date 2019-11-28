@@ -100,7 +100,7 @@ def predict(args):
 				dset.assign_from_ml(y_pred, var, zero=False)
 
 		for mol in dset.mols:
-			outname = path + 'IMP_' + mol.molid + '.nmredata.sdf'
+			outname = args['output_dir'] + 'IMP_' + mol.molid + '.nmredata.sdf'
 			nmrmol_to_nmredata(mol, outname)
 
 	print('Done')

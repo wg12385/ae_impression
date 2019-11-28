@@ -40,6 +40,8 @@ if __name__ == "__main__":
 	parser.add_argument('--training_set', help='Training dataset file(s), either single csv/pkl file or one/multiple nmredata files',
 						 action="store", dest='training_set', default='None')
 
+	parser.add_argument('--output_dir', help='Output directory for non log files',
+						action="store", dest='output_dir', default='None')
 
 	parser.add_argument('--store_datasets', help='Option to store datasets as pickle files for later use',
 						 action="store", dest='store_datasets', default='False')
