@@ -84,7 +84,7 @@ class dataset(object):
 				r.extend(_r)
 
 		elif featureflag == 'BCAI':
-			x, y, r = TFM_features.get_BCAI_features(mol, targetflag, params['cutoff'])
+			x, y, r = TFM_features.get_BCAI_features(self.mols, targetflag)
 
 		else:
 			print('Feature flag not recognised, no feature flag: ', featureflag)

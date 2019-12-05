@@ -17,7 +17,7 @@ import sys
 import numpy as np
 import pandas as pd
 import rdkit
-#import xyz2mol as x2m
+import xyz2mol as x2m
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)
@@ -76,6 +76,10 @@ def enhance_structure_dict(structure_dict):
 	Caution: If torch is imported at the same time as this is run, you may get a segmentation fault. Complain to pybel or rdkit, I suppose.
 	"""
 	import pybel
+
+	atomic_num_dict = { 'H':1, 'C':6, 'N':7, 'O':8, 'F':9 }
+
+
 	for molecule_name in structure_dict:
 
 		# positions - array (N,3) of Cartesian positions
@@ -102,16 +106,13 @@ def enhance_structure_dict(structure_dict):
 		# Note this relies on a few manual corrections
 		molecule['bond_orders'] = np.zeros((n_atom,n_atom))
 		atomicNumList = [atomic_num_dict[symbol] for symbol in molecule['symbols']]
-		if molecule_name in manual_bond_order_dict:
-			molecule['bond_orders'] = np.array(manual_bond_order_dict[molecule_name],dtype=float)
-		else:
-			print('Deliberately broken, dont have this package installed')
-			mol = x2m.xyz2mol(atomicNumList,0,positions,True,True)
-			for bond in mol.GetBonds():
-				atom0, atom1 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-				bond_order = bond.GetBondType()
-				molecule['bond_orders'][atom0,atom1] = bond_order_dict[bond_order]
-				molecule['bond_orders'][atom1,atom0] = bond_order_dict[bond_order]
+
+		mol = x2m.xyz2mol(atomicNumList,0,positions,True,True)
+		for bond in mol.GetBonds():
+			atom0, atom1 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+			bond_order = bond.GetBondType()
+			molecule['bond_orders'][atom0,atom1] = bond_order_dict[bond_order]
+			molecule['bond_orders'][atom1,atom0] = bond_order_dict[bond_order]
 
 		# Supplementary information for tagging:
 		# top_bonds: (N,4 or less) bond orders of the top 4 bonds, for each atom
