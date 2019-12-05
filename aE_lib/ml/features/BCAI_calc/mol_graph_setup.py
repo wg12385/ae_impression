@@ -17,12 +17,12 @@ import sys
 import numpy as np
 import pandas as pd
 import rdkit
-import xyz2mol as x2m
+import ml.features.BCAI_calc.xyz2mol as x2m
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)
 
-'''
+
 bond_order_dict = { rdkit.Chem.rdchem.BondType.SINGLE: 1,
 					rdkit.Chem.rdchem.BondType.AROMATIC: 1.5,
 					rdkit.Chem.rdchem.BondType.DOUBLE: 2,
@@ -42,8 +42,8 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '3JHN_4_3_2_1', '2JHN_4_4_1_1', '3JHN_4.5_2_3_1.5',
 				   '2JHN_4_2_2_2', '3JHN_4_2_2_2', '1JHN_4_3_2_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
-(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
-'''
+(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (100, 800, 500, 400)
+
 
 def make_structure_dict(atoms_dataframe):
 	"""Convert from structures.csv output to a dictionary data storage.
@@ -57,10 +57,12 @@ def make_structure_dict(atoms_dataframe):
 	"""
 	atoms = atoms_dataframe.sort_values(["molecule_name", "atom_index"])  # ensure ordering is consistent
 	# Make a molecule-based dictionary of the information
-	structure_dict = collections.defaultdict(lambda: {"symbols":[],"positions":[]})
+	structure_dict = collections.defaultdict(lambda: {"symbols":[],"positions":[],"conn":[]})
 	for index,row in atoms.iterrows():
 		structure_dict[row["molecule_name"]]["symbols"].append(row["atom"])
 		structure_dict[row["molecule_name"]]["positions"].append([row["x"],row["y"],row["z"]])
+		structure_dict[row["molecule_name"]]["conn"].append(row["conn"])
+
 	return structure_dict
 
 
@@ -75,6 +77,7 @@ def enhance_structure_dict(structure_dict):
 
 	Caution: If torch is imported at the same time as this is run, you may get a segmentation fault. Complain to pybel or rdkit, I suppose.
 	"""
+
 	import pybel
 
 	atomic_num_dict = { 'H':1, 'C':6, 'N':7, 'O':8, 'F':9 }
@@ -85,6 +88,7 @@ def enhance_structure_dict(structure_dict):
 		# positions - array (N,3) of Cartesian positions
 		molecule = structure_dict[molecule_name]
 		positions = np.array(molecule['positions'])
+		conn = np.array(molecule['conn'])
 		n_atom = positions.shape[0]
 		molecule['positions'] = positions
 
@@ -107,12 +111,11 @@ def enhance_structure_dict(structure_dict):
 		molecule['bond_orders'] = np.zeros((n_atom,n_atom))
 		atomicNumList = [atomic_num_dict[symbol] for symbol in molecule['symbols']]
 
-		mol = x2m.xyz2mol(atomicNumList,0,positions,True,True)
-		for bond in mol.GetBonds():
-			atom0, atom1 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-			bond_order = bond.GetBondType()
-			molecule['bond_orders'][atom0,atom1] = bond_order_dict[bond_order]
-			molecule['bond_orders'][atom1,atom0] = bond_order_dict[bond_order]
+		for atom0 in range(len(molecule['symbols'])):
+			for atom1 in range(len(molecule['symbols'])):
+
+				molecule['bond_orders'][atom0,atom1] = conn[atom0][atom1]
+				molecule['bond_orders'][atom1,atom0] = conn[atom1][atom0]
 
 		# Supplementary information for tagging:
 		# top_bonds: (N,4 or less) bond orders of the top 4 bonds, for each atom
@@ -143,6 +146,7 @@ def enhance_structure_dict(structure_dict):
 				str(molecule['positions'][i,1]),
 				str(molecule['positions'][i,2])] )
 				for i in range(n_atom)])
+
 		mol = pybel.readstring('xyz',xyz)
 		molecule['charges'] = [mol.atoms[i].partialcharge for i in range(n_atom)]
 		molecule['spins'] = [mol.atoms[i].spin for i in range(n_atom)]
@@ -150,6 +154,7 @@ def enhance_structure_dict(structure_dict):
 		molecule['heterovalences'] = [mol.atoms[i].heterovalence for i in range(n_atom)]
 		molecule['valences'] = [mol.atoms[i].valence for i in range(n_atom)]
 		molecule['hyb_types'] = [mol.atoms[i].type for i in range(n_atom)]
+
 	return structure_dict
 
 
@@ -760,143 +765,3 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 		y_bond_scalar_coupling[i,:mr, 3] = torch.tensor(mol_real_bonds["predict"].values).float()  # binary tensor (1s to be predicted)
 
 	return x_index, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y_bond_scalar_coupling
-
-
-def auto_preproc_stage1():
-	"""Stage 1: Read and process csv files to new csv files."""
-	print('Reading structures...')
-	atoms = pd.read_csv(os.path.join(root,settings['RAW_DATA_DIR'],'structures.csv'))
-	print('Parsing structures...')
-	structure_dict = make_structure_dict(atoms)
-	print('Adding structure features...')
-	enhance_structure_dict(structure_dict)
-	print('Updating atoms dataframe...')
-	enhance_atoms(atoms,structure_dict)
-	print('Writing structures...')
-	write_csv(os.path.join(root,settings['PROCESSED_DATA_DIR']),'',atoms,None,None,None)
-
-	print('Reading bonds for train...')
-	bonds = pd.read_csv(os.path.join(root,settings['RAW_DATA_DIR'],'train.csv'))
-	print('Parsing bonds...')
-	enhance_bonds(bonds,structure_dict)
-	bonds = add_all_pairs(bonds,structure_dict)
-	triplets = make_triplets(bonds["molecule_name"].unique(),structure_dict)
-	quadruplets = make_quadruplets(bonds["molecule_name"].unique(),structure_dict)
-	print('Writing bonds...')
-	write_csv(os.path.join(root,settings['PROCESSED_DATA_DIR']),'train',None,bonds,triplets,quadruplets)
-
-	print('Reading bonds for test...')
-	bonds = pd.read_csv(os.path.join(root,settings['RAW_DATA_DIR'],'test.csv'))
-	print('Parsing bonds...')
-	enhance_bonds(bonds,structure_dict)
-	bonds = add_all_pairs(bonds,structure_dict)
-	triplets = make_triplets(bonds["molecule_name"].unique(),structure_dict)
-	quadruplets = make_quadruplets(bonds["molecule_name"].unique(),structure_dict)
-	print('Writing bonds...')
-	write_csv(os.path.join(root,settings['PROCESSED_DATA_DIR']),'test',None,bonds,triplets,quadruplets)
-
-
-def auto_preproc_stage2():
-	import torch
-	print("Loading data...")
-	os.chdir(os.path.join(root,settings['PROCESSED_DATA_DIR']))
-	atoms = pd.read_csv('new_big_structures.csv.bz2')
-	bonds = pd.read_csv('new_big_train.csv.bz2')
-	triplets = pd.read_csv('new_big_train_triplets.csv.bz2')
-	quadruplets = pd.read_csv('new_big_train_quadruplets.csv.bz2')
-
-	print('Sorting...')
-	atoms.sort_values(['molecule_name','atom_index'],inplace=True)
-	bonds.sort_values(['molecule_name','atom_index_0','atom_index_1'],inplace=True)
-	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
-	quadruplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2','atom_index_3'],inplace=True)
-
-	assert int(atoms.groupby("molecule_name").count().max()[0]) <= MAX_ATOM_COUNT
-	assert int(bonds.groupby("molecule_name").count().max()[0]) <= MAX_BOND_COUNT
-	assert int(triplets.groupby("molecule_name").count().max()[0]) <= MAX_TRIPLET_COUNT
-	assert int(quadruplets.groupby("molecule_name").count().max()[0]) <= MAX_QUAD_COUNT
-
-	print("Adding embeddings and scaling...")
-	embeddings = add_embedding(atoms,bonds,triplets,quadruplets)
-	means,stds = get_scaling(bonds)
-	bonds = add_scaling(bonds,means,stds)
-
-	print("Creating train dataset...")
-	D = create_dataset(atoms, bonds, triplets, quadruplets, labeled=True)
-
-	print('Splitting train dataset...')
-	#Split the training data into train (80%) and validation (20%) for model selection.
-	np.random.seed(0)
-	p = np.random.permutation(D[0].shape[0])
-
-	idx_train = torch.cat([torch.tensor(p[:int(0.6*len(p))]), torch.tensor(p[int(0.8*len(p)):])])
-	idx_val = torch.tensor(p[int(0.6*len(p)):int(0.8*len(p))])
-
-	D_train = tuple([d[idx_train] for d in D])
-	D_val = tuple([d[idx_val] for d in D])
-
-	print('Saving train (80%)/validation (20%) datasets...')
-	# If too large, save the two parts (just so that we can push to github)
-	if sum([d.nelement() for d in D_train]) > 3e8:
-		# Split D_train into 2 parts
-		print("Splitting the 80% training data into part 1 and 2...")
-		total_len = D_train[0].size(0)
-		D_train_part1 = tuple([d[:total_len//2].clone().detach() for d in D_train])
-		D_train_part2 = tuple([d[total_len//2:].clone().detach() for d in D_train])
-		with gzip.open("torch_proc_train_p1.pkl.gz", "wb") as f:
-			pickle.dump(D_train_part1, f, protocol=4)
-		with gzip.open("torch_proc_train_p2.pkl.gz", "wb") as f:
-			pickle.dump(D_train_part2, f, protocol=4)
-	else:
-		with gzip.open("torch_proc_train.pkl.gz", "wb") as f:
-			pickle.dump(D_train, f, protocol=4)
-	with gzip.open("torch_proc_val.pkl.gz", "wb") as f:
-		pickle.dump(D_val, f, protocol=4)
-
-	print("Saving the full train dataset. Splitting into part 1 and 2...")
-	total_len = D[0].size(0)
-	D_part1 = tuple([d[:total_len//2].clone().detach() for d in D])
-	D_part2 = tuple([d[total_len//2:].clone().detach() for d in D])
-	with gzip.open("torch_proc_train_full_p1.pkl.gz", "wb") as f:
-		pickle.dump(D_part1, f, protocol=4)
-	with gzip.open("torch_proc_train_full_p2.pkl.gz", "wb") as f:
-		pickle.dump(D_part2, f, protocol=4)
-
-	# ## Test
-	print('Loading test data...')
-	bonds = pd.read_csv('new_big_test.csv.bz2')
-	triplets = pd.read_csv('new_big_test_triplets.csv.bz2')
-	quadruplets = pd.read_csv('new_big_test_quadruplets.csv.bz2')
-
-	print('Sorting...')
-	bonds.sort_values(['molecule_name','atom_index_0','atom_index_1'],inplace=True)
-	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
-	quadruplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2','atom_index_3'],inplace=True)
-
-	assert int(atoms.groupby("molecule_name").count().max()[0]) <= MAX_ATOM_COUNT
-	assert int(bonds.groupby("molecule_name").count().max()[0]) <= MAX_BOND_COUNT
-	assert int(triplets.groupby("molecule_name").count().max()[0]) <= MAX_TRIPLET_COUNT
-	assert int(quadruplets.groupby("molecule_name").count().max()[0]) <= MAX_QUAD_COUNT
-
-	print('Adding embedding and scaling...')
-	add_embedding(atoms,bonds,triplets,quadruplets, embeddings=embeddings)
-	bonds = add_scaling(bonds,means,stds)
-
-	print('Creating test dataset...')
-	D_sub = create_dataset(atoms, bonds, triplets, quadruplets, labeled=False)
-
-	print('Saving file...')
-	with gzip.open("torch_proc_submission.pkl.gz", "wb") as f:
-		pickle.dump(D_sub, f, protocol=4)
-
-	return
-
-
-if __name__=='__main__':
-	# There is a segmentation fault if stage1 is run while torch is loaded. So we have to run them separately.
-	if '1' in sys.argv:
-		auto_preproc_stage1()
-	elif '2' in sys.argv:
-		auto_preproc_stage2()
-	else:
-		print('Please identify either stage 1 or stage 2.')
