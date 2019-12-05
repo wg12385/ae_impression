@@ -22,7 +22,7 @@ import rdkit
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)
 
-
+'''
 bond_order_dict = { rdkit.Chem.rdchem.BondType.SINGLE: 1,
 					rdkit.Chem.rdchem.BondType.AROMATIC: 1.5,
 					rdkit.Chem.rdchem.BondType.DOUBLE: 2,
@@ -43,7 +43,7 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '2JHN_4_2_2_2', '3JHN_4_2_2_2', '1JHN_4_3_2_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
 (MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
-
+'''
 
 def make_structure_dict(atoms_dataframe):
 	"""Convert from structures.csv output to a dictionary data storage.
