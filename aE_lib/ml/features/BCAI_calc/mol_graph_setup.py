@@ -17,7 +17,7 @@ import sys
 import numpy as np
 import pandas as pd
 import rdkit
-import xyz2mol as x2m
+#import xyz2mol as x2m
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)
@@ -105,6 +105,7 @@ def enhance_structure_dict(structure_dict):
 		if molecule_name in manual_bond_order_dict:
 			molecule['bond_orders'] = np.array(manual_bond_order_dict[molecule_name],dtype=float)
 		else:
+			print('Deliberately broken, dont have this package installed')
 			mol = x2m.xyz2mol(atomicNumList,0,positions,True,True)
 			for bond in mol.GetBonds():
 				atom0, atom1 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
