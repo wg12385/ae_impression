@@ -20,17 +20,6 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 
-
-root = '../'  # This should be the root of the archive
-with open(os.path.join(root,'SETTINGS.json')) as f:
-    settings = json.load(f)
-with open(os.path.join(root,settings['CONFIG_DIR'],'models.json')) as f:
-    models = json.load(f)
-# Determine the number of chosen models and medians to be averaged for each type
-model_count_for_median = [9,9,9,9,9,9,9,9]
-median_mean_counts = [5,5,5,5,5,5,5,5]
-
-
 def load_model(name):
     model_folder = os.path.join(root,settings['MODEL_DIR'],models[name+'_dir'])
     if not os.path.isdir(model_folder):

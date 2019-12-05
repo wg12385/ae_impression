@@ -27,11 +27,6 @@ bond_order_dict = { rdkit.Chem.rdchem.BondType.SINGLE: 1,
 					rdkit.Chem.rdchem.BondType.AROMATIC: 1.5,
 					rdkit.Chem.rdchem.BondType.DOUBLE: 2,
 					rdkit.Chem.rdchem.BondType.TRIPLE: 3}
-root = '../'  # This should be the root of the archive
-with open(os.path.join(root,'SETTINGS.json')) as f:
-	settings = json.load(f)
-with open(os.path.join(root,settings['CONFIG_DIR'],'manual_bond_order_fix.json')) as f:
-	manual_bond_order_dict = json.load(f)
 
 atomic_num_dict = { 'H':1, 'C':6, 'N':7, 'O':8, 'F':9 }
 # These were mistaken or too small datasets, so we are relabeling them.
