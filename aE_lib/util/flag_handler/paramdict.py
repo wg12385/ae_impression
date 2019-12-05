@@ -97,6 +97,9 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 		param_ranges['eta_min'] = [-6, -7]
 		param_logs['eta_min'] = 'log'
 
+		param_ranges['learning_rate'] = [0.0009, 0.0011]
+		param_logs['learning_rate'] = 'lin'
+
 
 	if featureflag == 'CMAT':
 		param_ranges['cutoff'] = [0, 10]

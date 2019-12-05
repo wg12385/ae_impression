@@ -7,6 +7,8 @@ import ml.features.BCAI_calc.mol_graph_setup as BCAI
 import numpy as np
 import pandas as pd
 import sys
+import pickle
+import gzip
 
 
 def get_BCAI_features(mols, targetflag='CCS'):
@@ -114,6 +116,10 @@ def get_BCAI_features(mols, targetflag='CCS'):
 
 
 	x = BCAI.create_dataset(atoms, bonds, triplets, quadruplets, labeled = True, max_count = 10**10)
+
+
+	with gzip.open("torch_proc_submission.pkl.gz", "wb") as f:
+			pickle.dump(x, f, protocol=4)
 
 	return x, y, r
 
