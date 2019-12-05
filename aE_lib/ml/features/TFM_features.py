@@ -2,7 +2,7 @@
 from reference.periodic_table import Get_periodic_table
 from util.flag_handler.hdl_targetflag import flag_to_target
 
-import ml.models.features.BCAI_calc.mol_graph_setup as BCAI
+import ml.features.BCAI_calc.mol_graph_setup as BCAI
 
 import numpy as np
 import pandas as pd
