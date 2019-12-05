@@ -1,5 +1,6 @@
 from reference.periodic_table import Get_periodic_table
 
+# Write an nmrmol object to an xyz file
 def nmrmol_to_xyz(mol, outname, num=-404):
 	periodic_table = Get_periodic_table()
 	with open(outname, 'w') as f:

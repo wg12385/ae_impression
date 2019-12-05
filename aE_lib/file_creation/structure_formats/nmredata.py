@@ -1,13 +1,15 @@
-
 from util.labelmaker import labelmaker
 from reference.periodic_table import Get_periodic_table
 
+# Write an nmrmol object to an nmredata file
 def nmrmol_to_nmredata(mol, outfile):
 
+	# Get periodic table
 	periodic_table = Get_periodic_table()
 
-	lines = []
-
+	# Assume molecule is not chiral
+	chiral = 0
+	# Determine number of bonds
 	bonds = 0
 	for at1 in range(len(mol.types)):
 		for at2 in range(at1, len(mol.types)):
@@ -16,10 +18,13 @@ def nmrmol_to_nmredata(mol, outfile):
 				bonds += 1
 
 	atoms = len(mol.types)
-	chiral = 0
 
+	# Start putting together file lines
+	lines = []
+	# print molecule name
 	lines.append(outfile.split('.')[0])
-	lines.append('auto-ENRICH')
+	# print file and author
+	lines.append('auto-ENRICH - 2019 - Will Gerrard')
 	lines.append('')
 
 	# Structure section
@@ -27,14 +32,14 @@ def nmrmol_to_nmredata(mol, outfile):
 																							bonds=bonds,
 																							chiral=chiral)
 	lines.append(string)
-
+	# Print xyz coordinates and types
 	for i, xyz in enumerate(mol.xyz):
 		string = '{x:>10.4f}{y:>10.4f}{z:>10.4f} {typechar:>3s} 0  0  0  0  0  0  0  0  0  0  0  0'.format(x=xyz[0],
 																												y=xyz[1],
 																												z=xyz[2],
 																												typechar = periodic_table[mol.types[i]])
 		lines.append(string)
-
+	# Print bonds and bond types
 	for at1 in range(len(mol.types)):
 		for at2 in range(at1, len(mol.types)):
 
@@ -43,20 +48,21 @@ def nmrmol_to_nmredata(mol, outfile):
 																				at2=at2+1,
 																				bond=mol.conn[at1][at2])
 				lines.append(string)
-
+	# Terminate structure section
 	lines.append('M\tEND'.format())
 
 
 	# assignment section
 	lines.append('')
 	lines.append('> <NMREDATA_ASSIGNMENT>')
+	# Print chemical shifts with variance
 	for i, shift, type, var in zip(range(len(mol.types)), mol.shift, mol.types, mol.shift_var):
 		string = " {atom:<5d}, {shift:<15.8f}, {type:<5d}, {variance:<15.8f}\\".format(atom=i, shift=shift, type=type, variance=var)
 		lines.append(string)
 
 	lines.append('')
 	lines.append('> <NMREDATA_J>')
-
+	# Print couplings with variance and label
 	for i in range(len(mol.types)):
 		for j in range(len(mol.types)):
 			if i >= j:
@@ -72,7 +78,7 @@ def nmrmol_to_nmredata(mol, outfile):
 
 			lines.append(string)
 
-
+	# Print assembled lines to output file
 	with open(outfile, 'w') as f:
 		for line in lines:
 			print(line, file=f)

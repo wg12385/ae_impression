@@ -4,8 +4,6 @@ from rdkit.Chem import AllChem
 import pybel as pyb
 import numpy as np
 
-
-
 # raw mass generation of xyz coordinates based on torsional angle searching
 def torsional_search(molecule, smiles, iterations=100000, RMSthresh=1, path=''):
 	xyzs = []
@@ -21,7 +19,7 @@ def torsional_search(molecule, smiles, iterations=100000, RMSthresh=1, path=''):
 								  pruneRmsThresh=RMSthresh)
 	# align conformers, not strictly neccesary but should make visualisation more convenient later on
 	AllChem.AlignMolConformers(rdmol)
-	# Optimise conformers by MMFF, returns success state (ignored atm) and energies
+	# Optimise conformers by MMFF, returns success states (ignored atm) and energies
 	rd_es = AllChem.MMFFOptimizeMoleculeConfs(rdmol, mmffVariant='MMFF94s')
 	# Record energies in list
 	for e in rd_es:
@@ -70,7 +68,7 @@ def select_conformers(xyzs, energies, maxconfs=100, Ethresh=100000):
 	# Return xyz coords and energies of selected conformers
 	return xyzs, energies
 
-
+# xyz based selection of most similar structures
 def select_over_space(xyzs, to_remove):
 	dist = np.zeros((len(xyzs),len(xyzs)), dtype=np.float64)
 	remove = []

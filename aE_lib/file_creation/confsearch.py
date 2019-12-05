@@ -1,6 +1,5 @@
-# functions to run conf searches on HPC
 
-
+# Write file to perform conformational search
 def make_confsearch_script(scriptname, pickle_file, molecule, smiles, aE_dir='../../aE_lib/', path='', iterations=2000,
 							RMSthresh=10.0, maxconfs=10, Ethresh=999.99):
 

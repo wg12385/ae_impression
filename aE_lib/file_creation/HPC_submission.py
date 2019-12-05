@@ -1,29 +1,46 @@
 # make batch / submission scripts for HPC jobs
 
-
+# Get number of <max file chunks to produce job submission scripts for
 def get_chunks(files, end=-1, start=-1, max=50):
+	# "-1" used as flags to mean use all files
 	if start < 0 and end < 0:
 		start = 1
+
 		if files > max:
+			# Get chunks as remainder
 			chunks = files / max
+			# Check if any remaining
 			if files % max > 0:
+				# If so, add additional chunk
 				chunks = int(chunks) + 1
-			if chunks == 0:
-				chunks = 1
 		else:
+			# Always need at least one chunk
 			chunks = 1
 			end = files
+	# If start andor end are specified
 	else:
+		# Allow for only one of start/end to be specified
+		if start == -1:
+			start = 1
+		if end == -1:
+			end = files
+		# If more than 1 chunk needed
 		if end - start >= max:
+			# Get chunks as remainder
 			chunks = files / max
+			# Check if any remaining
 			if files % max > 0:
+				# If so, add additional chunk
 				chunks = int(chunks) + 1
 		else:
 			chunks = 1
+
+	# Ensure chunks is an integer (with division it gets cast as float)
 	chunks = int(chunks)
 
 	return chunks
 
+# Make generic part of file for use on HPC
 def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem=3):
 
 	strings = []
