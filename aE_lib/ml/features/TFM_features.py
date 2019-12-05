@@ -1,6 +1,6 @@
 # get features for TransForMer models
 from reference.periodic_table import Get_periodic_table
-from util.flag_handler.hdl_target_flag import flag_to_target
+from util.flag_handler.hdl_targetflag import flag_to_target
 
 import ml.models.features.BCAI_calc.mol_graph_setup as BCAI
 
