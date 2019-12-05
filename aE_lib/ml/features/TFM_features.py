@@ -23,11 +23,11 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	y = []				# y coordinate
 	z = []				# z coordinate
 
-	for m, mol in mols:
-		for t, type in mol.types:
+	for m, mol in enumerate(mols):
+		for t, type in enumerate(mol.types):
 			molecule_name.append(mol.molid)
 			atom_index.append(t)
-			atom.append(p_table(type))
+			atom.append(p_table[type])
 			x.append(mol.xyz[t][0])
 			y.append(mol.xyz[t][1])
 			z.append(mol.xyz[t][2])
@@ -40,7 +40,8 @@ def get_BCAI_features(mols, targetflag='CCS'):
 				'z': z
 			}
 
-	structure_dict = BCAI.make_strucure_dict(atoms)
+	atoms = pd.DataFrame(atoms)
+	structure_dict = BCAI.make_structure_dict(atoms)
 
 	BCAI.enhance_structure_dict(structure_dict)
 
