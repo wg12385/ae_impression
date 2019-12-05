@@ -7,7 +7,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .modules.hierarchical_embedding import HierarchicalEmbedding
+from .hierarchical_embedding import HierarchicalEmbedding
 
 __author__ = "shaojieb"
 
