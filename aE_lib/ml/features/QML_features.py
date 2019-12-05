@@ -31,7 +31,7 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 				for j in range(len(mol.types)):
 					if i == j:
 						continue
-					if mol.types[i] != target[1] and mol.types[j] != target[2]:
+					if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
 						continue
 
 					if mol.coupling_len[i][j] != target[0]:
@@ -87,7 +87,7 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 					for j in range(len(mol.types)):
 						if i == j:
 							continue
-						if mol.types[i] != target[1] and mol.types[j] != target[2]:
+						if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
 							continue
 
 						if mol.coupling_len[i][j] != target[0]:
@@ -131,7 +131,7 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=100,
 					if i == j:
 						continue
 
-					if mol.types[i] != target[1] and mol.types[j] != target[2]:
+					if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
 						continue
 
 					if mol.coupling_len[i][j] != target[0]:
@@ -162,7 +162,7 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], 
 		reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=[1, 6, 7, 8, 9, 14, 15, 16, 17, 35],
 												nRs2=int(nRs2), nRs3=int(nRs3),
 												nTs=int(nTs), eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
-												bin_min=0.0, gradients=False) 
+												bin_min=0.0, gradients=False)
 												#pad=1010)
 
 
@@ -178,7 +178,7 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], 
 				for j in range(len(mol.types)):
 					if i == j:
 						continue
-					if mol.types[i] != target[1] and mol.types[j] != target[2]:
+					if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
 						continue
 
 					if mol.coupling_len[i][j] != target[0]:
