@@ -7,9 +7,9 @@ from tqdm import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 
 
-import .BCAI.train as BCAI_train
-import .BCAI.graph_transformer as BCAI_graph
-import .BCAI.predictor as BCAI_predict
+import ml.models.BCAI.train as BCAI_train
+import ml.models.BCAI.graph_transformer as BCAI_graph
+import ml.models.BCAI.predictor as BCAI_predict
 
 class TFMmodel(genericmodel):
 
