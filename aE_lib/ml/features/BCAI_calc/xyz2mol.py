@@ -30,7 +30,7 @@ import itertools
 from rdkit.Chem import rdmolops
 from collections import defaultdict
 import copy
-import networkx as nx #uncomment if you don't want to use "quick"/install networkx
+#import networkx as nx #uncomment if you don't want to use "quick"/install networkx
 
 
 global __ATOM_LIST__
@@ -70,8 +70,8 @@ def get_BO(AC,UA,DU,valences,UA_pairs,quick):
     while DU_save != DU:
         for i,j in UA_pairs:
             BO[i,j] += 1
-            BO[j,i] += 1 
-        
+            BO[j,i] += 1
+
         BO_valence = list(BO.sum(axis=1))
         DU_save = copy.copy(DU)
         UA, DU = getUA(valences, BO_valence)
@@ -105,7 +105,7 @@ def BO_is_OK(BO,AC,charge,DU,atomic_valence_electrons,atomicNumList,charged_frag
                 if number_of_single_bonds_to_C == 3 and Q + 1 < charge:
                     Q += 2
                     q = 1
-            
+
             if q != 0:
                 q_list.append(q)
 
@@ -307,7 +307,7 @@ def AC2BO(AC,atomicNumList,charge,charged_fragments,quick):
 # implemenation of algorithm shown in Figure 2
 # UA: unsaturated atoms
 # DU: degree of unsaturation (u matrix in Figure)
-# best_BO: Bcurr in Figure 
+# best_BO: Bcurr in Figure
 #
 
     for valences in valences_list:
@@ -316,8 +316,8 @@ def AC2BO(AC,atomicNumList,charge,charged_fragments,quick):
 
         if len(UA) == 0 and BO_is_OK(AC,AC,charge,DU_from_AC,atomic_valence_electrons,atomicNumList,charged_fragments):
             return AC,atomic_valence_electrons
-        
-        UA_pairs_list = get_UA_pairs(UA,AC,quick) 
+
+        UA_pairs_list = get_UA_pairs(UA,AC,quick)
         for UA_pairs in UA_pairs_list:
             BO = get_BO(AC,UA,DU_from_AC,valences,UA_pairs,quick)
             if BO_is_OK(BO,AC,charge,DU_from_AC,atomic_valence_electrons,atomicNumList,charged_fragments):
@@ -345,7 +345,7 @@ def get_proto_mol(atomicNumList):
     for i in range(1,len(atomicNumList)):
         a = Chem.Atom(atomicNumList[i])
         rwMol.AddAtom(a)
-    
+
     mol = rwMol.GetMol()
 
     return mol
@@ -378,7 +378,7 @@ def read_xyz_file(filename):
                 xyz_coordinates.append([float(x),float(y),float(z)])
 
     atomicNumList = get_atomicNumList(atomic_symbols)
-    
+
     return atomicNumList,charge,xyz_coordinates
 
 def xyz2AC(atomicNumList,xyz):
@@ -418,7 +418,7 @@ def chiral_stereo_check(mol):
 
 def xyz2mol(atomicNumList,charge,xyz_coordinates,charged_fragments,quick):
 
-# Get atom connectivity (AC) matrix, list of atomic numbers, molecular charge, 
+# Get atom connectivity (AC) matrix, list of atomic numbers, molecular charge,
 # and mol object with no connectivity information
     AC,mol = xyz2AC(atomicNumList,xyz_coordinates)
 
@@ -439,14 +439,14 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--sdf', action="store_true", help="Dump sdf file")
     args = parser.parse_args()
 
-    
+
     filename = args.structure
     charged_fragments = True # alternatively radicals are made
 
     # quick is faster for large systems but requires networkx
-    # if you don't want to install networkx set quick=False and 
-    # uncomment 'import networkx as nx' at the top of the file 
-    quick = True 
+    # if you don't want to install networkx set quick=False and
+    # uncomment 'import networkx as nx' at the top of the file
+    quick = True
 
     atomicNumList, charge, xyz_coordinates = read_xyz_file(filename)
 

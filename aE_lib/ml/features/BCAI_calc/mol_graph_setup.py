@@ -17,12 +17,12 @@ import sys
 import numpy as np
 import pandas as pd
 import rdkit
-import xyz2mol as x2m
+import ml.features.BCAI_calc.xyz2mol as x2m
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)
 
-'''
+
 bond_order_dict = { rdkit.Chem.rdchem.BondType.SINGLE: 1,
 					rdkit.Chem.rdchem.BondType.AROMATIC: 1.5,
 					rdkit.Chem.rdchem.BondType.DOUBLE: 2,
@@ -42,8 +42,8 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '3JHN_4_3_2_1', '2JHN_4_4_1_1', '3JHN_4.5_2_3_1.5',
 				   '2JHN_4_2_2_2', '3JHN_4_2_2_2', '1JHN_4_3_2_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
-(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
-'''
+(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (100, 800, 500, 400)
+
 
 def make_structure_dict(atoms_dataframe):
 	"""Convert from structures.csv output to a dictionary data storage.
@@ -57,10 +57,12 @@ def make_structure_dict(atoms_dataframe):
 	"""
 	atoms = atoms_dataframe.sort_values(["molecule_name", "atom_index"])  # ensure ordering is consistent
 	# Make a molecule-based dictionary of the information
-	structure_dict = collections.defaultdict(lambda: {"symbols":[],"positions":[]})
+	structure_dict = collections.defaultdict(lambda: {"symbols":[],"positions":[],"conn":[]})
 	for index,row in atoms.iterrows():
 		structure_dict[row["molecule_name"]]["symbols"].append(row["atom"])
 		structure_dict[row["molecule_name"]]["positions"].append([row["x"],row["y"],row["z"]])
+		structure_dict[row["molecule_name"]]["conn"].append(row["conn"])
+
 	return structure_dict
 
 
@@ -75,7 +77,7 @@ def enhance_structure_dict(structure_dict):
 
 	Caution: If torch is imported at the same time as this is run, you may get a segmentation fault. Complain to pybel or rdkit, I suppose.
 	"""
-	del torch
+
 	import pybel
 
 	atomic_num_dict = { 'H':1, 'C':6, 'N':7, 'O':8, 'F':9 }
@@ -86,6 +88,7 @@ def enhance_structure_dict(structure_dict):
 		# positions - array (N,3) of Cartesian positions
 		molecule = structure_dict[molecule_name]
 		positions = np.array(molecule['positions'])
+		conn = np.array(molecule['conn'])
 		n_atom = positions.shape[0]
 		molecule['positions'] = positions
 
@@ -108,12 +111,11 @@ def enhance_structure_dict(structure_dict):
 		molecule['bond_orders'] = np.zeros((n_atom,n_atom))
 		atomicNumList = [atomic_num_dict[symbol] for symbol in molecule['symbols']]
 
-		mol = x2m.xyz2mol(atomicNumList,0,positions,True,True)
-		for bond in mol.GetBonds():
-			atom0, atom1 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-			bond_order = bond.GetBondType()
-			molecule['bond_orders'][atom0,atom1] = bond_order_dict[bond_order]
-			molecule['bond_orders'][atom1,atom0] = bond_order_dict[bond_order]
+		for atom0 in range(len(molecule['symbols'])):
+			for atom1 in range(len(molecule['symbols'])):
+
+				molecule['bond_orders'][atom0,atom1] = conn[atom0][atom1]
+				molecule['bond_orders'][atom1,atom0] = conn[atom1][atom0]
 
 		# Supplementary information for tagging:
 		# top_bonds: (N,4 or less) bond orders of the top 4 bonds, for each atom
@@ -144,6 +146,7 @@ def enhance_structure_dict(structure_dict):
 				str(molecule['positions'][i,1]),
 				str(molecule['positions'][i,2])] )
 				for i in range(n_atom)])
+
 		mol = pybel.readstring('xyz',xyz)
 		molecule['charges'] = [mol.atoms[i].partialcharge for i in range(n_atom)]
 		molecule['spins'] = [mol.atoms[i].spin for i in range(n_atom)]
@@ -151,6 +154,7 @@ def enhance_structure_dict(structure_dict):
 		molecule['heterovalences'] = [mol.atoms[i].heterovalence for i in range(n_atom)]
 		molecule['valences'] = [mol.atoms[i].valence for i in range(n_atom)]
 		molecule['hyb_types'] = [mol.atoms[i].type for i in range(n_atom)]
+
 	return structure_dict
 
 

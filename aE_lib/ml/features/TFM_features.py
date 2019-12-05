@@ -7,6 +7,8 @@ import ml.features.BCAI_calc.mol_graph_setup as BCAI
 import numpy as np
 import pandas as pd
 import sys
+import pickle
+import gzip
 
 
 def get_BCAI_features(mols, targetflag='CCS'):
@@ -22,6 +24,7 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	x = []				# x coordinate
 	y = []				# y coordinate
 	z = []				# z coordinate
+	conns = []
 
 	for m, mol in enumerate(mols):
 		for t, type in enumerate(mol.types):
@@ -31,13 +34,15 @@ def get_BCAI_features(mols, targetflag='CCS'):
 			x.append(mol.xyz[t][0])
 			y.append(mol.xyz[t][1])
 			z.append(mol.xyz[t][2])
+			conns.append(mol.conn[t])
 
 	atoms = {	'molecule_name': molecule_name,
 				'atom_index': atom_index,
 				'atom': atom,
 				'x': x,
 				'y': y,
-				'z': z
+				'z': z,
+				'conn': conns,
 			}
 
 	atoms = pd.DataFrame(atoms)
@@ -53,16 +58,18 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	molecule_name = [] 	# molecule name
 	atom_index_0 = []	# atom index for atom 1
 	atom_index_1 = []	# atom index for atom 2
-	type = []			# coupling type
-	scalar_coupling_constant = []	# coupling value
+	cpltype = []			# coupling type
+	coupling = []	# coupling value
+	r = []
+	y = []
 
 	i = -1
-	for m, mol in mols:
-		for t, type in mol.types:
-			for t2, type2 in mol.types:
+	for m, mol in enumerate(mols):
+		for t, type in enumerate(mol.types):
+			for t2, type2 in enumerate(mol.types):
 				if t == t2:
 					continue
-				if type != target[1] and type2 != target[2]:
+				if not ( type == target[1] and type2 == target[2] ):
 					continue
 				if mol.coupling_len[t][t2] != target[0]:
 					continue
@@ -72,22 +79,27 @@ def get_BCAI_features(mols, targetflag='CCS'):
 				molecule_name.append(mol.molid)
 				atom_index_0.append(t)
 				atom_index_1.append(t2)
-				type.append(targetflag)
-				scalar_coupling_constant.append(mol.coupling[t][t2])
+				cpltype.append(targetflag)
+				coupling.append(mol.coupling[t][t2])
+
+				y.append(mol.coupling[t][t2])
+				r.append([mol.molid, t, t2])
 
 	bonds = {	'id': id,
 				'molecule_name': molecule_name,
-				'atom_index_0': atom_index,
-				'atom_index_1': atom,
-				'type': type,
+				'atom_index_0': atom_index_0,
+				'atom_index_1': atom_index_1,
+				'type': cpltype,
 				'scalar_coupling_constant': coupling
 			}
 
+	#print(len(id), len(molecule_name), len(atom_index), len(atom))
 
+	bonds = pd.DataFrame(bonds)
 	BCAI.enhance_bonds(bonds, structure_dict)
 	bonds = BCAI.add_all_pairs(bonds, structure_dict) # maybe replace this
 	triplets = BCAI.make_triplets(bonds["molecule_name"].unique(), structure_dict)
-	quadruplets = make_quadruplets(bonds["molecule_name"].unique(),structure_dict)
+	quadruplets = BCAI.make_quadruplets(bonds["molecule_name"].unique(),structure_dict)
 
 	atoms = pd.DataFrame(atoms)
 	bonds = pd.DataFrame(bonds)
@@ -99,15 +111,15 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
 
 	embeddings = BCAI.add_embedding(atoms, bonds, triplets, quadruplets)
-	means, stds = get_scaling(bonds)
-	bonds = add_scaling(bonds, means, stds)
+	means, stds = BCAI.get_scaling(bonds)
+	bonds = BCAI.add_scaling(bonds, means, stds)
 
 
-	x = BCAI.create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10**10)
-	y = x[-1]
+	x = BCAI.create_dataset(atoms, bonds, triplets, quadruplets, labeled = True, max_count = 10**10)
 
-	print(x)
-	sys.exit(0)
+
+	with gzip.open("torch_proc_submission.pkl.gz", "wb") as f:
+			pickle.dump(x, f, protocol=4)
 
 	return x, y, r
 
