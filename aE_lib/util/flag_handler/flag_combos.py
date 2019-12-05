@@ -17,7 +17,7 @@ def check_combination(modelflag, featureflag):
 
 
 	elif modelflag == 'TFM':
-		if featureflag != 'TFM':
+		if featureflag != 'BCAI':
 			return False
 
 	else:
