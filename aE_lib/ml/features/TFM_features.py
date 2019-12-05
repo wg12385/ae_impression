@@ -6,9 +6,10 @@ import .BCAI_calc.mol_graph_setup as BCAI
 
 import numpy as np
 import pandas as pd
+import sys
 
 
-def get_molecular_graphs(mols, targetflag='CCS'):
+def get_BCAI_features(mols, targetflag='CCS'):
 
 	target = flag_to_target(targetflag)
 	p_table = Get_periodic_table()
@@ -101,10 +102,13 @@ def get_molecular_graphs(mols, targetflag='CCS'):
 	bonds = add_scaling(bonds, means, stds)
 
 
-	dataset = BCAI.create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10**10)
+	x = BCAI.create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10**10)
+	y = x[-1]
 
+	print(x)
+	sys.exit(0)
 
-	return dataset
+	return x, y, r
 
 
 

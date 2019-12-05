@@ -30,25 +30,27 @@ class TFMmodel(genericmodel):
 		NUM_QUAD_TYPES = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
 		NUM_BOND_ORIG_TYPES = 8
 		MAX_BOND_COUNT = 500  # params['max_bond_count']
+		max_step = len(train_loader)
 
-		device = torch.device('cuda' if params['cuda'] else 'cpu')
-		self.model = BCAI_graph.GraphTransformer(dim=params['d_model'], n_layers=params['n_layer, d_inner=params['d_inner'],
-								 fdim = params['feature_dim'], final_dim=params['final_dim'], dropout=params['dropout'],
-								 dropatt=params['dropatt'], final_dropout=params['final_dropout'], n_head=params['n_head'],
+		device = torch.device('cpu')
+		self.model = BCAI_graph.GraphTransformer(dim=int(params['d_model']), n_layers=int(params['n_layer']), d_inner=3800,
+								 fdim = 200, final_dim=int(params['final_dim']), dropout=params['dropout'],
+								 dropatt=params['dropatt'], final_dropout=params['final_dropout'], n_head=int(params['n_head']),
 								 num_atom_types=NUM_ATOM_TYPES,
 								 num_bond_types=NUM_BOND_TYPES,
 								 num_triplet_types=NUM_TRIPLET_TYPES,
 								 num_quad_types=NUM_QUAD_TYPES,
-								 dist_embedding=params['dist_embed_type'],
-								 atom_angle_embedding=params['angle_embed_type'],
-								 trip_angle_embedding=params['quad_angle_embed_type'],
-								 quad_angle_embedding=params['quad_angle_embed_type'],
-								 wnorm=params['wnorm'],
-								 use_quad=params['use_quad']).to(device)
+								 dist_embedding='sine',
+								 atom_angle_embedding='sine',
+								 trip_angle_embedding='sine',
+								 quad_angle_embedding='sine',
+								 wnorm=True,
+								 use_quad=False).to(device)
 		params['n_all_param'] = sum([p.nelement() for p in model.parameters() if p.requires_grad])
 
+		params['optim'] = "RAdam"
 		optimizer = getattr(optim if params['optim'] != "RAdam" else radam, params['optim'])(self.model.parameters(), lr=params['lr'])
-		scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, params['max_step'], eta_min=params['eta_min'])
+		scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, max_step, eta_min=params['eta_min'])
 
 		para_model = self.model.to(device)
 
@@ -63,18 +65,18 @@ class TFMmodel(genericmodel):
 
 		#BCAI_predict.single_model_predict(test_loader, self.model, 'test')
 		MAX_BOND_COUNT = 500
-	    #dev = "cpu"
-	    model = model.to(dev)
-	    model.eval()
-	    with torch.no_grad():
-	        for arr in tqdm(loader):
-	            x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = arr
-	            x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = \
-	                x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
-	                x_triplet.to(dev), x_triplet_angle.to(dev), x_quad.to(dev), x_quad_angle.to(dev), y.to(dev)
+		#dev = "cpu"
+		model = model.to(dev)
+		model.eval()
+		with torch.no_grad():
+			for arr in tqdm(loader):
+				x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = arr
+				x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = \
+					x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
+					x_triplet.to(dev), x_triplet_angle.to(dev), x_quad.to(dev), x_quad_angle.to(dev), y.to(dev)
 
-	            x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
-	            y_pred, _ = model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
+				x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
+				y_pred, _ = model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
 
 		return y_pred
 

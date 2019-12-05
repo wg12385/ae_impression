@@ -67,8 +67,35 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 		pass
 
 	elif modelflag == 'TFM':
-		# add some params
-		pass
+		param_ranges['d_model'] = [400, 800]
+		param_logs['d_model'] = 'lin'
+
+		param_ranges['n_layer'] = [10, 18]
+		param_logs['n_layer'] = 'lin'
+
+		param_ranges['d_inner'] = [3700, 3900]
+		param_logs['d_inner'] = 'lin'
+
+		param_ranges['feature_dim'] = [199.9, 200.1]
+		param_logs['feature_dim'] = 'lin'
+
+		param_ranges['final_dim'] = [279.9, 280.1]
+		param_logs['final_dim'] = 'lin'
+
+		param_ranges['dropout'] = [0.02, 0.04]
+		param_logs['dropout'] = 'lin'
+
+		param_ranges['dropatt'] = [0.0, 0.01]
+		param_logs['dropatt'] = 'lin'
+
+		param_ranges['final_dropout'] = [0.03, 0.04]
+		param_logs['final_dropout'] = 'lin'
+
+		param_ranges['n_head'] = [9, 11]
+		param_logs['n_head'] = 'lin'
+
+		param_ranges['eta_min'] = [-6, -7]
+		param_logs['eta_min'] = 'log'
 
 
 	if featureflag == 'CMAT':
