@@ -43,7 +43,7 @@ def grid_search(dataset, args):
 	BEST_PARAMS = {}
 	for p, params in enumerate(search_list):
 
-		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(p, dataset, args, next_point_to_probe=params,
+		score, BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(p, dataset, args, next_point_to_probe=params,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
 	outname = generic.save_models(dataset, BEST_PARAMS, args)

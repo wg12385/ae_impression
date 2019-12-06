@@ -60,7 +60,7 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PAR
 		BEST_PARAMS = next_point_to_probe
 		print('score = ', score)
 
-	return BEST_SCORE, BEST_PARAMS
+	return score, BEST_SCORE, BEST_PARAMS
 
 def save_models(dataset, BEST_PARAMS, args):
 

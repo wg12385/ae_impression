@@ -49,8 +49,10 @@ def gaussian_search(dataset, args):
 				if 'log' in args['param_logs'][param]:
 					next_point_to_probe[param] = 10**next_point_to_probe[param]
 
-		BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(e, dataset, args, next_point_to_probe=next_point_to_probe,
+		 score, BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(e, dataset, args, next_point_to_probe=next_point_to_probe,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
+
+		optimizer.register(params=next_point_to_probe, target=-score)
 
 
 
