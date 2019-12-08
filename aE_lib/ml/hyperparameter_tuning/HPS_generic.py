@@ -89,7 +89,7 @@ def save_models(dataset, BEST_PARAMS, args):
 		model.train(train_x=np.asarray(model.train_x)[train_index], train_y=np.asarray(model.train_y)[train_index])
 
 		outfile = args['output_dir'] + outname.split('/')[-1].split('.')[0] + '_' + str(i) + '.pkl'
-				pickle.dump(model, open(outfile, "wb"))
+		pickle.dump(model, open(outfile, "wb"))
 
 	return outname
 
