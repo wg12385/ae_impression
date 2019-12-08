@@ -52,8 +52,10 @@ def gaussian_search(dataset, args):
 		score, BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(e, dataset, args, next_point_to_probe=next_point_to_probe,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
-		optimizer.register(params=next_point_to_probe, target=-score)
-
+		try:
+			optimizer.register(params=next_point_to_probe, target=-score)
+		except:
+			continue
 
 
 	outname = generic.save_models(dataset, BEST_PARAMS, args)
