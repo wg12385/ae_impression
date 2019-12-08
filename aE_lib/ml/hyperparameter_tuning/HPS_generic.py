@@ -25,6 +25,8 @@ def setup_logfile(args):
 
 def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PARAMS):
 
+	print('HPS_iteration. . .')
+
 	if args['featureflag'] == 'BCAI' and iter == 0:
 		dataset.get_features_frommols(args['featureflag'], args['targetflag'], params=next_point_to_probe)
 	elif args['feature_optimisation'] == 'True':
@@ -58,6 +60,8 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PAR
 	if score < BEST_SCORE:
 		BEST_SCORE = score
 		BEST_PARAMS = next_point_to_probe
+		print('BEST_SCORE = ', score)
+	else:
 		print('score = ', score)
 
 	return score, BEST_SCORE, BEST_PARAMS
