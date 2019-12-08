@@ -18,7 +18,7 @@ class FCHLmodel(genericmodel):
 		if len(train_y) == 0:
 			train_y = self.train_y
 
-		dimensions = train_x.shape[1]
+		dimensions = np.asarray(train_x).shape[1]
 
 		# reshape x array:
 		Xr = []
