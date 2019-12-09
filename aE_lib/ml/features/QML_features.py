@@ -31,6 +31,7 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 				for j in range(len(mol.types)):
 					if i == j:
 						continue
+
 					if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
 						continue
 

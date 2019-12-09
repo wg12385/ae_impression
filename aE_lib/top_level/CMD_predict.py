@@ -80,7 +80,7 @@ def predict(args):
 				assert model.args['featureflag'] == var_model.args['featureflag']
 				assert model.args['targetflag'] == var_model.args['targetflag']
 				assert model.args['max_size'] == var_model.args['max_size']
-				assert model.params == var_model.params
+				assert model.params == var_model.params, print(model.params, var_model.params)
 
 				print('\tPredicting from ', var_model_file)
 				tmp_preds = var_model.predict(dset.x)

@@ -165,12 +165,12 @@ class dataset(object):
 		assert len(self.r) > 0, print('Something went wrong, nothing to assign')
 
 		for mol in self.mols:
-
 			if zero:
 				mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
 				mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
 
 			for r, ref in enumerate(self.r):
+				
 				if mol.molid != ref[0]:
 					continue
 
@@ -186,6 +186,7 @@ class dataset(object):
 							if ref[1] == t1 and ref[2] == t2:
 								mol.coupling[t1][t2] = pred_y[r]
 								mol.coupling_var[t1][t2] = var[r]
+
 
 
 
