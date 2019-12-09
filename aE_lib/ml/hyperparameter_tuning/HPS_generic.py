@@ -101,7 +101,7 @@ def save_models(dataset, BEST_PARAMS, args):
 		tmp_model.train()
 
 		outfile = args['output_dir'] + outname.split('/')[-1].split('.')[0] + '_' + str(i) + '.pkl'
-		pickle.dump(model, open(outfile, "wb"))
+		pickle.dump(tmp_model, open(outfile, "wb"))
 
 	return outname
 
