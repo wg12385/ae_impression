@@ -29,7 +29,7 @@ class dataset(object):
 
 	def get_features_frommols(self, featureflag='CMAT', targetflag='CCS', params={}):
 
-		max = 100
+		max = 200
 
 		print(params)
 
