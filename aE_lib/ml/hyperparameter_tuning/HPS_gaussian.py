@@ -45,13 +45,24 @@ def gaussian_search(dataset, args):
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
-		print('PARAM_CHECK', next_point_to_probe)
+		not_unique = False
+		attempts = 0
+		while not_unique == False:
+			switch = False
+			attempts += 1
+			for parms in searched:
+				if next_point_to_probe == parms:
+					switch = True
+					next_point_to_probe = {}
+					for param in args['param_ranges'].keys():
+						next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
+			if switch:
+				not_unique == False
+			elif attempts > 5:
+				print('Search space expended for current parameters, finishing. . . ')
+				e = int(args['epochs'])
+				break
 
-		for parms in searched:
-			if next_point_to_probe == parms:
-				next_point_to_probe = {}
-				for param in args['param_ranges'].keys():
-					next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 
 		if check_logs:
 			for param in args['param_ranges'].keys():

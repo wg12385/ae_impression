@@ -23,7 +23,9 @@ def setup_logfile(args):
 		for string in strings:
 			print(string, file=f)
 
-def HPS_iteration(iter, dataset, args, next_point_to_probe, BEST_SCORE, BEST_PARAMS):
+def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, BEST_PARAMS={}):
+
+	print('HPS iter --- params', next_point_to_probe)
 
 	print('HPS_iteration. . .')
 
