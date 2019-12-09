@@ -27,11 +27,11 @@ class dataset(object):
 			#print(mol.coupling_len)
 
 
-	def get_features_frommols(self, featureflag='CMAT', targetflag='CCS', params={}):
+	def get_features_frommols(self, args, params={}):
 
-		max = 100
-
-		print(params)
+		featureflag = args['featureflag']
+		targetflag = args['targetflag']
+		max = args['max_size']
 
 		x = []
 		y = []
@@ -41,7 +41,7 @@ class dataset(object):
 		if featureflag == 'aSLATM':
 			mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params['cutoff'], max=max, mbtypes=mbtypes)
+				_x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params['cutoff'], max=args['max_size'], mbtypes=mbtypes)
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
@@ -49,10 +49,11 @@ class dataset(object):
 
 		elif featureflag == 'CMAT':
 			for mol in self.mols:
-				if len(mol.types) > max:
-					max = len(mol.types)
+				if len(mol.types) >args['max_size']:
+					args['max_size'] = len(mol.types)
+					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', args['max_size'])
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'], max, central_decay=params['central_decay'],
+				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'],args['max_size'], central_decay=params['central_decay'],
 														interaction_cutoff=params['interaction_cutoff'], interaction_decay=params['interaction_decay'])
 				x.extend(_x)
 				y.extend(_y)
@@ -61,10 +62,11 @@ class dataset(object):
 
 		elif featureflag == 'FCHL':
 			for mol in self.mols:
-				if len(mol.types) > max:
+				if len(mol.types) >args['max_size']:
 					max = len(mol.types)
+					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', args['max_size'])
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'], max)
+				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'],args['max_size'])
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)

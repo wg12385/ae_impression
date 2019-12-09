@@ -58,8 +58,7 @@ def predict(args):
 
 			model = pickle.load(open(model_file, 'rb'))
 
-			dset.get_features_frommols(featureflag=model.args['featureflag'],
-						targetflag=model.args['targetflag'], params=model.params)
+			dset.get_features_frommols(model.args, params=model.params)
 			assert len(dset.x) > 0, print('No features made. . . ')
 
 			if args['store_datasets']:

@@ -29,10 +29,12 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 
 	print('HPS_iteration. . .')
 
+
+	args['max_size'] = 200
 	if args['featureflag'] == 'BCAI' and iter == 0:
-		dataset.get_features_frommols(args['featureflag'], args['targetflag'], params=next_point_to_probe)
+		dataset.get_features_frommols(args, params=next_point_to_probe)
 	elif args['feature_optimisation'] == 'True':
-		dataset.get_features_frommols(args['featureflag'], args['targetflag'], params=next_point_to_probe)
+		dataset.get_features_frommols(args, params=next_point_to_probe)
 
 	assert len(dataset.x) > 0
 	assert len(dataset.y) > 0
