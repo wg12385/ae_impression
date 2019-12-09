@@ -80,8 +80,6 @@ class FCHLmodel(genericmodel):
 		Xe = np.asarray(Xe)
 		Xr = np.asarray(Xr)
 
-		print(Xe.shape, Xr.shape)
-
 		# loop through representation sets in training set
 		for d in range(dimensions):
 			# append kernel for each representation set
@@ -102,7 +100,6 @@ class FCHLmodel(genericmodel):
 				# multiply kernels so result is k1 * k2 * k3 ...
 				Ks = Ks * ks[i]
 		Ks = np.asarray(Ks)
-		print(Ks.shape, self.alpha.shape)
 
 		# predict values of y
 		y_pred = np.dot(Ks, self.alpha)

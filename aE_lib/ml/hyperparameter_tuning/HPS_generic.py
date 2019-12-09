@@ -94,7 +94,11 @@ def save_models(dataset, BEST_PARAMS, args):
 	for train_index, test_index in kf.split(model.train_x):
 		i += 1
 
-		model.train(train_x=np.asarray(model.train_x)[train_index], train_y=np.asarray(model.train_y)[train_index])
+		tmp_model = copy.deepcopy(model)
+
+		tmp_model.train_x = np.asarray(model.train_x)[train_index]
+		tmp_model.train_y = np.asarray(model.train_y)[train_index]
+		tmp_model.train()
 
 		outfile = args['output_dir'] + outname.split('/')[-1].split('.')[0] + '_' + str(i) + '.pkl'
 		pickle.dump(model, open(outfile, "wb"))
