@@ -60,8 +60,9 @@ def gaussian_search(dataset, args):
 				not_unique == False
 			elif attempts > 5:
 				print('Search space expended for current parameters, finishing. . . ')
-				e = int(args['epochs'])
-				break
+				outname = generic.save_models(dataset, BEST_PARAMS, args)
+				print('Optimised model(s) saved in ', outname)
+				return dataset, BEST_SCORE
 
 
 		if check_logs:
