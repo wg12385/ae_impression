@@ -77,8 +77,6 @@ def predict(args):
 					print(e)
 					continue
 
-				print(model.alpha.shape, var_model.alpha.shape)
-
 				assert model.args['featureflag'] == var_model.args['featureflag']
 				assert model.args['targetflag'] == var_model.args['targetflag']
 				assert model.args['max_size'] == var_model.args['max_size']
