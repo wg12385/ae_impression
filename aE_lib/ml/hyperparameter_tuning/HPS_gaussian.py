@@ -58,7 +58,7 @@ def gaussian_search(dataset, args):
 						next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 
 			if not switch:
-				not_unique == True
+				not_unique = True
 			elif attempts > 5:
 				print('Search space expended for current parameters, finishing. . . ')
 				outname = generic.save_models(dataset, BEST_PARAMS, args)
