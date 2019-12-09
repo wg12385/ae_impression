@@ -35,6 +35,7 @@ def gaussian_search(dataset, args):
 
 	BEST_SCORE = 999.999
 	BEST_PARAMS = {}
+	searched = []
 	for e in range(int(args['epochs'])):
 
 		if args['random'] > 0 and e%args['random'] == 0:
@@ -44,6 +45,12 @@ def gaussian_search(dataset, args):
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
+		for parms in searched:
+			if next_point_to_probe == parms:
+				next_point_to_probe = {}
+				for param in args['param_ranges'].keys():
+					next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
+
 		if check_logs:
 			for param in args['param_ranges'].keys():
 				if 'log' in args['param_logs'][param]:
@@ -52,13 +59,10 @@ def gaussian_search(dataset, args):
 		score, BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(e, dataset, args, next_point_to_probe=next_point_to_probe,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
-		try:
-			# Sometimes two identical points are generated and so this kills the search
-			# not ideal, but no need to stop the whole search because we looked at the same point twice
-			optimizer.register(params=next_point_to_probe, target=-score)
-		except Exception as e:
-			print(e)
-			continue
+
+		searched.append(next_point_to_probe)
+		optimizer.register(params=next_point_to_probe, target=-score)
+
 
 
 	outname = generic.save_models(dataset, BEST_PARAMS, args)
