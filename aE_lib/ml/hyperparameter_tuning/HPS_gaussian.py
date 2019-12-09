@@ -52,8 +52,13 @@ def gaussian_search(dataset, args):
 		score, BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(e, dataset, args, next_point_to_probe=next_point_to_probe,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
-		optimizer.register(params=next_point_to_probe, target=-score)
-
+		try:
+			# Sometimes two identical points are generated and so this kills the search
+			# not ideal, but no need to stop the whole search because we looked at the same point twice
+			optimizer.register(params=next_point_to_probe, target=-score)
+		except Exception as e:
+			print(e)
+			continue
 
 
 	outname = generic.save_models(dataset, BEST_PARAMS, args)
