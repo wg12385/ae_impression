@@ -45,6 +45,8 @@ def gaussian_search(dataset, args):
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
+		print('PARAM_CHECK', next_point_to_probe)
+
 		for parms in searched:
 			if next_point_to_probe == parms:
 				next_point_to_probe = {}
