@@ -297,7 +297,7 @@ def run_wizard(args):
 		output_dir = input("Set output directory ? default is current directory \n")
 		if len(output_dir) == 0:
 			output_dir = './'
-		elif output_dir[-s] != '/':
+		elif output_dir[-1] != '/':
 			output_dir = output_dir + '/'
 
 		if os.path.isdir(output_dir):
