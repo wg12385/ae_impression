@@ -41,7 +41,7 @@ if __name__ == "__main__":
 						 action="store", dest='training_set', default='None')
 
 	parser.add_argument('--output_dir', help='Output directory for non log files',
-						action="store", dest='output_dir', default='None')
+						action="store", dest='output_dir', default='./')
 
 	parser.add_argument('--store_datasets', help='Option to store datasets as pickle files for later use',
 						 action="store", dest='store_datasets', default='False')
@@ -124,6 +124,11 @@ if __name__ == "__main__":
 							 action="store", dest='input_files', default='none')
 	parser.add_argument('--output_files', help='Files to store features in',
 							 action="store", dest='output_files', default='none')
+
+
+
+	parser.add_argument('--max_size', help='Maximum molecule size',
+							action="store", dest='max_size', default=200)
 
 
 	# Parse arguments into args object
