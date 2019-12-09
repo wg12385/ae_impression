@@ -61,9 +61,9 @@ class FCHLmodel(genericmodel):
 		if len(train_x) == 0:
 			train_x = self.train_x
 
-		assert test_x.shape[1] == train_x.shape[1]
+		assert np.asarray(test_x).shape[1] == np.asarray(train_x).shape[1]
 
-		dimensions = train_x.shape[1]
+		dimensions = np.asarray(train_x).shape[1]
 
 		# reshape x arrays:
 		Xe = []
