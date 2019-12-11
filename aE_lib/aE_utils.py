@@ -46,7 +46,9 @@ if __name__ == "__main__":
 			mol.read_structure(file, args['type'])
 			mol.read_nmr(file, args['type'])
 			if args['type'] in ['orca', 'g09']:
-				functional, basis_set = read_functional(file)
+				#functional, basis_set = read_functional(file)
+				functional = 'wb97xd'
+				basis_set = '6311gdp'
 				scaling_factors = Get_tantillo_factors(basis_set, functional)
 				mol.scale_shifts(scaling_factors)
 			outname = file.split('/')[-1].split('.')[0]
