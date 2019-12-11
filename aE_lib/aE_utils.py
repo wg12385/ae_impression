@@ -43,12 +43,16 @@ if __name__ == "__main__":
 
 			print(file)
 			mol = nmrmol(molid=f)
-			mol.read_structure(file, args['type'])
+			#mol.read_structure(file, args['type'])
 			mol.read_nmr(file, args['type'])
+
+			'''
 			if args['type'] in ['orca', 'g09']:
 				functional, basis_set = read_functional(file)
 				scaling_factors = Get_tantillo_factors(basis_set, functional)
 				mol.scale_shifts(scaling_factors)
+			'''
+
 			outname = file.split('/')[-1].split('.')[0]
 			outfile = args['out_dir'] + outname + '.nmredata.sdf'
 			nmredata.nmrmol_to_nmredata(mol, outfile)
