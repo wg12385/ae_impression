@@ -38,6 +38,11 @@ def setup_trainmodel(args):
 
 def trainmodel(args):
 
+	params = []
+	for param in args['param_ranges'].keys():
+		params.append(param)
+	args['param_list'] = params
+
 	if args['feature_optimisation'] == 'True':
 		if args['training_set'].split('.')[-1] == 'pkl':
 			dset = pickle.load(open(args['training_set'], 'rb'))

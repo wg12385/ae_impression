@@ -45,6 +45,7 @@ def gaussian_search(dataset, args):
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
+		'''
 		not_unique = False
 		attempts = 0
 		while not_unique == False:
@@ -64,7 +65,7 @@ def gaussian_search(dataset, args):
 				outname = generic.save_models(dataset, BEST_PARAMS, args)
 				print('Optimised model(s) saved in ', outname)
 				return dataset, BEST_SCORE
-
+		'''
 
 		if check_logs:
 			for param in args['param_ranges'].keys():
