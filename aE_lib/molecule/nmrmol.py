@@ -58,8 +58,13 @@ class nmrmol(object):
 			self.xyz, self.types, self.conn, _ = structure_read.fast_generic_pybel_read(file, 'sdf')
 			self.shift, self.shift_var, self.coupling, self.coupling_var, self.coupling_len = nmredata_read.read_nmr(file, len(self.types))
 		else:
-			print('Type not recognised {0:<s} . . .'.format(type))
-			sys.exit(0)
+			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, type)
+			atoms = len(self.types)
+			self.shift = np.zeros((atoms), dtype=np.float64)
+			self.shift_var = np.zeros((atoms), dtype=np.float64)
+			self.coupling = np.zeros((atoms, atoms), dtype=np.float64)
+			self.coupling_var = np.zeros((atoms, atoms), dtype=np.float64)
+			print('non-nmr file detected, generated dummy file'.format(type))
 
 	def scale_shifts(self, scaling_factors={}):
 		periodic_table = Get_periodic_table()

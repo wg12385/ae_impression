@@ -38,7 +38,10 @@ class dataset(object):
 
 		featureflag = args['featureflag']
 		targetflag = args['targetflag']
-		max = args['max_size']
+		try:
+			max = args['max_size']
+		except:
+			max = 200
 
 		x = []
 		y = []
@@ -57,7 +60,7 @@ class dataset(object):
 		elif featureflag == 'aSLATM':
 			mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params['cutoff'], max=args['max_size'], mbtypes=mbtypes)
+				_x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params['cutoff'], max=max, mbtypes=mbtypes)
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
@@ -65,9 +68,9 @@ class dataset(object):
 
 		elif featureflag == 'CMAT':
 			for mol in self.mols:
-				if len(mol.types) >args['max_size']:
+				if len(mol.types) >max:
 					args['max_size'] = len(mol.types)
-					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', args['max_size'])
+					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
 			for mol in self.mols:
 				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'],args['max_size'], central_decay=params['central_decay'],
 														interaction_cutoff=params['interaction_cutoff'], interaction_decay=params['interaction_decay'])
@@ -78,11 +81,11 @@ class dataset(object):
 
 		elif featureflag == 'FCHL':
 			for mol in self.mols:
-				if len(mol.types) >args['max_size']:
+				if len(mol.types) >max:
 					max = len(mol.types)
-					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', args['max_size'])
+					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'],args['max_size'])
+				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'], max)
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
