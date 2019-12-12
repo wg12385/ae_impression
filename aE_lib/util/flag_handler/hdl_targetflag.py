@@ -24,3 +24,15 @@ def flag_to_target(flag):
 		print('flag, ', flag, ' not recognised, coupling flag format is <nJxy> . . .')
 		print('flag, ', flag, ' not recognised, chemical shift flag format is <XCS> . . .')
 		return 0
+
+def target_to_flag(target):
+	p_table = Get_periodic_table()
+
+	if len(target) == 3:
+		flag = str(target[0]) + 'J' + str(p_table[target[1]]) + str(p_table[target[2]])
+	elif len(target) == 1:
+		flag = str(target[0]) + 'CS'
+	else:
+		print('Error, target ', target, ' not recognised')
+
+	return flag

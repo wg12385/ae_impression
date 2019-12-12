@@ -1,6 +1,7 @@
 
 from .nmrmol import nmrmol
 from ml.features import QML_features, TFM_features
+from util.file_gettype import get_type
 import numpy as np
 np.set_printoptions(threshold=99999999999)
 
@@ -16,12 +17,18 @@ class dataset(object):
 		self.params = {}
 
 
-	def get_mols(self, files, type):
+	def get_mols(self, files, type='', label_part=0):
 		self.mols = []
 		for file in files:
-			id = file.split('/')[-1].split('_')[0]
+			id = file.split('/')[-1].split('.')[0].split('_')[label_part]
 			mol = nmrmol(molid=id)
-			mol.read_nmr(file, type)
+
+			if type == '':
+				ftype = get_type(file)
+			else:
+				ftype = type
+
+			mol.read_nmr(file, ftype)
 			self.mols.append(mol)
 			#print(id)
 			#print(mol.coupling_len)
@@ -38,7 +45,16 @@ class dataset(object):
 		r = []
 
 		self.params = params
-		if featureflag == 'aSLATM':
+
+		if featureflag == 'dummy':
+			for mol in self.mols:
+				_x, _y, _r = QML_features.get_dummy_features([mol], targetflag)
+				x.extend(_x)
+				y.extend(_y)
+				r.extend(_r)
+
+
+		elif featureflag == 'aSLATM':
 			mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
 			for mol in self.mols:
 				_x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params['cutoff'], max=args['max_size'], mbtypes=mbtypes)
@@ -170,7 +186,7 @@ class dataset(object):
 				mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
 
 			for r, ref in enumerate(self.r):
-				
+
 				if mol.molid != ref[0]:
 					continue
 
