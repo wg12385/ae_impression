@@ -21,7 +21,8 @@ def gaussian_search(dataset, args):
 
 	pbounds = {}
 	for param in args['param_ranges'].keys():
-		pbounds[param] = (args['param_ranges'][param][0], args['param_ranges'][param][1])
+		#pbounds[param] = (args['param_ranges'][param][0], args['param_ranges'][param][1])
+		pbounds[param] = (0, 1)
 
 	optimizer = BayesianOptimization(
 		f=None,
@@ -41,7 +42,8 @@ def gaussian_search(dataset, args):
 		if args['random'] > 0 and e%args['random'] == 0:
 			next_point_to_probe = {}
 			for param in args['param_ranges'].keys():
-				next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
+				next_point_to_probe[param] = np.random.uniform(0, 1)
+				#next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
@@ -55,7 +57,7 @@ def gaussian_search(dataset, args):
 					switch = True
 					next_point_to_probe = {}
 					for param in args['param_ranges'].keys():
-						next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
+						next_point_to_probe[param] = np.random.uniform(0, 1)
 
 			if not switch:
 				not_unique = True
@@ -65,6 +67,8 @@ def gaussian_search(dataset, args):
 				print('Optimised model(s) saved in ', outname)
 				return dataset, BEST_SCORE
 
+		for param in args['param_ranges'].keys():
+			next_point_to_probe[param] = (next_point_to_probe[param]*(args['param_ranges'][param][1]-args['param_ranges'][param][0])) + args['param_ranges'][param][0]
 
 		if check_logs:
 			for param in args['param_ranges'].keys():
