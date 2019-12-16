@@ -48,7 +48,7 @@ class dataset(object):
 
 		self.params = params
 
-		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
+		if featureflag in ['dummy', 'aSLATM', 'CMAT', 'FCHL', 'ACSF']:
 			from ml.features import QML_features
 		elif featureflag in ['BCAI']:
 			from ml.features import TFM_features
