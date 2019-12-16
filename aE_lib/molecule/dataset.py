@@ -48,14 +48,16 @@ class dataset(object):
 
 		self.params = params
 
-		if featureflag in ['dummy', 'aSLATM', 'CMAT', 'FCHL', 'ACSF']:
+		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
 			from ml.features import QML_features
 		elif featureflag in ['BCAI']:
 			from ml.features import TFM_features
+		elif featureflag in ['dummy']:
+			from ml.features import GNR_features
 
 		if featureflag == 'dummy':
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_dummy_features([mol], targetflag)
+				_x, _y, _r = GNR_features.get_dummy_features([mol], targetflag)
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
