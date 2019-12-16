@@ -45,5 +45,6 @@ def read_nmr(file, atoms):
 				coupling_array[int(items[0])][int(items[2])] = float(items[4])
 				coupling_var[int(items[0])][int(items[2])] = float(items[8])
 				coupling_len[int(items[0])][int(items[2])] = length
+				coupling_len[int(items[2])][int(items[0])] = length
 
 	return shift_array, shift_var, coupling_array, coupling_var, coupling_len
