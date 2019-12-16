@@ -8,16 +8,19 @@ def setup_logfile(args):
 	strings = []
 	strings.append('HPS ' + args['searchflag'] + ' SEARCH')
 	strings.append(args['modelflag'] + '   ' + args['featureflag'] + '   ' + args['targetflag'])
-	for param in args['param_ranges'].keys():
+	for param in args['param_list']:
 		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
 																	low=args['param_ranges'][param][0],
 																	high=args['param_ranges'][param][1]))
 	strings.append('')
 	strings.append('START')
 	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
-	for param in args['param_ranges'].keys():
+	for param in args['param_list']:
 		string = string + '\t{param:<20s}'.format(param=param)
 	strings.append(string)
+
+	if args['logfile'] == "":
+		args['logfile'] = args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + args['searchflag'] + '.log'
 
 	with open(args['logfile'], 'w') as f:
 		for string in strings:
@@ -25,10 +28,7 @@ def setup_logfile(args):
 
 def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, BEST_PARAMS={}):
 
-	print('HPS iter --- params', next_point_to_probe)
-
 	print('HPS_iteration. . .')
-
 
 	args['max_size'] = 200
 	if args['featureflag'] == 'BCAI' and iter == 0:
@@ -52,12 +52,12 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 	y_pred = model.cv_predict(args['cv_steps'])
 
 	score = np.mean(np.absolute(y_pred - dataset.y))
-	if score > 9999.99 or np.isnan(score):
-		score = 999.99
+	if score > 99999.99 or np.isnan(score):
+		score = 99999.99
 
 	with open(args['logfile'], 'a') as f:
 		string = '{i:<10d}\t{score:<10.5f}'.format(i=iter, score=score)
-		for param in next_point_to_probe.keys():
+		for param in args['param_list']:
 			string = string + '\t{param:<20.4g}'.format(param=next_point_to_probe[param])
 		print(string, file=f)
 

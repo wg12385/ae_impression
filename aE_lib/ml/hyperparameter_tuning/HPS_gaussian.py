@@ -47,25 +47,6 @@ def gaussian_search(dataset, args):
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
-		not_unique = False
-		attempts = 0
-		while not_unique == False:
-			switch = False
-			attempts += 1
-			for parms in searched:
-				if next_point_to_probe == parms:
-					switch = True
-					next_point_to_probe = {}
-					for param in args['param_ranges'].keys():
-						next_point_to_probe[param] = np.random.uniform(0, 1)
-
-			if not switch:
-				not_unique = True
-			elif attempts > 5:
-				print('Search space expended for current parameters, finishing. . . ')
-				outname = generic.save_models(dataset, BEST_PARAMS, args)
-				print('Optimised model(s) saved in ', outname)
-				return dataset, BEST_SCORE
 
 		for param in args['param_ranges'].keys():
 			next_point_to_probe[param] = (next_point_to_probe[param]*(args['param_ranges'][param][1]-args['param_ranges'][param][0])) + args['param_ranges'][param][0]
