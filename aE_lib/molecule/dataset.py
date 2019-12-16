@@ -1,6 +1,5 @@
 
 from .nmrmol import nmrmol
-from ml.features import QML_features, TFM_features
 from util.file_gettype import get_type
 import numpy as np
 np.set_printoptions(threshold=99999999999)
@@ -48,6 +47,11 @@ class dataset(object):
 		r = []
 
 		self.params = params
+
+		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
+			from ml.features import QML_features
+		elif featureflag in ['BCAI']:
+			from ml.features import TFM_features
 
 		if featureflag == 'dummy':
 			for mol in self.mols:

@@ -1,7 +1,6 @@
 import pickle
 from file_creation.HPC_submission import make_HPC_header
-from molecule.dataset import dataset
-from file_creation.structure_formats.nmredata import nmrmol_to_nmredata
+
 import sys
 import numpy as np
 import glob
@@ -35,6 +34,9 @@ def setup_predict(args):
 
 
 def predict(args):
+
+	from molecule.dataset import dataset
+	from file_creation.structure_formats.nmredata import nmrmol_to_nmredata
 
 	for files_set in args['test_sets']:
 		parts = files_set.split('/')

@@ -1,8 +1,6 @@
 
 from file_creation.HPC_submission import make_HPC_header
-from ml.HPS import HPS
-from molecule.dataset import dataset
-from molecule.nmrmol import nmrmol
+
 import pickle
 import glob
 import sys
@@ -37,6 +35,10 @@ def setup_trainmodel(args):
 
 
 def trainmodel(args):
+
+	from ml.HPS import HPS
+	from molecule.dataset import dataset
+	from molecule.nmrmol import nmrmol
 
 	params = []
 	for param in args['param_ranges'].keys():

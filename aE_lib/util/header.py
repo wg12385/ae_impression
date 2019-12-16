@@ -8,6 +8,9 @@ def print_header_aE():
 	string5 ='    | (_| | |_| | || (_) |   | |___| |\  || |\ \ _| |_| \__/\| | | |     '
 	string6 ='     \__,_|\__,_|\__\___/    \____/\_| \_/\_| \_|\___/ \____/\_| |_/     '
 	string7 ='-------------------------------------------------------------------------'
+	string8 =	"{0:^74s}".format("Will Gerrard")
+	string9 ='-------------------------------------------------------------------------'
+
 	print(string0)
 	print(string1)
 	print(string2)
@@ -16,6 +19,8 @@ def print_header_aE():
 	print(string5)
 	print(string6)
 	print(string7)
+	print(string8)
+	print(string9)
 
 
 def print_header_IMP():
@@ -27,6 +32,8 @@ def print_header_IMP():
 	string4 =	'       | || |  | |  __/|  _ <| |___ ___) |__) | | |_| | |\  |      '
 	string5 =	'      |___|_|  |_|_|   |_| \_\_____|____/____/___\___/|_| \_|      '
 	string6 =	'-------------------------------------------------------------------'
+	string7 =	"{0:^68s}".format("Will Gerrard")
+	string8 =	'-------------------------------------------------------------------'
 
 	print(string0)
 	print(string1)
@@ -34,4 +41,6 @@ def print_header_IMP():
 	print(string3)
 	print(string4)
 	print(string5)
-	print(string6)												
+	print(string6)
+	print(string7)
+	print(string8)
