@@ -3,20 +3,26 @@ import glob
 from util.flag_handler import hdl_targetflag, flag_combos, paramdict
 import os
 
+# code to run user through selection of input arguments for selected command
+# default flag is used to minimise required user input
 def run_wizard(args, default=False):
 
-	# code to run user through selection of input arguments for selected command
+	# wizard section for training commands
 	if args['Command'] == 'setup_train' or args['Command'] == 'train':
 		# Training set ##############################################################################
 		check = False
+		# Repeat input loop until succesful
 		while not check:
+			# Check currently held args (user input or default)
+			# If single file specified:
 			if args['training_set'].split('.')[-1] == 'pkl' or args['training_set'].split('.')[-1] == 'csv':
+				# Attempt to open the file
 				try:
 					a = open(args['training_set'], 'r')
 					check = True
 				except Exception as e:
 					print(e)
-
+			# Else try and open first file in list of files
 			else:
 				files = glob.glob(args['training_set'])
 				try:
@@ -24,7 +30,7 @@ def run_wizard(args, default=False):
 					check = True
 				except Exception as e:
 					print(e)
-
+			# If check remains false here, prompt user for training set input
 			if not check:
 				args['training_set'] = input("Training set: \n")
 
@@ -32,12 +38,14 @@ def run_wizard(args, default=False):
 		# Store datasets ##############################################################################
 		check = False
 		while not check:
+			# default to storing datasets
 			if default:
 				args['store_datasets'] = 'True'
 				check = True
+			# Get user decision y/n
 			else:
 				decision = input("Do you want to store dataset as pickle after creation ? [y]/n: \n")
-
+				# Go through several reasonable input options
 				if len(decision) == 0:
 					args['store_datasets'] = 'True'
 					check = True
@@ -50,7 +58,7 @@ def run_wizard(args, default=False):
 				else:
 					check = False
 
-
+		# Assign default model based on feature selection
 		if default:
 			if args['featureflag'] == 'FCHL':
 				args['modelflag'] = 'FCHL'
@@ -58,6 +66,7 @@ def run_wizard(args, default=False):
 				args['modelflag'] = 'KRR'
 			else:
 				args['modelflag'] == 'NN'
+		# Alternatively get model from user
 		else:
 			combocheck = False
 			while not combocheck:
@@ -68,10 +77,13 @@ def run_wizard(args, default=False):
 					if model in ['KRR', 'FCHL', 'NN', 'TFM']:
 						args['modelflag'] = model
 						check = True
+				# Only one available option for FCHL model, must be FCHL feature
 				if model == 'FCHL':
 					args['featureflag'] = 'FCHL'
 					check = True
+					# No need to check combination
 					combocheck = True
+				# Ask for user input featureflag
 				else:
 					# Feature ##############################################################################
 					check = False
@@ -80,7 +92,10 @@ def run_wizard(args, default=False):
 						if feature in ['CMAT', 'aSLATM', 'FCHL', 'ACSF', 'BCAI']:
 							args['featureflag'] = feature
 							check = True
+						else:
+							print('Requested feature [', feature , '] not recognised. . .')
 
+					# Check for model and feature combination, only some actually work
 					combocheck = flag_combos.check_combination(args['modelflag'], args['featureflag'])
 					if not combocheck:
 						print('Invalid combination of model and feature, try again . . .')
