@@ -1,5 +1,4 @@
 from ml.hyperparameter_tuning import HPS_generic as generic
-from ml.models import FCHLmodel, KRRmodel, TFMmodel
 import numpy as np
 import itertools
 import pickle

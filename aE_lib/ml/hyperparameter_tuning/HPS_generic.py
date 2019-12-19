@@ -1,4 +1,3 @@
-from ml.models import FCHLmodel, KRRmodel, NNmodel, TFMmodel
 from sklearn.model_selection import KFold
 import pickle
 import numpy as np
@@ -40,13 +39,20 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 	assert len(dataset.y) > 0
 
 	# create model
+	# yes i know this is super bad "practice"
+	# if you can think of a better way of allowing QML code to not be screwed up by TF or PyTorch, etc then let me know
+	# otherwise, fight me . . .
 	if args['modelflag'] == 'KRR':
+		from ml.models import KRRmodel
 		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
+		from ml.models import FCHLmodel
 		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'NN':
+		from ml.models import NNmodel
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
+		from ml.models import TFMmodel
 		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 
 	y_pred = model.cv_predict(args['cv_steps'])
@@ -72,14 +78,19 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 
 def save_models(dataset, BEST_PARAMS, args):
 
+	# create model
 	if args['modelflag'] == 'KRR':
-		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+		from ml.models import KRRmodel
+		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
-		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+		from ml.models import FCHLmodel
+		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'NN':
-		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+		from ml.models import NNmodel
+		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
-		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+		from ml.models import TFMmodel
+		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 
 	model.train()
 
