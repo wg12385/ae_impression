@@ -41,9 +41,9 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 
 	# create model
 	if args['modelflag'] == 'KRR':
-		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
+		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
-		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
+		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'NN':
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
