@@ -74,9 +74,7 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 			assert mol.xyz.shape[1] == 3
 			assert mol.xyz.shape[0] == mol.types.shape[0]
 
-			reps = qml.representations.generate_slatm(mol.xyz, mol.types, mbtypes,
-					unit_cell=None, local=True, sigmas=[0.05,0.05], dgrids=[0.03,0.03],
-					rcut=cutoff, alchemy=False, pbc='000', rpower=6)
+			reps = qml.representations.generate_slatm(mol.xyz, mol.types, mbtypes, rcut=cutoff)
 
 			reps = np.asarray(reps)
 
@@ -119,9 +117,7 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=100,
 			max = len(mol.types)
 	'''
 	for mol in mols:
-		reps = qml.representations.generate_atomic_coulomb_matrix(mol.types, mol.xyz, size = max, sorting = "distance",
-						central_cutoff = cutoff, central_decay = central_decay, interaction_cutoff = interaction_cutoff,
-						interaction_decay = interaction_decay, indices = None)
+		reps = qml.representations.generate_atomic_coulomb_matrix(mol.types, mol.xyz, size = max, central_cutoff = cutoff)
 
 		if len(target) == 1:
 			for i in range(len(mol.types)):

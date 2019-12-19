@@ -25,9 +25,11 @@ def setup_logfile(args):
 		for string in strings:
 			print(string, file=f)
 
-def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, BEST_PARAMS={}):
+def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000.00, BEST_PARAMS={}):
 
 	print('HPS_iteration. . .')
+
+	print('Params: ', next_point_to_probe)
 
 	args['max_size'] = 200
 	if args['featureflag'] == 'BCAI' and iter == 0:
@@ -74,6 +76,9 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 	else:
 		print('score = ', score)
 
+	if BEST_PARAMS == {}:
+		BEST_PARAMS = next_point_to_probe
+
 	return score, BEST_SCORE, BEST_PARAMS
 
 def save_models(dataset, BEST_PARAMS, args):
@@ -81,16 +86,16 @@ def save_models(dataset, BEST_PARAMS, args):
 	# create model
 	if args['modelflag'] == 'KRR':
 		from ml.models import KRRmodel
-		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
+		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'FCHL':
 		from ml.models import FCHLmodel
-		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
+		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'NN':
 		from ml.models import NNmodel
-		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
+		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		from ml.models import TFMmodel
-		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
+		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 
 	model.train()
 
