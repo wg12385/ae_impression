@@ -133,7 +133,7 @@ if __name__ == "__main__":
 	parser.add_argument('--kappa', help='Kappa value for gaussian process HPS',
 							 action="store", dest='kappa', default=5.0)
 	parser.add_argument('--xi', help='Xi value for gaussian process HPS',
-							action="store", dest='xi', default=0.1)
+							action="store", dest='xi', default=0.2)
 	parser.add_argument('--random', help='Frequency of random selection in gaussian process search',
 							action="store", dest='random', default=0)
 
