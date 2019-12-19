@@ -71,6 +71,9 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 
 
 		for mol in mols:
+			assert mol.xyz.shape[1] == 3
+			assert mol.xyz.shape[0] == mol.types.shape[0]
+
 			reps = qml.representations.generate_slatm(mol.xyz, mol.types, mbtypes,
 					unit_cell=None, local=True, sigmas=[0.05,0.05], dgrids=[0.03,0.03],
 					rcut=cutoff, alchemy=False, pbc='000', rpower=6)

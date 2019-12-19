@@ -215,7 +215,7 @@ if __name__ == "__main__":
 		target = hdl_targetflag.flag_to_target(args['targetflag'])
 		# 0 is the bad number
 		if target == 0:
-			print('Invalid target flag, ' args['targetflag'])
+			print('Invalid target flag, ', args['targetflag'])
 			sys.exit(0)
 
 		# check flag combination for feature / model
@@ -269,7 +269,7 @@ if __name__ == "__main__":
 		args['modelflag'] = ''
 		args['featureflag'] = ''
 		# Define basic preferences file if none specified
-		if args['prefs'] = '':
+		if args['prefs'] == '':
 			pref_file = 'settings_predict.json'
 			args['prefs'] = pref_file
 		json.dump(args, open(pref_file, 'w'), indent=4)

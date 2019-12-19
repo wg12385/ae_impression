@@ -102,7 +102,7 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 
 
 	if featureflag == 'CMAT':
-		param_ranges['cutoff'] = [0, 10]
+		param_ranges['cutoff'] = [1, 10]
 		param_logs['cutoff'] = 'lin'
 
 		param_ranges['central_decay'] = [0, 10]
@@ -116,15 +116,15 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 
 
 	elif featureflag == 'aSLATM':
-		param_ranges['cutoff'] = [0, 10]
+		param_ranges['cutoff'] = [1, 10]
 		param_logs['cutoff'] = 'lin'
 
 	elif featureflag == 'FCHL':
-		param_ranges['cutoff'] = [0, 10]
+		param_ranges['cutoff'] = [1, 10]
 		param_logs['cutoff'] = 'lin'
 
 	elif featureflag == 'ACSF':
-		param_ranges['cutoff'] = [0, 10]
+		param_ranges['cutoff'] = [1, 10]
 		param_logs['cutoff'] = 'lin'
 
 		param_ranges['nRs2'] = [1, 10]
@@ -145,7 +145,7 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 		param_ranges['zeta'] = [0, 10]
 		param_logs['zeta'] = 'lin'
 
-		param_ranges['acut'] = [0, 10]
+		param_ranges['acut'] = [1, 10]
 		param_logs['acut'] = 'lin'
 
 		param_ranges['bin_min'] = [0, 10]
