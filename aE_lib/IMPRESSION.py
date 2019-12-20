@@ -305,7 +305,7 @@ if __name__ == "__main__":
 	#if args['tracetime']:
 	if TRACETIME:
 		pr.disable()
-		pr.print_stats(sort='time')
+		p.sort_stats('cumulative').print_stats(50)
 
 
 
