@@ -37,13 +37,16 @@ def gaussian_search(dataset, args):
 	BEST_SCORE = 999.999
 	BEST_PARAMS = {}
 	searched = []
+	force_random = False
 	for e in range(int(args['epochs'])):
 
-		if args['random'] > 0 and e%args['random'] == 0:
+		if force_random or (args['random'] > 0 and e%args['random'] == 0):
+			print('RANDOM')
 			next_point_to_probe = {}
 			for param in args['param_ranges'].keys():
 				next_point_to_probe[param] = np.random.uniform(0, 1)
 				#next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
+			force_random = False
 		else:
 			next_point_to_probe = optimizer.suggest(utility)
 
@@ -61,8 +64,15 @@ def gaussian_search(dataset, args):
 
 
 		searched.append(next_point_to_probe)
-		optimizer.register(params=next_point_to_probe, target=-score)
-
+		try:
+			optimizer.register(params=next_point_to_probe, target=(99999.99-score)/99999.99)
+		except KeyError as e:
+			print(e)
+			print('Non-unique point generated, (increasing kappa value and) skipping (kappa = ',args['kappa'],')')
+			args['kappa'] += 1.0
+			utility = UtilityFunction(kind="ei", kappa=args['kappa'], xi=args['xi'])
+			print('(forcing random point)')
+			force_random = True
 
 
 	outname = generic.save_models(dataset, BEST_PARAMS, args)

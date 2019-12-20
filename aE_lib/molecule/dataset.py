@@ -42,6 +42,10 @@ class dataset(object):
 		except:
 			max = 200
 
+		if params['cutoff'] < 0.1:
+			params['cutoff'] = 0.1
+
+
 		x = []
 		y = []
 		r = []
