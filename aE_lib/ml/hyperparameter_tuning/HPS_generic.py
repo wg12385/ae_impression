@@ -72,6 +72,8 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=999, B
 
 def save_models(dataset, BEST_PARAMS, args):
 
+	print('SAVE:   ', BEST_PARAMS)
+
 	if args['modelflag'] == 'KRR':
 		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'FCHL':
