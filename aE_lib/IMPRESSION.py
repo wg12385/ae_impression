@@ -174,6 +174,8 @@ if __name__ == "__main__":
 		pr = cProfile.Profile()
 		pr.enable()
 
+	print(args['tracetime'])
+
 	# Preserve command argument whilst messing about with preferences / args
 	COMMAND = args['Command']
 	# Run preferences wizard to ask user for preference choices
