@@ -16,9 +16,9 @@ class KRRmodel(genericmodel):
 		k = []
 
 		if len(train_x) == 0:
-			train_x = np.asarray(self.train_x)
+			train_x = self.train_x
 		if len(train_y) == 0:
-			train_y = np.asarray(self.train_y)
+			train_y = self.train_y
 
 		try:
 			dimensions = train_x.shape[1]

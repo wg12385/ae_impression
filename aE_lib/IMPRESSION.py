@@ -18,6 +18,8 @@ from util.header import print_header_IMP
 # Used for memory and code tracing
 import ast
 import tracemalloc
+import cProfile
+
 
 # Define tracer, used to trace code execution line by line
 def trace(frame, event, arg):
@@ -153,6 +155,9 @@ if __name__ == "__main__":
 	# Option to trace memory usage, prints the biggest 10 memory blocks at the end of execution
 	parser.add_argument('--tracemem', help='Trace the memory usage',
 								action="store_true", dest='tracemem', default=False)
+	# Option to trace code execution by time
+	parser.add_argument('--tracetime', help='Trace the execution timings',
+								action="store_true", dest='tracetime', default=False)
 
 
 	# Parse arguments into args object
@@ -164,6 +169,10 @@ if __name__ == "__main__":
 	# Optional, trace memory
 	if args['tracemem']:
 		tracemalloc.start()
+
+	if args['tracetime']:
+		pr = cProfile.Profile()
+		pr.enable()
 
 	# Preserve command argument whilst messing about with preferences / args
 	COMMAND = args['Command']
@@ -292,7 +301,9 @@ if __name__ == "__main__":
 		for stat in top_stats[:10]:
 		    print(stat)
 
-
+	if args['tracetime']:
+		pr.disable()
+		pr.print_stats(sort='time')
 
 
 

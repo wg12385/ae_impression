@@ -120,7 +120,7 @@ class dataset(object):
 		else:
 			print('Feature flag not recognised, no feature flag: ', featureflag)
 
-		self.x = x
+		self.x = np.asarray(x)
 		self.y = np.asarray(y)
 		self.r = r
 

@@ -46,10 +46,10 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	# otherwise, fight me . . .
 	if args['modelflag'] == 'KRR':
 		from ml.models import KRRmodel
-		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
+		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
 		from ml.models import FCHLmodel
-		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=next_point_to_probe, model_args=args)
+		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'NN':
 		from ml.models import NNmodel
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
