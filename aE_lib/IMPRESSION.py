@@ -171,10 +171,9 @@ if __name__ == "__main__":
 		tracemalloc.start()
 
 	if args['tracetime']:
+		TRACETIME = True
 		pr = cProfile.Profile()
 		pr.enable()
-
-	print(args['tracetime'])
 
 	# Preserve command argument whilst messing about with preferences / args
 	COMMAND = args['Command']
@@ -303,7 +302,8 @@ if __name__ == "__main__":
 		for stat in top_stats[:10]:
 		    print(stat)
 
-	if args['tracetime']:
+	#if args['tracetime']:
+	if TRACETIME:
 		pr.disable()
 		pr.print_stats(sort='time')
 
