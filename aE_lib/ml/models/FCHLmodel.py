@@ -18,7 +18,12 @@ class FCHLmodel(genericmodel):
 		if len(train_y) == 0:
 			train_y = self.train_y
 
-		dimensions = np.asarray(train_x).shape[1]
+		try:
+			dimensions = train_x.shape[1]
+		except:
+			print('training reps not in numpy array (KRRmodel.py, train, l26)')
+			train_x = np.asarray(train_x)
+			train_y = np.asarray(train_y)
 
 		# reshape x array:
 		Xr = []
