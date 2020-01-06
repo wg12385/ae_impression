@@ -8,7 +8,7 @@ def setup_logfile(args):
 	strings.append('HPS ' + args['searchflag'] + ' SEARCH')
 	strings.append(args['modelflag'] + '   ' + args['featureflag'] + '   ' + args['targetflag'])
 	for param in args['param_list']:
-		if args['param_logs'][param] = 'no':
+		if args['param_logs'][param] == 'no':
 			continue
 		strings.append('{param:<10s}: {low:>10.4g}  <--->  {high:<10.4g}'.format(param=param,
 																	low=args['param_ranges'][param][0],
@@ -17,7 +17,7 @@ def setup_logfile(args):
 	strings.append('START')
 	string = '{i:<10s}\t{score:<10s}'.format(i='i', score='SCORE')
 	for param in args['param_list']:
-		if args['param_logs'][param] = 'no':
+		if args['param_logs'][param] == 'no':
 			continue
 		string = string + '\t{param:<20s}'.format(param=param)
 	strings.append(string)
@@ -70,7 +70,7 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	with open(args['logfile'], 'a') as f:
 		string = '{i:<10d}\t{score:<10.5f}'.format(i=iter, score=score)
 		for param in args['param_list']:
-			if args['param_logs'][param] = 'no':
+			if args['param_logs'][param] == 'no':
 				continue
 			string = string + '\t{param:<20.4g}'.format(param=next_point_to_probe[param])
 		print(string, file=f)
