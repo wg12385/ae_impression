@@ -175,6 +175,8 @@ if __name__ == "__main__":
 		TRACETIME = True
 		pr = cProfile.Profile()
 		pr.enable()
+	else:
+		TRACETIME = False
 
 	# Preserve command argument whilst messing about with preferences / args
 	COMMAND = args['Command']
