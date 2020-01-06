@@ -35,10 +35,12 @@ class KRRmodel(genericmodel):
 			for i in range(dimensions):
 				Xr[i].append(x[i])
 		Xr = np.asarray(Xr)
+		print(Xr.shape)
 
 		# loop through representation sets in training set
 		for d in range(dimensions):
 			# append kernel for each representation set
+			print(Xr[d].shape)
 			k.append(qml.kernels.laplacian_kernel(Xr[d], Xr[d], self.params['sigma']) + self.params['lamda'] * np.identity(Xr[d].shape[0]))
 
 		# loop through kernels
