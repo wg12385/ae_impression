@@ -106,14 +106,15 @@ class dataset(object):
 				if len(mol.types) >max:
 					max = len(mol.types)
 					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
-			for mol in self.mols:
+
 				'''
+				for mol in self.mols:
 				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'], max)
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
 				'''
-				x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params['cutoff'], max)
+			x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params['cutoff'], max)
 
 
 		elif featureflag == 'ACSF':
@@ -142,6 +143,8 @@ class dataset(object):
 		self.x = np.asarray(x)
 		self.y = np.asarray(y)
 		self.r = r
+
+		print('Reps generated, shape: ', self.x.shape)
 
 	def get_features_fromfiles(self, files, featureflag='CMAT', targetflag='CCS', cutoff=5.0, max=400, mbtypes=[], elements=[]):
 		self.params = {}

@@ -19,7 +19,8 @@ from util.header import print_header_IMP
 import ast
 import tracemalloc
 import cProfile
-
+import pstats
+from pstats import SortKey
 
 # Define tracer, used to trace code execution line by line
 def trace(frame, event, arg):
@@ -305,8 +306,8 @@ if __name__ == "__main__":
 	#if args['tracetime']:
 	if TRACETIME:
 		pr.disable()
-		pr.print_stats(sort='time', 10)
-
+		ps = pstats.Stats(pr).sort_stats('time')
+		ps.print_stats(10)
 
 
 

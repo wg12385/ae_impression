@@ -80,7 +80,4 @@ dependencies:
   - zstd=1.3.7=h0b5b093_0
   - openbabel=2.4.1=py37_6
   - rdkit=2019.09.2.0=py37hc20afe1_1
-  - pip:
-    - qml==0.4.0.12
-prefix: /home/wg12385/anaconda3/envs/IMPgen1
 

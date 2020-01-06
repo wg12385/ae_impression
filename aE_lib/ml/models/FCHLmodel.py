@@ -13,13 +13,13 @@ class FCHLmodel(genericmodel):
 			self.params['cutoff'] = 5.0
 
 		if not 'two_body_scaling' in self.params:
-			self.params['two_body_scaling'] = 2.8284271247461903
+			self.params['two_body_scaling'] = np.sqrt(8)
 		if not 'three_body_scaling' in self.params:
 			self.params['three_body_scaling'] = 1.6
 		if not 'two_body_width' in self.params:
 			self.params['two_body_width'] = 0.2
 		if not 'three_body_width' in self.params:
-			self.params['three_body_width'] = 3.141592653589793
+			self.params['three_body_width'] = np.pi
 		if not 'two_body_power' in self.params:
 			self.params['two_body_power'] = 4.0
 		if not 'three_body_power' in self.params:
