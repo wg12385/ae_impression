@@ -9,6 +9,28 @@ class FCHLmodel(genericmodel):
 	def __init__(self, id='FCHLmodel', x=[], y=[], params={}, model_args={}):
 		genericmodel.__init__(self, id, x, y, params, model_args)
 
+		if not 'cutoff' in self.params:
+			self.params['cutoff'] = 5.0
+
+		if not 'two_body_scaling' in self.params:
+			self.params['two_body_scaling'] = 2.8284271247461903
+		if not 'three_body_scaling' in self.params:
+			self.params['three_body_scaling'] = 1.6
+		if not 'two_body_width' in self.params:
+			self.params['two_body_width'] = 0.2
+		if not 'three_body_width' in self.params:
+			self.params['three_body_width'] = 3.141592653589793
+		if not 'two_body_power' in self.params:
+			self.params['two_body_power'] = 4.0
+		if not 'three_body_power' in self.params:
+			self.params['three_body_power'] = 2.0
+		if not 'cut_start' in self.params:
+			self.params['cut_start'] = 1.0
+		if not 'alchemy_period_width' in self.params:
+			self.params['alchemy_period_width'] = 1.6
+		if not 'alchemy_group_width' in self.params:
+			self.params['alchemy_group_width'] =1.6
+
 
 	def train(self,  train_x=[], train_y=[]):
 		k = []

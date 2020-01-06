@@ -42,8 +42,11 @@ class dataset(object):
 		except:
 			max = 200
 
-		if params['cutoff'] < 0.1:
-			params['cutoff'] = 0.1
+		if 'cutoff' in params:
+			if params['cutoff'] < 0.1:
+				params['cutoff'] = 0.1
+		else:
+			params['cutoff'] = 5.0
 
 
 		x = []
@@ -77,12 +80,21 @@ class dataset(object):
 
 
 		elif featureflag == 'CMAT':
+
+			# Set (not found) parameters to defaults
+			if not 'central_decay' in params:
+				params['central_decay'] = -1
+			if not 'interaction_cutoff' in params:
+				params['interaction_cutoff'] = 1000000.0
+			if not 'interaction_decay' in params:
+				params['interaction_decay'] = -1
+
 			for mol in self.mols:
 				if len(mol.types) >max:
 					args['max_size'] = len(mol.types)
 					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
 			for mol in self.mols:
-				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'],args['max_size'], central_decay=params['central_decay'],
+				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'], args['max_size'], central_decay=params['central_decay'],
 														interaction_cutoff=params['interaction_cutoff'], interaction_decay=params['interaction_decay'])
 				x.extend(_x)
 				y.extend(_y)
@@ -95,10 +107,13 @@ class dataset(object):
 					max = len(mol.types)
 					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
 			for mol in self.mols:
+				'''
 				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'], max)
 				x.extend(_x)
 				y.extend(_y)
 				r.extend(_r)
+				'''
+				x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params['cutoff'], max)
 
 
 		elif featureflag == 'ACSF':
@@ -106,6 +121,10 @@ class dataset(object):
 			for tmp_mol in self.mols:
 				elements = elements.union(tmp_mol.types)
 			elements = sorted(list(elements))
+
+			# Set (not found) parameters to defaults
+
+
 			for mol in self.mols:
 				_x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params['cutoff'], elements=elements, nRs2=params['nRs2'],
 												nRs3=params['nRs3'], nTs=params['nTs'], eta2=params['eta2'], eta3=params['eta3'], zeta=params['zeta'],

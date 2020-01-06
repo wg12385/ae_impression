@@ -19,6 +19,8 @@ def grid_search(dataset, args):
 
 	# create search grid
 	for param in args['param_ranges']:
+		if args['param_logs'][param] = 'no':
+			continue
 		if check_logs:
 			if args['param_logs'][param] == 'log':
 				search_grid[param] = np.logspace(args['param_ranges'][param][0], args['param_ranges'][param][1], args['grid_density'], endpoint=True)

@@ -171,24 +171,31 @@ def run_wizard(args, default=False):
 		if not default:
 			for param in args['param_ranges'].keys():
 				check = False
-				IP = input("Select range for parameter (min, max, log) {param:<10s}: default = {min:<10f}, {max:<10f}, {log:<10s} \n".format(param=param,
-																													min=args['param_ranges'][param][0],
-																													max=args['param_ranges'][param][1],
-																													log=args['param_logs'][param]))
-				if len(IP) == 0:
+				IP = input("Optimise {param:<10s} ? (y)/n\n".format(param=param)
+				if IP[0] in ['n', 'N']:
+					args['param_logs'][param] = 'no'
 					check = True
-				else:
-					try:
-						range = [float(IP.split(',')[0]), float(IP.split(',')[1])]
-						log = IP.split(',')[2]
 
-						args['param_ranges'][param] = range
-						args['param_logs'][param] = log
+				else len(IP) == 0 or IP[0] in ['y', 'Y']:
 
+					IP = input("Select range for parameter (min, max, log) {param:<10s}: default = {min:<10f}, {max:<10f}, {log:<10s} \n".format(param=param,
+																														min=args['param_ranges'][param][0],
+																														max=args['param_ranges'][param][1],
+																														log=args['param_logs'][param]))
+					if len(IP) == 0:
 						check = True
+					else:
+						try:
+							range = [float(IP.split(',')[0]), float(IP.split(',')[1])]
+							log = IP.split(',')[2]
 
-					except Exception as e:
-						print(e)
+							args['param_ranges'][param] = range
+							args['param_logs'][param] = log
+
+							check = True
+
+						except Exception as e:
+							print(e)
 
 
 

@@ -22,10 +22,14 @@ def random_search(dataset, args):
 
 	for _ in range(int(args['epochs'])):
 		for param in args['param_ranges'].keys():
+			if args['param_logs'][param] = 'no':
+				continue
 			next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 
 		if check_logs:
 			for param in args['param_ranges'].keys():
+				if args['param_logs'][param] = 'no':
+					continue
 				if args['param_logs'][param] == 'log':
 					next_point_to_probe[param] = 10**next_point_to_probe[param]
 
