@@ -69,7 +69,7 @@ def gaussian_search(dataset, args):
 		print('Loading previous data. . .')
 		to_load = load_logs(args)
 		for log in to_load:
-			optimizer.register(params=log[0], target=(99999.99-logs[1])/99999.99)
+			optimizer.register(params=log[0], target=(99999.99-log[1])/99999.99)
 		print('Loaded ', len(to_load), ' datapoints')
 
 	generic.setup_logfile(args)
