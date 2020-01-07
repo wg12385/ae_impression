@@ -20,24 +20,18 @@ def load_logs(args):
 			for line in f:
 				if 'START' in line:
 					switch = True
-					print('SWITCH')
 				elif switch:
 					items = line.split()
 					if items[0] == 'i':
 						headers = items[1:]
-
 						headers = [x.strip(' ') for x in headers]
-						print(headers)
 
 					else:
 						params = {}
-						print(items)
 						for i in range(2, len(headers)):
-							print(headers[i-1])
 							if headers[i-1] == 'Mins':
 								continue
 							params[headers[i-1]] = items[i]
-						print(params)
 						score = items[1]
 
 						to_load.append([params, score])
@@ -75,7 +69,7 @@ def gaussian_search(dataset, args):
 		print('Loading previous data. . .')
 		to_load = load_logs(args)
 		for log in to_load:
-			optimiser.register(params=log[0], target=(99999.99-logs[1])/99999.99)
+			optimizer.register(params=log[0], target=(99999.99-logs[1])/99999.99)
 		print('Loaded ', len(to_load), ' datapoints')
 
 	generic.setup_logfile(args)
