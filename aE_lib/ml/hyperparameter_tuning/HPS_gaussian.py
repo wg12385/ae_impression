@@ -65,8 +65,7 @@ def gaussian_search(dataset, args):
 	)
 	utility = UtilityFunction(kind="ucb", kappa=args['kappa'], xi=args['xi'])
 
-	print(args['load'])
-	if args['load'] == 'true':
+	if args['load']:
 		print('Loading previous data. . .')
 		to_load = load_logs(args)
 		for log in to_load:
@@ -75,7 +74,7 @@ def gaussian_search(dataset, args):
 
 	generic.setup_logfile(args)
 
-	if args['load'] == 'true':
+	if args['load']:
 		for params, score in to_load:
 			with open(args['logfile'], 'a') as f:
 				iter = -1
