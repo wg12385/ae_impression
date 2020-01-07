@@ -30,7 +30,7 @@ def load_logs(args):
 					else:
 						params = {}
 						for i in range(1, len(headers)-1):
-							if headers[i-1] = 'Mins':
+							if headers[i-1] == 'Mins':
 								continue
 							params[headers[i-1]] = items[i]
 						score = items[1]
