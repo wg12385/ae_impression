@@ -41,7 +41,7 @@ def load_logs(args):
 						score = items[1]
 
 					to_load.append([params, score])
-	except exception as e:
+	except Exception as e:
 		print(e)
 		return []
 
