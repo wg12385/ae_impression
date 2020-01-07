@@ -31,7 +31,7 @@ def load_logs(args):
 						for i in range(2, len(headers)):
 							if headers[i-1] == 'Mins':
 								continue
-							params[headers[i-1]] = items[i]
+							params[headers[i-1]] = float(items[i])
 						score = float(items[1])
 
 						to_load.append([params, score])
