@@ -65,10 +65,13 @@ def gaussian_search(dataset, args):
 	)
 	utility = UtilityFunction(kind="ucb", kappa=args['kappa'], xi=args['xi'])
 
+	print(args['load'])
 	if args['load'] == 'true':
+		print('Loading previous data. . .')
 		to_load = load_logs(args)
 		for log in to_load:
 			optimiser.register(params=log[0], target=(99999.99-logs[1])/99999.99)
+		print('Loaded ', len(to_load), ' datapoints')
 
 	generic.setup_logfile(args)
 
