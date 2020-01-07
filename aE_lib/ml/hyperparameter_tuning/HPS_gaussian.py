@@ -21,7 +21,7 @@ def load_logs(args):
 				if 'START' in line:
 					switch = True
 					print('SWITCH')
-				else switch:
+				elif switch:
 					items = line.split()
 					if items[0] == 'i':
 						headers = items[1:]
