@@ -20,15 +20,18 @@ def load_logs(args):
 			for line in f:
 				if 'START' in line:
 					switch = True
+					print('SWITCH')
 				if switch:
 					items = line.split()
 					if items[0] == 'i':
 						headers = items[1:]
 
 						headers = [x.strip(' ') for x in headers]
+						print(headers)
 
 					else:
 						params = {}
+						print(items)
 						for i in range(1, len(headers)-1):
 							if headers[i-1] == 'Mins':
 								continue
