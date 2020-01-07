@@ -12,6 +12,34 @@ import copy
 
 from ml.hyperparameter_tuning import HPS_generic as generic
 
+def load_logs(args):
+	to_load = []
+	try:
+		with open(args['logfile'], 'r') as f:
+			switch = False
+			for line in f:
+				if 'START' in line:
+					switch = True
+				if switch:
+					items = line.split()
+					if items[0] = 'i':
+						headers = items[1:]
+
+						headers = [x.strip(' ') for x in headers]
+
+					else:
+						params = {}
+						for i in range(1, len(headers)-1):
+							params[headers[i-1]] = items[i]
+						score = items[1]
+
+					to_load.append([params, score])
+	except:
+		return []
+
+	return to_load
+
+
 def gaussian_search(dataset, args):
 
 	# determine whether log dictionary was provided
@@ -35,7 +63,23 @@ def gaussian_search(dataset, args):
 	)
 	utility = UtilityFunction(kind="ucb", kappa=args['kappa'], xi=args['xi'])
 
+	if args['load'] == 'true':
+		to_load = load_logs(args)
+		for log in to_load:
+			optimiser.register(params=log[0], target=(99999.99-logs[1])/99999.99)
+
 	generic.setup_logfile(args)
+
+	if args['load'] == 'true':
+		for params, score in to_load:
+			with open(args['logfile'], 'a') as f:
+				iter = -1
+				string = '{i:<10d}\t{score:<10.5f}'.format(i=iter, score=score)
+				for param in args['param_list']:
+					if args['param_logs'][param] == 'no':
+						continue
+					string = string + '\t{param:<20.4g}'.format(param=params[param])
+				print(string, file=f)
 
 	BEST_SCORE = 999.999
 	BEST_PARAMS = {}

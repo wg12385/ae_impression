@@ -139,6 +139,8 @@ if __name__ == "__main__":
 							action="store", dest='xi', default=0.2)
 	parser.add_argument('--random', help='Frequency of random selection in gaussian process search',
 							action="store", dest='random', default=0)
+	parser.add_argument('--load', help='Load previous search from logfile before starting',
+							action="store", dest='load', default='false')
 
 	# Optional arguments for make features
 	parser.add_argument('--input_files', help='Files to create features from',
