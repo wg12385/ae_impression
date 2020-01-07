@@ -21,7 +21,7 @@ def load_logs(args):
 				if 'START' in line:
 					switch = True
 					print('SWITCH')
-				if switch:
+				else switch:
 					items = line.split()
 					if items[0] == 'i':
 						headers = items[1:]
@@ -39,7 +39,8 @@ def load_logs(args):
 						score = items[1]
 
 					to_load.append([params, score])
-	except:
+	except exception as e:
+		print(e)
 		return []
 
 	return to_load
