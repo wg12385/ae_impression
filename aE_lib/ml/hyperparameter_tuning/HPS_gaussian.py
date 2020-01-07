@@ -32,10 +32,12 @@ def load_logs(args):
 					else:
 						params = {}
 						print(items)
-						for i in range(1, len(headers)-1):
+						for i in range(2, len(headers)):
+							print(headers[i-1])
 							if headers[i-1] == 'Mins':
 								continue
 							params[headers[i-1]] = items[i]
+						print(params)
 						score = items[1]
 
 					to_load.append([params, score])
