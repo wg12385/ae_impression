@@ -22,7 +22,7 @@ def load_logs(args):
 					switch = True
 				if switch:
 					items = line.split()
-					if items[0] = 'i':
+					if items[0] == 'i':
 						headers = items[1:]
 
 						headers = [x.strip(' ') for x in headers]
@@ -30,6 +30,8 @@ def load_logs(args):
 					else:
 						params = {}
 						for i in range(1, len(headers)-1):
+							if headers[i-1] = 'Mins':
+								continue
 							params[headers[i-1]] = items[i]
 						score = items[1]
 

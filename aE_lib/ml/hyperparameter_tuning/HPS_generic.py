@@ -2,6 +2,7 @@ from sklearn.model_selection import KFold
 import pickle
 import numpy as np
 import copy
+import time
 
 def setup_logfile(args):
 	strings = []
@@ -20,6 +21,7 @@ def setup_logfile(args):
 		if args['param_logs'][param] == 'no':
 			continue
 		string = string + '\t{param:<20s}'.format(param=param)
+	string = string + '\t{time:<10s}'.format(time='Mins')
 	strings.append(string)
 
 	if args['logfile'] == "":
@@ -32,6 +34,7 @@ def setup_logfile(args):
 def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000.00, BEST_PARAMS={}):
 
 	print('HPS_iteration. . .')
+	time0 = time.time()
 
 	print('Params: ', next_point_to_probe)
 
@@ -67,12 +70,16 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	if score > 99999.99 or np.isnan(score):
 		score = 99999.99
 
+	time1 = time.time()
+
 	with open(args['logfile'], 'a') as f:
 		string = '{i:<10d}\t{score:<10.5f}'.format(i=iter, score=score)
 		for param in args['param_list']:
 			if args['param_logs'][param] == 'no':
 				continue
 			string = string + '\t{param:<20.4g}'.format(param=next_point_to_probe[param])
+
+		string = string + '\t{time:<10.4f}'.format(time=(time1-time0)/60)
 		print(string, file=f)
 
 	if score < BEST_SCORE:
