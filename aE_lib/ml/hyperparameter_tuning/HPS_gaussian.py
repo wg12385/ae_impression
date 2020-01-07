@@ -32,7 +32,7 @@ def load_logs(args):
 							if headers[i-1] == 'Mins':
 								continue
 							params[headers[i-1]] = items[i]
-						score = items[1]
+						score = float(items[1])
 
 						to_load.append([params, score])
 	except Exception as e:
