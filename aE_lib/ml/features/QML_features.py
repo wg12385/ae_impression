@@ -33,15 +33,20 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 					if i == j:
 						continue
 
-					if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
+					if not (mol.types[i] == target[1] and mol.types[j] == target[2]):
 						continue
 
 					if mol.coupling_len[i][j] != target[0]:
 						continue
 
-					x.append([reps[i], reps[j]])
-					y.append(mol.coupling[i][j])
-					r.append([mol.molid, i, j])
+					if i > j:
+						x.append([reps[j], reps[i]])
+						y.append(mol.coupling[i][j])
+						r.append([mol.molid, j, i])
+					else:
+						x.append([reps[i], reps[j]])
+						y.append(mol.coupling[i][j])
+						r.append([mol.molid, i, j])
 
 	return x, y, r
 
@@ -96,9 +101,14 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 						if mol.coupling_len[i][j] != target[0]:
 							continue
 
-						x.append([reps[i], reps[j]])
-						y.append(mol.coupling[i][j])
-						r.append([mol.molid, i, j])
+						if i > j:
+							x.append([reps[j], reps[i]])
+							y.append(mol.coupling[i][j])
+							r.append([mol.molid, j, i])
+						else:
+							x.append([reps[i], reps[j]])
+							y.append(mol.coupling[i][j])
+							r.append([mol.molid, i, j])
 
 		return x, y, r
 
@@ -138,9 +148,14 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=100,
 					if mol.coupling_len[i][j] != target[0]:
 						continue
 
-					x.append([reps[i], reps[j]])
-					y.append(mol.coupling[i][j])
-					r.append([mol.molid, i, j])
+					if i > j:
+						x.append([reps[j], reps[i]])
+						y.append(mol.coupling[i][j])
+						r.append([mol.molid, j, i])
+					else:
+						x.append([reps[i], reps[j]])
+						y.append(mol.coupling[i][j])
+						r.append([mol.molid, i, j])
 
 	return x, y, r
 
@@ -185,8 +200,13 @@ def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], 
 					if mol.coupling_len[i][j] != target[0]:
 						continue
 
-					x.append([reps[i], reps[j]])
-					y.append(mol.coupling[i][j])
-					r.append([mol.molid, i, j])
+					if i > j:
+						x.append([reps[j], reps[i]])
+						y.append(mol.coupling[i][j])
+						r.append([mol.molid, j, i])
+					else:
+						x.append([reps[i], reps[j]])
+						y.append(mol.coupling[i][j])
+						r.append([mol.molid, i, j])
 
 	return x, y, r
