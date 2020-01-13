@@ -95,6 +95,9 @@ def gaussian_search(dataset, args):
 			print('RANDOM')
 			next_point_to_probe = {}
 			for param in args['param_ranges'].keys():
+				if args['param_logs'][param] == 'no':
+					continue
+					
 				next_point_to_probe[param] = np.random.uniform(0, 1)
 				#next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 			force_random = False
