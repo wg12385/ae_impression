@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from reference.periodic_table import Get_periodic_table
+from aE_lib.reference.periodic_table import Get_periodic_table
 
 def labelmaker(i, j, mol):
 	Periodic_table = Get_periodic_table()

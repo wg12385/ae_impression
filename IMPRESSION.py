@@ -22,13 +22,13 @@ import sys
 import json
 
 # Functions for checking input flags
-from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
+from aE_lib.util.flag_handler import hdl_targetflag, flag_combos
 # Preferences wizard function
-from autoENRICH.util.argparse_wizard import run_wizard
+from aE_lib.util.argparse_wizard import run_wizard
 # Import main command functions
-from autoENRICH.top_level import CMD_trainmodel, CMD_predict
+from aE_lib.top_level import CMD_trainmodel, CMD_predict
 # Import pretty banner printing function (for ego purposes only)
-from autoENRICH.util.header import print_header_IMP
+from aE_lib.util.header import print_header_IMP
 # Used for memory and code tracing
 import ast
 import tracemalloc

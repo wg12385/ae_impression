@@ -15,10 +15,10 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 # get features for TransForMer models
-from reference.periodic_table import Get_periodic_table
-from util.flag_handler.hdl_targetflag import flag_to_target
+from aE_lib.reference.periodic_table import Get_periodic_table
+from aE_lib.util.flag_handler.hdl_targetflag import flag_to_target
 
-import ml.features.BCAI_calc.mol_graph_setup as BCAI
+import .features.BCAI_calc.mol_graph_setup as BCAI
 
 import numpy as np
 import pandas as pd

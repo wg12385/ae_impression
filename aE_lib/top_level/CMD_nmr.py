@@ -14,10 +14,10 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from file_creation import HPC_submission as HPCsub
-import file_read.orca_read as orcaread
-import file_creation.orca_submission as orcasub
-import file_creation.structure_formats.nmredata as nmredata
+from aE_lib.file_creation import HPC_submission as HPCsub
+import aE_lib.file_read.orca_read as orcaread
+import aE_lib.file_creation.orca_submission as orcasub
+import aE_lib.file_creation.structure_formats.nmredata as nmredata
 import sys
 
 def setup_nmr(molecule, prefs, path='', ids=[], max=50):

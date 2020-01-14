@@ -19,21 +19,21 @@
 import argparse
 #import sys
 #sys.path.append('aE_lib')
-from autoENRICH.preferences.preferences import read_prefs, write_default_prefs
-from autoENRICH.molecule.molecule import molecule as moleculeclass
-from autoENRICH.util.header import print_header_aE
+from aE_lib.preferences.preferences import read_prefs, write_default_prefs
+from aE_lib.molecule.molecule import molecule as moleculeclass
+from aE_lib.util.header import print_header_aE
 import pybel as pyb
 import os
 import glob
 
 import pickle
 
-import autoENRICH.top_level.CMD_confsearch as CMD_confsearch
-import autoENRICH.top_level.CMD_optimisation as CMD_opt
-import autoENRICH.top_level.CMD_nmr as CMD_nmr
-import autoENRICH.top_level.CMD_resubmission as CMD_resub
-from autoENRICH.top_level.progress import check_proceed
-from autoENRICH.top_level.user_util import yes_or_no
+import aE_lib.top_level.CMD_confsearch as CMD_confsearch
+import aE_lib.top_level.CMD_optimisation as CMD_opt
+import aE_lib.top_level.CMD_nmr as CMD_nmr
+import aE_lib.top_level.CMD_resubmission as CMD_resub
+from aE_lib.top_level.progress import check_proceed
+from aE_lib.top_level.user_util import yes_or_no
 
 # Main auto-ENRICH program
 if __name__ == "__main__":

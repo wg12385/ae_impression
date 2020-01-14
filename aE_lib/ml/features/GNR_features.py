@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from util.flag_handler.hdl_targetflag import flag_to_target
+from aE_lib.util.flag_handler.hdl_targetflag import flag_to_target
 import numpy as np
 
 

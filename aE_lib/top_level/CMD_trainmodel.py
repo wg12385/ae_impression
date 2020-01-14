@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from file_creation.HPC_submission import make_HPC_header
+from aE_lib.file_creation.HPC_submission import make_HPC_header
 
 import pickle
 import glob

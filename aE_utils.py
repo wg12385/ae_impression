@@ -20,17 +20,17 @@ import sys
 import json
 sys.path.append('aE_lib/')
 
-from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
-from autoENRICH.util.argparse_wizard import run_wizard
+from aE_lib.util.flag_handler import hdl_targetflag, flag_combos
+from aE_lib.util.argparse_wizard import run_wizard
 
-from autoENRICH.top_level import CMD_predict, CMD_compare
+from aE_lib.top_level import CMD_predict, CMD_compare
 
-from autoENRICH.util.header import print_header_IMP
+from aE_lib.util.header import print_header_IMP
 
-from autoENRICH.molecule.nmrmol import nmrmol
-from autoENRICH.file_creation.structure_formats import nmredata
-from autoENRICH.file_read.g09_read import read_functional
-from autoENRICH.reference.tantillo import Get_tantillo_factors
+from aE_lib.molecule.nmrmol import nmrmol
+from aE_lib.file_creation.structure_formats import nmredata
+from aE_lib.file_read.g09_read import read_functional
+from aE_lib.reference.tantillo import Get_tantillo_factors
 import glob
 
 

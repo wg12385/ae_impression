@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 import glob
-from util.flag_handler import hdl_targetflag, flag_combos, paramdict
+from aE_lib.util.flag_handler import hdl_targetflag, flag_combos, paramdict
 import os
 
 # code to run user through selection of input arguments for selected command

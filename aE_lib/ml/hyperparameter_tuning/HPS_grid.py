@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from ml.hyperparameter_tuning import HPS_generic as generic
+from .hyperparameter_tuning import HPS_generic as generic
 import numpy as np
 import itertools
 import pickle

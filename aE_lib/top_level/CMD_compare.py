@@ -14,11 +14,11 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from molecule.dataset import dataset
-from util.flag_handler.hdl_targetflag import flag_to_target
-from util.filename_utils import get_unique_part
-from analysis.compare_mols import mol_isequal
-from file_creation.data_formats.csv import print_mol_csv
+from aE_lib.molecule.dataset import dataset
+from aE_lib.util.flag_handler.hdl_targetflag import flag_to_target
+from aE_lib.util.filename_utils import get_unique_part
+from aE_lib.analysis.compare_mols import mol_isequal
+from aE_lib.file_creation.data_formats.csv import print_mol_csv
 import glob
 import numpy as np
 

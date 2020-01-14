@@ -14,9 +14,9 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-import file_read.orca_read as orcaread
-import file_creation.orca_submission as orcasub
-from file_creation import HPC_submission as HPCsub
+import aE_lib.file_read.orca_read as orcaread
+import aE_lib.file_creation.orca_submission as orcasub
+from aE_lib.file_creation import HPC_submission as HPCsub
 
 def setup_resubmission(molecule, prefs, path=''):
 

@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from util.flag_handler.hdl_targetflag import target_to_flag
+from aE_lib.util.flag_handler.hdl_targetflag import target_to_flag
 import numpy as np
 
 def mol_isequal(mol1, mol2, print=False):

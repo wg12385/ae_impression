@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 import pickle
-from file_creation.HPC_submission import make_HPC_header
+from aE_lib.file_creation.HPC_submission import make_HPC_header
 
 import sys
 import numpy as np

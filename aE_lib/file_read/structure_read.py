@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 import pybel as pyb
-from pybel_helpers import pybel_bonds, pybel_read
+from aE_lib.pybel_helpers import pybel_bonds, pybel_read
 import numpy as np
 
 

@@ -16,7 +16,7 @@
 
 import numpy as np
 import openbabel
-from reference.periodic_table import Get_periodic_table
+from aE_lib.reference.periodic_table import Get_periodic_table
 
 
 def mol_read_type(mol):

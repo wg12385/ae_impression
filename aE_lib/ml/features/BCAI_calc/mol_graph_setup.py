@@ -17,7 +17,7 @@ import sys
 import numpy as np
 import pandas as pd
 import rdkit
-import ml.features.BCAI_calc.xyz2mol as x2m
+import .features.BCAI_calc.xyz2mol as x2m
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)

@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 # write functions to output data in csv format ??
-from reference.periodic_table import Get_periodic_table
+from aE_lib.reference.periodic_table import Get_periodic_table
 
 
 

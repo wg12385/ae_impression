@@ -16,8 +16,9 @@
 
 import numpy as np
 import pickle
-import conformational_search.conformational_search as conf_search
-from molecule.conformer import conformer as conformerclass
+
+from aE_lib.conformational_search import conformational_search as conf_search
+from .conformer import conformer as conformerclass
 from .nmrmol import nmrmol
 import glob
 

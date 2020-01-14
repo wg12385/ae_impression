@@ -14,8 +14,8 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from top_level.user_util import yes_or_no
-from molecule.molecule import molecule as moleculeclass
+from .user_util import yes_or_no
+from aE_lib.molecule.molecule import molecule as moleculeclass
 import glob
 import os
 

@@ -14,6 +14,9 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
+
+# NOT SURE IF THIS IS CURRENTLY EVEN BEING USED
+
 import numpy as np
 from .convert import nmrmol_to_xyz
 from .pybel_plugins import *

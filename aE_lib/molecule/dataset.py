@@ -16,7 +16,7 @@
 
 
 from .nmrmol import nmrmol
-from util.file_gettype import get_type
+from aE_lib.util.file_gettype import get_type
 import numpy as np
 np.set_printoptions(threshold=99999999999)
 
