@@ -51,8 +51,8 @@ def setup_predict(args):
 
 def predict(args):
 
-	from molecule.dataset import dataset
-	from file_creation.structure_formats.nmredata import nmrmol_to_nmredata
+	from aE_lib.molecule.dataset import dataset
+	from aE_lib.file_creation.structure_formats.nmredata import nmrmol_to_nmredata
 
 	for files_set in args['test_sets']:
 		parts = files_set.split('/')

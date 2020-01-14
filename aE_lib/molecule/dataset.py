@@ -72,11 +72,11 @@ class dataset(object):
 		self.params = params
 
 		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
-			from ml.features import QML_features
+			from aE_lib.ml.features import QML_features
 		elif featureflag in ['BCAI']:
-			from ml.features import TFM_features
+			from aE_lib.ml.features import TFM_features
 		elif featureflag in ['dummy']:
-			from ml.features import GNR_features
+			from aE_lib.ml.features import GNR_features
 
 		if featureflag == 'dummy':
 			for mol in self.mols:

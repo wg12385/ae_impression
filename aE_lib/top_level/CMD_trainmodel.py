@@ -52,9 +52,9 @@ def setup_trainmodel(args):
 
 def trainmodel(args):
 
-	from ml.HPS import HPS
-	from molecule.dataset import dataset
-	from molecule.nmrmol import nmrmol
+	from aE_lib.ml.HPS import HPS
+	from aE_lib.molecule.dataset import dataset
+	from aE_lib.molecule.nmrmol import nmrmol
 
 	params = []
 	for param in args['param_ranges'].keys():
