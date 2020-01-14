@@ -1,3 +1,19 @@
+# Copyright 2020 Will Gerrard
+#This file is part of autoENRICH.
+
+#autoENRICH is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+
+#autoENRICH is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+
 import bayes_opt as bayes
 from bayes_opt import BayesianOptimization
 from bayes_opt import UtilityFunction
@@ -97,7 +113,7 @@ def gaussian_search(dataset, args):
 			for param in args['param_ranges'].keys():
 				if args['param_logs'][param] == 'no':
 					continue
-					
+
 				next_point_to_probe[param] = np.random.uniform(0, 1)
 				#next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 			force_random = False
