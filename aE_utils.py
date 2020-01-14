@@ -16,6 +16,7 @@
 
 # master script to do everything IMPRESSION-y
 
+import autoENRICH
 import argparse
 import sys
 import json

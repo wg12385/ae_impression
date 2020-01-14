@@ -15,6 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 # Argument parser
+import autoENRICH as aE
 import argparse
 # To quit things
 import sys
@@ -22,13 +23,13 @@ import sys
 import json
 
 # Functions for checking input flags
-from util.flag_handler import hdl_targetflag, flag_combos
+from aE.util.flag_handler import hdl_targetflag, flag_combos
 # Preferences wizard function
-from util.argparse_wizard import run_wizard
+from aE.util.argparse_wizard import run_wizard
 # Import main command functions
-from top_level import CMD_trainmodel, CMD_predict
+from aE.top_level import CMD_trainmodel, CMD_predict
 # Import pretty banner printing function (for ego purposes only)
-from util.header import print_header_IMP
+from aE.util.header import print_header_IMP
 # Used for memory and code tracing
 import ast
 import tracemalloc
