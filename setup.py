@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
      name='autoENRICH',
-     version='0.1',
+     version='0.2',
      scripts=['autoENRICH.py', 'IMPRESSION.py', 'aE_utils.py'] ,
      author="Will Gerrard",
      author_email="will.gerrard@bristol.ac.uk",
@@ -17,7 +17,7 @@ setuptools.setup(
      packages=setuptools.find_packages(),
      classifiers=[
          "Programming Language :: Python :: 3",
-         "License : OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
          "Operating System :: OS Independent",
      ],
  )

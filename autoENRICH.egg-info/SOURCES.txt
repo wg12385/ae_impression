@@ -3,6 +3,7 @@ README.md
 aE_utils.py
 autoENRICH.py
 setup.py
+aE_lib/__init__.py
 autoENRICH.egg-info/PKG-INFO
 autoENRICH.egg-info/SOURCES.txt
 autoENRICH.egg-info/dependency_links.txt
