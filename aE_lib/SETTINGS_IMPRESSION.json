@@ -1,7 +1,0 @@
-# json file for IMPRESSION settings
-{
-	"comp":{
-		"system": "localbox",
-		"python_env": "env_IMP"
-	},
-}
