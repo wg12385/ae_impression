@@ -61,9 +61,9 @@ def predict(args):
 			path = path + part + '/'
 
 		files = glob.glob(files_set)
-		if len(files) == 0:
-			print ('No file(s) found matching ', args['training_set'])
-			sys.exit(0)
+		#if len(files) == 0:
+		#	print ('No file(s) found matching ', args['training_set'])
+		#	sys.exit(0)
 		dset = dataset()
 		dset.get_mols(files, type='nmredata')
 		if len(dset.mols) == 0:
@@ -80,9 +80,6 @@ def predict(args):
 
 			dset.get_features_frommols(model.args, params=model.params)
 			assert len(dset.x) > 0, print('No features made. . . ')
-
-			if model.args["targetflag"] == '1JCH':
-				print(dset.r)
 
 			if args['store_datasets']:
 				pickle.dump(dset, open('OPT_testing_set.pkl', 'wb'))

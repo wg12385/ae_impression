@@ -313,13 +313,16 @@ if __name__ == "__main__":
 		print('Not done yet, if will wasnt so lazy we would have some nice test code ')
 
 	# Output for memory trace
-	if args['tracemem']:
-		snapshot = tracemalloc.take_snapshot()
-		top_stats = snapshot.statistics('lineno')
+	try:
+		if args['tracemem']:
+			snapshot = tracemalloc.take_snapshot()
+			top_stats = snapshot.statistics('lineno')
 
-		print("[ Top 10 ]")
-		for stat in top_stats[:10]:
-		    print(stat)
+			print("[ Top 10 ]")
+			for stat in top_stats[:10]:
+			    print(stat)
+	except:
+		print('No memory trace option')
 
 	#if args['tracetime']:
 	if TRACETIME:
