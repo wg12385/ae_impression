@@ -34,6 +34,8 @@ Provides
 
 """
 
+from __future__ import absolute_import
+
 from . import analysis
 from . import boltzmann
 from . import conformational_search

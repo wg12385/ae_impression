@@ -1,1 +1,3 @@
 autoENRICH
+build
+dist
