@@ -18,22 +18,22 @@
 # command line options run the code
 import argparse
 #import sys
-#sys.path.append('aE_lib')
-from preferences.preferences import read_prefs, write_default_prefs
-from molecule.molecule import molecule as moleculeclass
-from util.header import print_header_aE
+#sys.path.append('autoENRICH')
+from autoENRICH.preferences.preferences import read_prefs, write_default_prefs
+from autoENRICH.molecule.molecule import molecule as moleculeclass
+from autoENRICH.util.header import print_header_aE
 import pybel as pyb
 import os
 import glob
 
 import pickle
 
-import top_level.CMD_confsearch as CMD_confsearch
-import top_level.CMD_optimisation as CMD_opt
-import top_level.CMD_nmr as CMD_nmr
-import top_level.CMD_resubmission as CMD_resub
-from top_level.progress import check_proceed
-from top_level.user_util import yes_or_no
+import autoENRICH.top_level.CMD_confsearch as CMD_confsearch
+import autoENRICH.top_level.CMD_optimisation as CMD_opt
+import autoENRICH.top_level.CMD_nmr as CMD_nmr
+import autoENRICH.top_level.CMD_resubmission as CMD_resub
+from autoENRICH.top_level.progress import check_proceed
+from autoENRICH.top_level.user_util import yes_or_no
 
 # Main auto-ENRICH program
 if __name__ == "__main__":

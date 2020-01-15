@@ -15,23 +15,22 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 # master script to do everything IMPRESSION-y
-
 import argparse
 import sys
 import json
-sys.path.append('aE_lib/')
+sys.path.append('autoENRICH/')
 
-from util.flag_handler import hdl_targetflag, flag_combos
-from util.argparse_wizard import run_wizard
+from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
+from autoENRICH.util.argparse_wizard import run_wizard
 
-from top_level import CMD_predict, CMD_compare
+from autoENRICH.top_level import CMD_predict, CMD_compare
 
-from util.header import print_header_IMP
+from autoENRICH.util.header import print_header_IMP
 
-from molecule.nmrmol import nmrmol
-from file_creation.structure_formats import nmredata
-from file_read.g09_read import read_functional
-from reference.tantillo import Get_tantillo_factors
+from autoENRICH.molecule.nmrmol import nmrmol
+from autoENRICH.file_creation.structure_formats import nmredata
+from autoENRICH.file_read.g09_read import read_functional
+from autoENRICH.reference.tantillo import Get_tantillo_factors
 import glob
 
 
