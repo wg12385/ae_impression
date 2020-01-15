@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 from .user_util import yes_or_no
-from aE_lib.molecule.molecule import molecule as moleculeclass
+from autoENRICH.molecule.molecule import molecule as moleculeclass
 import glob
 import os
 

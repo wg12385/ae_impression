@@ -17,7 +17,7 @@
 # define functions to produce QML based features
 import qml.fchl
 import qml.representations
-from aE_lib.util.flag_handler.hdl_targetflag import flag_to_target
+from autoENRICH.util.flag_handler.hdl_targetflag import flag_to_target
 import numpy as np
 
 

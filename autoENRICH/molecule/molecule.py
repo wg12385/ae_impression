@@ -17,7 +17,7 @@
 import numpy as np
 import pickle
 
-from aE_lib.conformational_search import conformational_search as conf_search
+from autoENRICH.conformational_search import conformational_search as conf_search
 from .conformer import conformer as conformerclass
 from .nmrmol import nmrmol
 import glob

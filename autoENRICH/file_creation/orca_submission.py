@@ -17,7 +17,7 @@
 # make orca submission files
 
 # functions for creating gaussian com files
-from aE_lib.reference.periodic_table import Get_periodic_table
+from autoENRICH.reference.periodic_table import Get_periodic_table
 
 def make_optin(prefs, molname, xyz, types, directory=''):
 

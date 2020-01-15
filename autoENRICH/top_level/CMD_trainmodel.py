@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from aE_lib.file_creation.HPC_submission import make_HPC_header
+from autoENRICH.file_creation.HPC_submission import make_HPC_header
 
 import pickle
 import glob
@@ -52,9 +52,9 @@ def setup_trainmodel(args):
 
 def trainmodel(args):
 
-	from aE_lib.ml.HPS import HPS
-	from aE_lib.molecule.dataset import dataset
-	from aE_lib.molecule.nmrmol import nmrmol
+	from autoENRICH.ml.HPS import HPS
+	from autoENRICH.molecule.dataset import dataset
+	from autoENRICH.molecule.nmrmol import nmrmol
 
 	params = []
 	for param in args['param_ranges'].keys():

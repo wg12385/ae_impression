@@ -14,9 +14,9 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from aE_lib.file_creation.structure_formats import xyz
-from aE_lib.file_creation import confsearch
-from aE_lib.file_creation import HPC_submission as HPCsub
+from autoENRICH.file_creation.structure_formats import xyz
+from autoENRICH.file_creation import confsearch
+from autoENRICH.file_creation import HPC_submission as HPCsub
 import pybel as pyb
 
 def conformational_search(molecule, prefs, pickle_file, path=''):

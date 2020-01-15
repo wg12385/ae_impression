@@ -16,8 +16,8 @@
 
 import numpy as np
 import sys
-from aE_lib.file_read import orca_read, g09_read, nmredata_read, structure_read
-from aE_lib.reference.periodic_table import Get_periodic_table
+from autoENRICH.file_read import orca_read, g09_read, nmredata_read, structure_read
+from autoENRICH.reference.periodic_table import Get_periodic_table
 import pickle
 
 

@@ -16,7 +16,7 @@
 
 import numpy as np
 import openbabel
-from aE_lib.reference.periodic_table import Get_periodic_table
+from autoENRICH.reference.periodic_table import Get_periodic_table
 
 def mol_find_all_paths(mol, start, end, coupling_length, path=[]):
 		# append atom to start
