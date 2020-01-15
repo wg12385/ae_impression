@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
      name='autoENRICH',
-     version='0.5',
+     version='0.6',
      scripts=['autoENRICH.py', 'IMPRESSION.py', 'aE_utils.py'] ,
      author="Will Gerrard",
      author_email="will.gerrard@bristol.ac.uk",
