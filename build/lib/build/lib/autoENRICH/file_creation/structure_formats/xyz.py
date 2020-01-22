@@ -14,15 +14,22 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
+from aE_lib.reference.periodic_table import Get_periodic_table
 
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
-	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
+# Write an nmrmol object to an xyz file
+def nmrmol_to_xyz(mol, outname, num=-404):
+	periodic_table = Get_periodic_table()
+	with open(outname, 'w') as f:
+		print(len(mol.types), file=f)
+		if num == -404:
+			print(mol.molid, file=f)
+		else:
+			string = "{0:<10d}\t{1:<20s}".format(num, mol.molid)
+			print(string, file=f)
 
-	return label
+		for i in range(len(mol.types)):
+			string = "{i:<10s}\t{x:<10.6f}\t{y:<10.6f}\t{z:<10.6f}".format(i=periodic_table[mol.types[i]],
+																			x=mol.xyz[i][0],
+																			y=mol.xyz[i][1],
+																			z=mol.xyz[i][2])
+			print(string, file=f)

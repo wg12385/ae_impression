@@ -14,15 +14,29 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
+def get_type(filename):
 
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
+	extension = filename.split('.')[-1]
+	if extension == 'sdf':
+		if len(filename.split('.')) > 2:
+			if filename.split('.')[-2] == 'nmredata':
+				type = 'nmredata'
+			else:
+				type = 'sdf'
+		else:
+			type = 'sdf'
+
+	elif extension == 'xyz':
+		type = 'xyz'
+
+	elif extension == 'log':
+		type = 'g09'
+
+	elif extension == 'mol2':
+		type = 'mol2'
+
 	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
+		print('type not recognised for file ', filename, ' please check file and specify type')
+		type = ''
 
-	return label
+	return type

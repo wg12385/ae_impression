@@ -14,15 +14,22 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
+def get_unique_part(files):
 
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
-	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
+	parts = []
 
-	return label
+	for file in files:
+		parts.append(file.split('/')[-1].split('.')[0].split('_'))
+
+	label_part = 0
+
+	for p1, part1 in enumerate(parts):
+		for p2, part2 in enumerate(parts):
+			if p1 == p2:
+				continue
+			for i in range(len(part1)):
+				if part1[i] != part2[i]:
+					label_part = i
+
+
+	return label_part

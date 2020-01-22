@@ -14,15 +14,36 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
-
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
-	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
-
-	return label
+def Get_TMS_values():
+    TMS_Values=[
+            0,
+            #31.755,
+    	32.0144,
+            0,
+            0,
+            0,
+            0,
+            #191.800,
+    	190.12015,
+            0,
+            0,
+            0,
+            0,
+    	0,
+            0,
+            0,
+            0,
+    	0,
+            0,
+            0,
+            0,
+    	0,
+            0,
+            0,
+            0,
+    	0,
+            0,
+            0,
+            0,
+            ]
+    return TMS_Values

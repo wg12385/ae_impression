@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 import glob
-from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos, paramdict
+from aE_lib.util.flag_handler import hdl_targetflag, flag_combos, paramdict
 import os
 
 

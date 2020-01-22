@@ -14,15 +14,32 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
+import numpy as np
+import glob
+from .nmrmol import nmrmol
 
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
-	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
+class conformer(nmrmol):
 
-	return label
+	def __init__(self, molid, path=''):
+		nmrmol.__init__(self, path=path, molid=molid)
+
+		# store location of conf search xyz file
+		self.xyz_file = 'None'
+
+		# store location and status of optimisation files
+		self.opt_in = 'None'
+		self.opt_log = 'None'
+		self.opt_status = 'None'
+
+		# store location and status of NMR files
+		self.nmr_in = 'None'
+		self.nmr_log = 'None'
+		self.nmr_status = 'None'
+
+		self.energy = 404.404
+		self.pop = 404.404
+
+
+
+
+###

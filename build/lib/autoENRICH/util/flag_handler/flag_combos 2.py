@@ -14,15 +14,28 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
+def check_combination(modelflag, featureflag):
 
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
+
+	if modelflag == 'KRR':
+		if featureflag not in ['CMAT', 'aSLATM', 'ACSF']:
+			return False
+
+	elif modelflag == 'FCHL':
+		if featureflag != 'FCHL':
+			return False
+
+
+	elif modelflag == 'NN':
+		return True
+
+
+	elif modelflag == 'TFM':
+		if featureflag != 'BCAI':
+			return False
+
 	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
+		return False
 
-	return label
+
+	return True

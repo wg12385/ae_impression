@@ -14,15 +14,20 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.reference.periodic_table import Get_periodic_table
+def HPS(dataset, args):
 
-def labelmaker(i, j, mol):
-	Periodic_table = Get_periodic_table()
-	lent = mol.coupling_len[i][j]
-	label = str(lent) + str('J')
-	if mol.types[int(i)] >= mol.types[int(j)]:
-		label = label + str(Periodic_table[mol.types[int(i)]]) + str(Periodic_table[mol.types[int(j)]])
-	else:
-		label = label + str(Periodic_table[mol.types[int(j)]]) + str(Periodic_table[mol.types[int(i)]])
+	if args['searchflag'] == 'grid':
+		from .hyperparameter_tuning import HPS_grid
+		dset, score = HPS_grid.grid_search(dataset, args)
 
-	return label
+	elif args['searchflag'] == 'gaussian':
+		from .hyperparameter_tuning import HPS_gaussian
+		dset, score = HPS_gaussian.gaussian_search(dataset, args)
+
+	elif args['searchflag'] == 'random':
+		from .hyperparameter_tuning import HPS_random
+		dset, score = HPS_random.random_search(dataset, args)
+
+	print('Model optimised, score = ', score)
+
+	return dset, score
