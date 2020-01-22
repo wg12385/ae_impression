@@ -18,6 +18,54 @@ import glob
 from aE_lib.util.flag_handler import hdl_targetflag, flag_combos, paramdict
 import os
 
+
+def get_minimal_args():
+	args = {}
+	args['training_set'] = ''
+	args['output_dir'] = './'
+	args['store_datasets'] = True
+	args['target_list'] = ['HCS', 'CCS', '1JCH']
+	args['targetflag'] = 'HCS'
+	args['modelflag'] = 'KRR'
+	args['featureflag'] = 'CMAT'
+
+	args['searchflag'] = 'random'
+	args['feature_optimisation'] = True
+	args['feature_file'] = ''
+	args['param_ranges'] = {}
+	args['param_logs'] = {}
+	args['cv_steps'] = 5
+	args['epochs'] = 200
+	args['logfile'] = './IMP.log'
+
+	args['python_env'] = 'IMPgen1'
+	args['system'] = 'localbox'
+	args['memory'] = 2
+	args['processors'] = 6
+	args['walltime'] = '100:00:00'
+
+	args['var'] = 5
+	args['models'] = ['None']
+	args['model'] = 'None'
+	args['test_sets'] = ['None']
+
+	args['grid_density'] = 5
+	args['kappa'] = 5.0
+	args['xi'] = 0.2
+	args['random'] = -404
+	args['load'] = 'false'
+
+	args['input_files'] = ''
+	args['output_files'] = ''
+	args['max_size'] = 200
+
+	args['tracecode'] = False
+	args['tracemem'] = False
+	args['tracetime'] = False
+
+	return args
+
+
 # code to run user through selection of input arguments for selected command
 # default flag is used to minimise required user input
 def run_wizard(args, default=False):
