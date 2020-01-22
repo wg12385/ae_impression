@@ -24,7 +24,7 @@ import json
 # Functions for checking input flags
 from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
 # Preferences wizard function
-from autoENRICH.util.argparse_wizard import run_wizard
+from autoENRICH.util.argparse_wizard import run_wizard, get_minimal_args
 # Import main command functions
 from autoENRICH.top_level import CMD_trainmodel, CMD_predict
 # Import pretty banner printing function (for ego purposes only)
@@ -52,47 +52,44 @@ if __name__ == "__main__":
 							 default='')
 	# Define training set, only needed for train and setup_train commands
 	parser.add_argument('--training_set', help='Training dataset file(s), either single csv/pkl file or one/multiple nmredata files',
-						 action="store", dest='training_set', default='None')
+						 action="store", dest='training_set', default='')
 	# Define output directory for non log files
 	parser.add_argument('--output_dir', help='Output directory for non log files',
-						action="store", dest='output_dir', default='./')
+						action="store", dest='output_dir', default='')
 	# Check whether to store prepared datasets or not
 	parser.add_argument('--store_datasets', help='Option to store datasets as pickle files for later use',
-						 action="store", dest='store_datasets', default='False')
+						 action="store", dest='store_datasets', default='')
 
 	# Define list of target parameters
 	parser.add_argument('--target_list', help='Optional list of targets to go through',
 						 action="store", dest='target_list', default=[])
 	# Define single target
 	parser.add_argument('--targetflag', help='target NMR parameter',
-							action="store", dest='targetflag', default='CCS')
+							action="store", dest='targetflag', default='')
 
 	# Optional arguments for train/test
 	# Type of model to use
 	parser.add_argument('--modelflag', help='type of model to use',
-							action="store", dest='modelflag', default='KRR',
+							action="store", dest='modelflag', default='',
 							choices=['KRR', 'FCHL', 'NN', 'TFM'])
 	# Type of features to user
 	parser.add_argument('--featureflag', help='type of features to use',
-							action="store", dest='featureflag', default='CMAT',
-							choices=['CMAT', 'aSLATM', 'FCHL', 'ACSF', 'BCAI'])
-	# Cutoff distance NOT SURE IF THIS IS USED ANYMORE
-	parser.add_argument('--cutoff', help='cutoff distance for features',
-							action="store", dest='cutoff', default=5.0)
+							action="store", dest='featureflag', default='',
+							choices=['CMAT', 'aSLATM', 'FCHL', 'ACSF', 'BCAI', ''])
 
 	# Optional argments for train
 	# Method for hyper-parameter search
 	parser.add_argument('--searchflag', help='Method for hyper-parameter search',
-							action="store", dest='searchflag', default='grid',
-							choices=['grid', 'gaussian', 'random'])
+							action="store", dest='searchflag', default='',
+							choices=['grid', 'gaussian', 'random', ''])
 	# Whether to optimise features in hyper-parameter optimisation (uses defaults for features otherwise)
 	# This offers a pretty massive speed improvement especially for some features (aSLATM)
 	parser.add_argument('--feature_optimisation', help='HPS includes feature parameters',
-							action="store", dest='feature_optimisation', default='True',
-							choices=['True', 'False'])
+							action="store", dest='feature_optimisation', default='',
+							choices=['True', 'False', ''])
 	# Can supply pre-made features to use
 	parser.add_argument('--feature_file', help='File containing pre-made feature dataset object',
-							action="store", dest='feature_file', default='none')
+							action="store", dest='feature_file', default='')
 	# Define ranges for model parameters to optimise
 	parser.add_argument('--param_ranges', help='Dictionary of parameter ranges for HPS',
 							action="store", dest='param_ranges', default='{}')
@@ -101,10 +98,10 @@ if __name__ == "__main__":
 							action="store", dest='param_logs', default='{}')
 	# Number of cross validation steps to perform
 	parser.add_argument('--cv_steps', help='Number of cross validations to perform',
-							 action="store", dest='cv_steps', default=5)
+							 action="store", dest='cv_steps', default=-404)
 	# How many HPS iterations to perform
 	parser.add_argument('--epochs', help='Number of HPS iterations to perform',
-							action="store", dest='epochs', default=200)
+							action="store", dest='epochs', default=-404)
 	# Specify output logfile
 	parser.add_argument('--logfile', help='Name of output log file',
 							action="store", dest='logfile', default='')
@@ -112,19 +109,19 @@ if __name__ == "__main__":
 
 	# Optional system arguments
 	parser.add_argument('--python_env', help='Name of python environment to be used',
-							action="store", dest='python_env', default='env_IMP')
+							action="store", dest='python_env', default='')
 	# Define system (allows for HPC cluster specific submission)
 	parser.add_argument('--system', help='System currently running',
-							 action="store", dest='system', default='localbox')
+							 action="store", dest='system', default='')
 	# How much memory to allow in a HPC submission
 	parser.add_argument('--memory', help='Memory needed in submission scripts',
-							 action="store", dest='memory', default=3)
+							 action="store", dest='memory', default=-404)
 	# How many processors to request in HPC submission
 	parser.add_argument('--processors', help='Processors needed in submission scripts',
-							 action="store", dest='processors', default=1)
+							 action="store", dest='processors', default=-404)
 	# How much walltime to request in HPC submission
 	parser.add_argument('--walltime', help='Walltime required for submission',
-							 action="store", dest='walltime', default='100:00:00')
+							 action="store", dest='walltime', default='')
 
 	# Optional argments for predict
 	# How many variance models to use
@@ -132,29 +129,29 @@ if __name__ == "__main__":
 						action="store", dest='var', default=0)
 	# Define existing models to use for predictions
 	parser.add_argument('--models', help='Existing model(s) to use, list',
-						 action="store", dest='models', default=['None'])
+						 action="store", dest='models', default=[])
 	# Current prediction model, not sure if this is used
 	parser.add_argument('--model', help='Current prediction model',
-						action="store", dest='model', default='None')
+						action="store", dest='model', default='none')
 	# Define set(s) of molecules to perform predictions on
 	parser.add_argument('--test_sets', help='Testing dataset(s), either lists of file search patterns or individual files, list',
-						 action="store", dest='test_sets', default=['None'])
+						 action="store", dest='test_sets', default=[])
 
 
 	# Optional argments for grid search
 	# Define density of points in grid
 	parser.add_argument('--grid_density', help='Point density for grid search',
-							 action="store", dest='grid_density', default=10)
+							 action="store", dest='grid_density', default=-404)
 
 	# Optional arguments for gaussian search
 	parser.add_argument('--kappa', help='Kappa value for gaussian process HPS',
-							 action="store", dest='kappa', default=5.0)
+							 action="store", dest='kappa', default=-404)
 	parser.add_argument('--xi', help='Xi value for gaussian process HPS',
-							action="store", dest='xi', default=0.2)
+							action="store", dest='xi', default=-404)
 	parser.add_argument('--random', help='Frequency of random selection in gaussian process search',
-							action="store", dest='random', default=0)
+							action="store", dest='random', default=-404)
 	parser.add_argument('--load', help='Load previous search from logfile before starting',
-							action="store", dest='load', default='false')
+							action="store", dest='load', default=False)
 
 	# Optional arguments for make features
 	parser.add_argument('--input_files', help='Files to create features from',
@@ -165,7 +162,7 @@ if __name__ == "__main__":
 	# Be very careful with this, having a different size between the training and
 	# test sets screws up the predictions
 	parser.add_argument('--max_size', help='Maximum molecule size',
-							action="store", dest='max_size', default=200)
+							action="store", dest='max_size', default=-404)
 	# Option to trace the code execution, for bug hunting
 	parser.add_argument('--tracecode', help='Trace the code execution',
 							action="store_true", dest='tracecode', default=False)
@@ -194,26 +191,29 @@ if __name__ == "__main__":
 	else:
 		TRACETIME = False
 
+	user_args = args
+	default_args = get_minimal_args()
+	file_args = {}
+	wiz_args = {}
+
 	# Preserve command argument whilst messing about with preferences / args
 	COMMAND = args['Command']
 	# Run preferences wizard to ask user for preference choices
 	if args['prefs'] == 'wizard':
-		args = run_wizard(args)
+		wiz_args = run_wizard(args)
 		pref_file = 'settings_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
 		args['prefs'] = pref_file
 		json.dump(args, open(pref_file, 'w'), indent=4)
 		with open(pref_file, 'r') as fp:
 			args = json.load(fp)
-
 	# Run preferences wizard but select all default options (minimal user input)
 	elif args['prefs'] == 'default':
-		args = run_wizard(args, default=True)
+		wiz_args = run_wizard(args, default=True)
 		pref_file = 'settings_' + args['modelflag'] + '_' + args['featureflag'] + '_' + args['targetflag'] + '.json'
 		args['prefs'] = pref_file
 		json.dump(args, open(pref_file, 'w'), indent=4)
 		with open(pref_file, 'r') as fp:
 			args = json.load(fp)
-
 	# Use default preferences for every argument and generate a settings file to edit
 	elif args['prefs'] == 'generate':
 		pref_file = 'IMPRESSION_settings.json'
@@ -221,19 +221,59 @@ if __name__ == "__main__":
 		json.dump(args, open(pref_file, 'w'), indent=4)
 		print('Template preferences file generated')
 		sys.exit()
-
 	# Else read preferences file or shout at the user for not specifiying one
 	else:
 		print('Reading settings from file ', args['prefs'])
 		try:
 			with open(args['prefs'], 'r') as json_file:
-				args = json.load(json_file)
+				file_args = json.load(json_file)
 		except Exception as E:
 			print('Error reading preferences file ', args['prefs'])
 			print('You must specify a preferences file, or generate one using --prefs default')
 			print(E)
 			print('Exiting. . .')
 			sys.exit(0)
+
+	for arg in user_args:
+		user = False
+		if type(user_args[arg]) is int:
+			if user_args[arg] != -404:
+				user = True
+		elif type(user_args[arg]) is str:
+			if user_args[arg] not in ['', 'none', '{}']:
+				user = True
+		elif type(user_args[arg]) is dict:
+			if len(user_args[arg]) != 0:
+				user = True
+		elif type(user_args[arg]) is list:
+			if len(user_args[arg]) != 0:
+				user = True
+
+		file = False
+		if type(file_args[arg]) is int:
+			if file_args[arg] != -404:
+				file = True
+		elif type(file_args[arg]) is str:
+			if file_args[arg] not in ['', 'none', '{}']:
+				file = True
+		elif type(file_args[arg]) is dict:
+			if len(file_args[arg]) != 0:
+				file = True
+		elif type(file_args[arg]) is list:
+			if len(file_args[arg]) != 0:
+				file = True
+
+
+		if user:
+			args[arg] = user_args[arg]
+		elif file:
+			args[arg] = file_args
+		elif arg in wiz_args:
+			args[arg] = wiz_args
+		else:
+			continue
+
+
 
 	# Restore command argument
 	args['Command'] = COMMAND
