@@ -279,7 +279,7 @@ if __name__ == "__main__":
 	args['Command'] = COMMAND
 
 	# Unless making predictions check combination of feature / model
-	if args['Command'] != 'predict':
+	if args['Command'] != 'predict' or 'setup_predict':
 		# check target flag is valid (nJxy or XCS):
 		target = hdl_targetflag.flag_to_target(args['targetflag'])
 		# 0 is the bad number
