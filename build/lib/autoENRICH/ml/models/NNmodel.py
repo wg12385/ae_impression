@@ -17,7 +17,7 @@
 import numpy as np
 import copy
 
-from ml.models.model import genericmodel
+from autoENRICH.ml.models.model import genericmodel
 from sklearn.model_selection import KFold
 import sys
 

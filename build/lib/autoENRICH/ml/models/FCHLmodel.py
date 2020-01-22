@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from ml.models.model import genericmodel
+from autoENRICH.ml.models.model import genericmodel
 from sklearn.model_selection import KFold
 import qml
 import copy

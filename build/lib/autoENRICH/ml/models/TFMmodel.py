@@ -15,7 +15,7 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from ml.models.model import genericmodel
+from autoENRICH.ml.models.model import genericmodel
 from sklearn.model_selection import KFold
 
 import torch
@@ -25,9 +25,9 @@ from torch import optim
 import pickle
 import gzip
 
-import ml.models.BCAI.train as BCAI_train
-import ml.models.BCAI.graph_transformer as BCAI_graph
-import ml.models.BCAI.predictor as BCAI_predict
+import autoENRICH.ml.models.BCAI.train as BCAI_train
+import autoENRICH.ml.models.BCAI.graph_transformer as BCAI_graph
+import autoENRICH.ml.models.BCAI.predictor as BCAI_predict
 from .BCAI.modules import radam
 
 class TFMmodel(genericmodel):
