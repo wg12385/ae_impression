@@ -59,6 +59,6 @@ RUN echo 'alias autoENRICH="python /opt/autoENRICH/autoENRICH.py" ' >> /.bashrc 
 	mkdir output
 
 # Add models directory
-ADD models models
+#ADD models models
 # Add Run directory
-ADD RUN RUN
+#ADD RUN RUN
