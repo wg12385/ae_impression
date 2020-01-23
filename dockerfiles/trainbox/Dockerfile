@@ -62,4 +62,4 @@ RUN echo 'alias autoENRICH="python /opt/autoENRICH/autoENRICH.py" ' >> /.bashrc 
 	echo 'alias aEutils="python /opt/autoENRICH/aE_utils.py" ' >> /.bashrc && \
 	mkdir output
 
-ADD RUN RUN
+#ADD RUN RUN
