@@ -17,8 +17,16 @@
 from autoENRICH.util.flag_handler.hdl_targetflag import flag_to_target
 import numpy as np
 
-
+# Make 'dummy features' for a given target, used to get list of references
 def get_dummy_features(mols, targetflag='CCS'):
+	# Input:
+	#	mols: list of autoENRICH nmrmol objects
+	#	targetflag: flag corresponding to nmr parameter (string)
+
+	# Returns:
+	#	x: empty list (where features would normally go)
+	#	y: 1D list of NMR parameters
+	#	r: 1D list of NMR parameter references (molid, atom(1, atom2))
 
 	target = flag_to_target(targetflag)
 

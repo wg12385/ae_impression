@@ -28,7 +28,12 @@ import copy
 
 from autoENRICH.ml.hyperparameter_tuning import HPS_generic as generic
 
+# Load iterations from previous run
 def load_logs(args):
+	# Input:
+	# args: global argument dictionary
+
+	# Returns: list of paremeters and scores to read into gaussian process
 	to_load = []
 	try:
 		with open(args['logfile'], 'r') as f:

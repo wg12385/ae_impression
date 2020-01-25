@@ -1,4 +1,4 @@
-# Copyright 2020 Will Gerrard
+PBS# Copyright 2020 Will Gerrard
 #This file is part of autoENRICH.
 
 #autoENRICH is free software: you can redistribute it and/or modify
@@ -16,8 +16,16 @@
 
 # make batch / submission scripts for HPC jobs
 
-# Get number of <max file chunks to produce job submission scripts for
+# Get number of max file chunks to produce job submission scripts for
 def get_chunks(files, end=-1, start=-1, max=50):
+	# Input:
+	# files: number of calculation files
+	# end: end file number (-1 reverts to last file)
+	# start: start file number (-1 reverts to first file)
+	# max: max number of files per submission batch
+
+	# Returns: number of submission scripts required
+
 	# "-1" used as flags to mean use all files
 	if start < 0 and end < 0:
 		start = 1
@@ -57,31 +65,54 @@ def get_chunks(files, end=-1, start=-1, max=50):
 	return chunks
 
 # Make generic part of file for use on HPC
-def make_HPC_header(jobname='auto-ENRICH', system='BC3', nodes=1, ppn=1, walltime="100:00:00", mem=3):
+def make_HPC_header(jobname='auto-ENRICH', system='PBS', nodes=1, ppn=1, walltime="100:00:00", mem=3):
+	# Input:
+	# jobname: name for job on HPC system
+	# system: type of system
+	# nodes: number of nodes to run on
+	# ppn: number of processors per node to run on
+	# walltime: time to run for
+	# mem: memory to request (in GB)
+
+	# Returns: strings containing lines for file
 
 	strings = []
 
 	# NEED BC4 AND GPU VERSION
 
-	if system == 'BC3':
-		strings.append('# submission script for BC3')
+	if system == 'PBS':
+		strings.append('# submission script for PBS')
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
 		strings.append("#PBS -l walltime={0:<9s}".format(walltime))
 		strings.append("#PBS -l mem={0:<1d}GB".format(mem))
 		strings.append("#PBD -N {0:<10s}".format(jobname))
 		strings.append("cd $PBS_O_WORKDIR")
-	elif system == 'BC4':
+	elif system == 'slurm':
 		# sbatch version
-		strings.append('# submission script for BC4')
+		strings.append('# submission script for slurm')
 	elif system == 'localbox':
 		strings.append('# submission script for local linux box')
 
 	return strings
 
-def make_HPC_orca_batch_submission(prefs, molname, in_array, start, end, jobname='auto-ENRICH', ck=0, nodes=1, ppn=1, mem=3, walltime="100:00:00"):
+def make_HPC_orca_batch_submission(prefs, molname, in_array, start, end, jobname='auto-ENRICH', nodes=1, ppn=1, mem=3, walltime="100:00:00"):
+	# Input:
+	#	prefs: preferences dictionary
+	# 	molname: name of molecule
+	#	in_array: file containing names of conformer input files
+	#	start: conformer id to start at
+	#	end: conformer id to end at
+	#	jobname: name for job on cluster
+	#	nodes: number of nodes to request
+	#	ppn: number of processors per node to run on
+	#	mem: memory to request (in GB)
+	#	walltime: time to run for
+
+	# Returns: strings containing lines for file
+
 	strings = []
 	strings.append('#!/bin/bash')
-	if prefs['comp']['system'] == 'BC3':
+	if prefs['comp']['system'] == 'PBS':
 		strings.append("#PBS -l nodes={0:<1d}:ppn={1:<1d}".format(nodes, ppn))
 		strings.append("#PBS -l walltime={0:<9s}".format(walltime))
 		strings.append("#PBS -l mem={0:<1d}GB".format(mem))

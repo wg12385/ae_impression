@@ -14,7 +14,13 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
+# Get status of ORCA optimisation
 def get_opt_status(file):
+	# Input:
+	#	file: filename
+
+	# Returns: status
+
 	status = 'unknown'
 	try:
 		with open(file, 'r') as f:
@@ -28,7 +34,12 @@ def get_opt_status(file):
 
 	return status
 
+# Get status of ORCA NMR calculation
 def get_nmr_status(file):
+		# Input:
+		#	file: filename
+
+		# Returns: status
 	status = 'unknown'
 	with open(file, 'r') as f:
 		for line in f:
@@ -38,14 +49,13 @@ def get_nmr_status(file):
 				status = 'failed'
 	return status
 
-def read_structure(file):
-
-
-
-	return xyz, types, conn, coupling_len
-
-
+# Read Optimisation energy from ORCA optimisation file
 def read_opt(file):
+	# Input:
+	#	file: filename
+	# Returns: energy
+
+	# Go through file looking for this line
 	# SCF Energy:    -1072.8219232141
 	energy = 0.0
 	with open(file ,'r') as f:
@@ -56,6 +66,7 @@ def read_opt(file):
 
 	return energy
 
+# Need to write this
 def read_nmr(file):
 
 
