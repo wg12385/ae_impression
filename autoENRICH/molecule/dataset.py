@@ -160,7 +160,8 @@ class dataset(object):
 		self.y = np.asarray(y)
 		self.r = r
 
-		print('Reps generated, shape: ', self.x.shape)
+		if featureflag != 'dummy':
+			print('Reps generated, shape: ', self.x.shape)
 
 	def get_features_fromfiles(self, files, featureflag='CMAT', targetflag='CCS', cutoff=5.0, max=400, mbtypes=[], elements=[]):
 		self.params = {}

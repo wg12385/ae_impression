@@ -111,9 +111,6 @@ def predict(args):
 			else:
 				var = np.zeros(len(y_pred), dtype=np.float64)
 
-
-			## Currently not being zero'd properly, and values look really wrong.
-
 			if m == 0:
 				dset.assign_from_ml(y_pred, var, zero=True)
 			else:

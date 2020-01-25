@@ -14,8 +14,8 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from aE_lib.util.labelmaker import labelmaker
-from aE_lib.reference.periodic_table import Get_periodic_table
+from autoENRICH.util.labelmaker import labelmaker
+from autoENRICH.reference.periodic_table import Get_periodic_table
 
 # Write an nmrmol object to an nmredata file
 def nmrmol_to_nmredata(mol, outfile):

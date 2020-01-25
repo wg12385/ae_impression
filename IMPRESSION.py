@@ -126,7 +126,7 @@ if __name__ == "__main__":
 	# Optional argments for predict
 	# How many variance models to use
 	parser.add_argument('--var', help='Number of pre-prediction variance models',
-						action="store", dest='var', default=0)
+						action="store", dest='var', default=-404)
 	# Define existing models to use for predictions
 	parser.add_argument('--models', help='Existing model(s) to use, list',
 						 action="store", dest='models', default=[])
@@ -250,36 +250,37 @@ if __name__ == "__main__":
 				user = True
 
 		file = False
-		if type(file_args[arg]) is int:
-			if file_args[arg] != -404:
-				file = True
-		elif type(file_args[arg]) is str:
-			if file_args[arg] not in ['', 'none', '{}']:
-				file = True
-		elif type(file_args[arg]) is dict:
-			if len(file_args[arg]) != 0:
-				file = True
-		elif type(file_args[arg]) is list:
-			if len(file_args[arg]) != 0:
-				file = True
+		if arg in file_args:
+			if type(file_args[arg]) is int:
+				if file_args[arg] != -404:
+					file = True
+			elif type(file_args[arg]) is str:
+				if file_args[arg] not in ['', 'none', '{}']:
+					file = True
+			elif type(file_args[arg]) is dict:
+				if len(file_args[arg]) != 0:
+					file = True
+			elif type(file_args[arg]) is list:
+				if len(file_args[arg]) != 0:
+					file = True
 
 
 		if user:
 			args[arg] = user_args[arg]
 		elif file:
-			args[arg] = file_args
+			args[arg] = file_args[arg]
 		elif arg in wiz_args:
-			args[arg] = wiz_args
+			args[arg] = wiz_args[arg]
+		elif arg in default_args:
+			args[arg] = default_args[arg]
 		else:
 			continue
-
-
 
 	# Restore command argument
 	args['Command'] = COMMAND
 
 	# Unless making predictions check combination of feature / model
-	if args['Command'] != 'predict' or 'setup_predict':
+	if args['Command'] not in ['predict', 'setup_predict']:
 		# check target flag is valid (nJxy or XCS):
 		target = hdl_targetflag.flag_to_target(args['targetflag'])
 		# 0 is the bad number
@@ -341,7 +342,7 @@ if __name__ == "__main__":
 		if args['prefs'] == '':
 			pref_file = 'settings_predict.json'
 			args['prefs'] = pref_file
-		json.dump(args, open(pref_file, 'w'), indent=4)
+		json.dump(args, open(args['prefs'], 'w'), indent=4)
 		CMD_predict.setup_predict(args)
 
 	# Make predictions from a molecule
