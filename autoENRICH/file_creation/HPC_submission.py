@@ -1,4 +1,4 @@
-PBS# Copyright 2020 Will Gerrard
+# Copyright 2020 Will Gerrard
 #This file is part of autoENRICH.
 
 #autoENRICH is free software: you can redistribute it and/or modify
