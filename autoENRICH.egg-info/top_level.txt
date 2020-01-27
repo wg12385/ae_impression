@@ -1,3 +1,4 @@
 autoENRICH
 build
+dist
 dockerfiles
