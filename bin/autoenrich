@@ -24,6 +24,7 @@ from autoENRICH.util.header import print_header_aE
 import pybel as pyb
 import os
 import glob
+import sys
 
 import pickle
 
