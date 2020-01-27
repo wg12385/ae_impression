@@ -76,4 +76,7 @@ autoENRICH/util/flag_handler/hdl_targetflag.py
 autoENRICH/util/flag_handler/paramdict.py
 bin/IMPRESSION
 bin/aE_utils
+bin/ae_utils
 bin/autoENRICH
+bin/autoenrich
+bin/impression

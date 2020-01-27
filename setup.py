@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
      name='autoENRICH',
-     version='1.01',
-     scripts=['bin/autoENRICH', 'bin/IMPRESSION', 'bin/aE_utils'] ,
+     version='1.02',
+     scripts=['bin/autoenrich', 'bin/impression', 'bin/ae_utils'] ,
      author="Will Gerrard",
      author_email="will.gerrard@bristol.ac.uk",
      description="Computational NMR Library",
