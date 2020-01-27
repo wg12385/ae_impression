@@ -1,7 +1,5 @@
-IMPRESSION.py
+MANIFEST.in
 README.md
-aE_utils.py
-autoENRICH.py
 setup.py
 autoENRICH/__init__.py
 autoENRICH.egg-info/PKG-INFO
@@ -72,6 +70,10 @@ autoENRICH/util/filename_utils.py
 autoENRICH/util/header.py
 autoENRICH/util/labelmaker.py
 autoENRICH/util/strings_to_file.py
+autoENRICH/util/arguments/argparser.py
 autoENRICH/util/flag_handler/flag_combos.py
 autoENRICH/util/flag_handler/hdl_targetflag.py
 autoENRICH/util/flag_handler/paramdict.py
+bin/IMPRESSION
+bin/aE_utils
+bin/autoENRICH
