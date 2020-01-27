@@ -59,14 +59,22 @@ if __name__ == "__main__":
 	parser.add_argument('--comp_labels', help='Labels for datasets',
 							action="store", dest="comp_labels", default='1 2')
 
+	parser.add_argument('--match_criteria', help='Criteria by which to match molecules from different sets',
+							action="store", dest="match_criteria", choices=['loose', 'strict', 'id'], default='id')
+
 	args = vars(parser.parse_args())
 
 	if args['comp_sets'] != '':
 		sets = args['comp_sets'].split()
+		print(sets)
+		assert len(sets) > 1
 		comp_sets = []
 		for set in sets:
 			if len(glob.glob(set)) > 0:
 				comp_sets.append(set)
+			else:
+				print('No files found for set ', set)
+		assert len(comp_sets) > 1
 		args['comp_sets'] = comp_sets
 
 	args['comp_targets'] = args['comp_targets'].split()

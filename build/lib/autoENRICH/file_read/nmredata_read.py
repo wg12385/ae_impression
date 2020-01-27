@@ -17,39 +17,52 @@
 
 import numpy as np
 
+# Read NMR data from nmredata file
 def read_nmr(file, atoms):
+	# Input:
+	#	file: filename
+	#	atoms: number of atoms in molecule (read sdf part first)
 
+	# Returns:
+	#	shift_array, array of chemical shifts (1D numpy array)
+	#	shift_var, array of chemical shift variances (used in machine learning) (1D numpy array)
+	#	coupling_array, array of coupling constants (2D numpy array)
+	#	coupling_len, array of bond distance between atoms (2D numpy array)
+	#	coupling_var, array of coupling constant variances (used in machine learning) (2D numpy array)
+
+	# Define empty arrays
 	shift_array = np.zeros(atoms, dtype=np.float64)
+	# Variance is used for machine learning
 	shift_var = np.zeros(atoms, dtype=np.float64)
 	coupling_array = np.zeros((atoms, atoms), dtype=np.float64)
 	coupling_len = np.zeros((atoms, atoms), dtype=np.int64)
+	# Variance is used for machine learning
 	coupling_var = np.zeros((atoms, atoms), dtype=np.float64)
 
+	# Go through file looking for assignment sections
 	with open(file, 'r') as f:
 		shift_switch = False
 		cpl_switch = False
 		for line in f:
 			if '> <NMREDATA_ASSIGNMENT>' in line:
 				shift_switch = True
-
 			if '> <NMREDATA_J>' in line:
 				shift_switch = False
 				cpl_switch = True
-
-
+			# If shift assignment label found, process shift rows
 			if shift_switch:
+				# Shift assignment row looks like this
 				#  0    , -33.56610000   , 8    , 0.00000000     \
 				items = line.split()
-
 				try:
 					int(items[0])
 				except:
 					continue
-
 				shift_array[int(items[0])] = float(items[2])
 				shift_var[int(items[0])] = float(items[6])
-
+			# If coupling assignment label found, process coupling rows
 			if cpl_switch:
+				# Coupling row looks like this
 				#  0         , 4         , -0.08615310    , 3JON      , 0.00000000
 				# ['0', ',', '1', ',', '-0.26456900', ',', '5JON', ',', '0.00000000']
 				items = line.split()

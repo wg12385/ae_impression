@@ -18,8 +18,18 @@ import pybel as pyb
 from autoENRICH.pybel_helpers import pybel_bonds, pybel_read
 import numpy as np
 
-
+# Read structure from file using pybel
 def generic_pybel_read(file, type):
+	# Input:
+	#	file: filename
+	#	type: type of file (xyz, g09, mol2, . . .)
+
+	# Returns:
+	#	xyz: xyz array for structure (2D numpy array)
+	#	types: array of atom types (1D numpy array)
+	#	conn_table: array of atom connectivity (bond types) (2D numpy array)
+	#	coupling_len: array of atom connection distances (2D numpy array)
+
 	mol = next(pyb.readfile(type, file))
 	type_list, types = pybel_read.mol_read_type(mol)
 	xyz = pybel_read.mol_read_xyz(mol)
@@ -30,8 +40,18 @@ def generic_pybel_read(file, type):
 
 	return xyz, types, conn_table, coupling_len
 
-
+# Read structure from file, but skip finding coupling distances (computationally expensive)
 def fast_generic_pybel_read(file, type):
+	# Input:
+	#	file: filename
+	#	type: type of file (xyz, g09, mol2, . . .)
+
+	# Returns:
+	#	xyz: xyz array for structure (2D numpy array)
+	#	types: array of atom types (1D numpy array)
+	#	conn_table: array of atom connectivity (bond types) (2D numpy array)
+	#	coupling_len: array of atom connection distances (2D numpy array of zeros)
+
 	mol = next(pyb.readfile(type, file))
 	type_list, types = pybel_read.mol_read_type(mol)
 	xyz = pybel_read.mol_read_xyz(mol)

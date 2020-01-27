@@ -26,7 +26,7 @@ import sys
 import pickle
 import gzip
 
-
+# make BCAI features
 def get_BCAI_features(mols, targetflag='CCS'):
 
 	target = flag_to_target(targetflag)

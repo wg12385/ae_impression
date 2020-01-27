@@ -38,8 +38,18 @@ def compare_datasets(args):
 	assert len(sets) > 1, print('Only one set found. . .')
 	assert len(sets[0].mols) == len(sets[1].mols), print('Different numbers of molecules in sets')
 
+	found = []
 	for m1, mol1 in enumerate(sets[0].mols):
+		if m1 in found:
+			continue
 		for m2, mol2 in enumerate(sets[1].mols):
+
+			if args['match_criteria'] == 'id':
+				if mol1.molid == mol2.molid:
+					att_mols.append([mol1, mol2])
+				else:
+					continue
+
 
 			if not mol_isequal(mol1, mol2):
 				continue
@@ -58,6 +68,7 @@ def compare_datasets(args):
 					att_mols.append([mol1, mol2, mol3])
 
 			else:
+				found.append(m1)
 				att_mols.append([mol1, mol2])
 
 	print(len(att_mols), ' molecules matched, out of ', len(sets[0].mols))
@@ -136,7 +147,8 @@ def compare_datasets(args):
 		y = [row[1] for row in values]
 
 		MAE = np.mean(np.absolute(np.asarray(x)-np.asarray(y)))
-		print('MAE between ', args['comp_labels'][0], args['comp_labels'][1], ' = ', MAE)
+		MAEstring = '{0:<6.3f}'.format(MAE)
+		print('MAE between ', args['comp_labels'][0], args['comp_labels'][1], ' = ', MAEstring, '   no. of envs. ', len(x))
 
 
 

@@ -17,17 +17,20 @@
 from autoENRICH.util.flag_handler.hdl_targetflag import target_to_flag
 import numpy as np
 
+# Attempts to determine if the molecules are the same molecule
 def mol_isequal(mol1, mol2, print=False):
+	# input:
+	# mol1: autoENRICH nmrmol object (molecule 1)
+	# mol2: autoENRICH nmrmol object (molecule 2)
+	# print: True/False , whether to print information about bad matches
 
+	# Returns: True/False
+
+	# First simple check: same number of atoms
 	if len(mol1.types) != len(mol2.types):
 		if print:
 			print('Molecules are different sizes')
 		return False
-	if len(mol1.xyz) != len(mol2.xyz):
-		if print:
-			print('Molecules are different sizes')
-		return False
-
 	atoms = len(mol1.types)
 
 	# Check for same chemical formula
@@ -48,9 +51,9 @@ def mol_isequal(mol1, mol2, print=False):
 		return False
 
 	# Check for same connectivity
+	# Done by checking both have the same number of each coupling type: 1JCH, 3JNH, . . .
 	cpl_dict1 = {}
 	cpl_dict2 = {}
-
 	for i in range(atoms):
 		for j in range(atoms):
 			if mol1.conn[i][j] != 0:
@@ -64,12 +67,12 @@ def mol_isequal(mol1, mol2, print=False):
 
 				cpl_dict1[flag1] = cpl_dict1[flag1] + 1
 				cpl_dict2[flag2] = cpl_dict2[flag2] + 1
-
 	if cpl_dict1 != cpl_dict2:
 		if print:
 			print('Connectivity is different')
 			return False
 
+	# Return true if no checks fail
 	return True
 
 

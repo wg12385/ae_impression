@@ -21,14 +21,22 @@ import pybel as pyb
 import numpy as np
 
 # raw mass generation of xyz coordinates based on torsional angle searching
-def torsional_search(molecule, smiles, iterations=100000, RMSthresh=1, path=''):
+def torsional_search(smiles, iterations=100000, RMSthresh=1):
+	# Input:
+	# smiles: smiles string representing the molecule (string)
+	# iterations: number of ETRKG iterations (integer)
+	# RMSthresh: RMS threshold for ETRKG search (how different new conformers need to be) (float)
+
+	# Returns: xyzs (list (conformers) of lists (atoms) of xyz coordinates), energies (list of conformer MMFF94s energies)
+
 	xyzs = []
 	energies = []
 	# read mol into RDkit from smiles string
 	rdmol = Chem.MolFromSmiles(smiles)
-	# rdkit is an absolute piece of crap, so it wont read in hydrogens, it has to add them itself
+	# rdkit is an absolute piece of c**p, so it wont read in hydrogens, it has to add them itself
 	rdmol = Chem.AddHs(rdmol)
 	# Do conformational search by ETRKG
+	# Riniker, S.; Landrum, G. A. “Better Informed Distance Geometry: Using What We Know To Improve Conformation Generation” J. Chem. Inf. Comp. Sci. 55:2562-74 (2015)
 	ids = AllChem.EmbedMultipleConfs(rdmol,
 								  clearConfs=True,
 								  numConfs=iterations,
@@ -49,7 +57,7 @@ def torsional_search(molecule, smiles, iterations=100000, RMSthresh=1, path=''):
 	for id in confIds:
 		xyz = []
 		# Loop over length of molecule (defined by size of mol type array)
-		for t in range(len(molecule.types)):
+		for t in range(len(rdmol.getatoms())):
 			# append atom coordinates
 			xyz.append([float(rdmol.GetConformer(id).GetAtomPosition(t)[0]),
 						float(rdmol.GetConformer(id).GetAtomPosition(t)[1]),
@@ -61,6 +69,14 @@ def torsional_search(molecule, smiles, iterations=100000, RMSthresh=1, path=''):
 
 # select conformers based on coverage of the chemical space
 def select_conformers(xyzs, energies, maxconfs=100, Ethresh=100000):
+	# Input:
+	# xyzs: list of lists of xyz coordinates from torsional search (n x m) n=number of conformers, m=number of atoms
+	# energies: list of energies (n)
+	# maxconfs: maximum number of conformers to return (int)
+	# Ethresh: Energy threshold above which conformers will be automatically discarded (float)
+
+	# Returns: xyzs (list (conformers) of lists (atoms) of xyz coordinates), energies (list of conformer MMFF94s energies)
+
 	remove = []
 	# Mark for removal all conformers with energy over threshold
 	for i in range(len(energies)):
@@ -86,6 +102,12 @@ def select_conformers(xyzs, energies, maxconfs=100, Ethresh=100000):
 
 # xyz based selection of most similar structures
 def select_over_space(xyzs, to_remove):
+	#Input:
+	# xyzs: list of lists of xyz coordinates from torsional search (n x m) n=number of conformers, m=number of atoms
+	# to_remove: number of conformers to be removed
+
+	# Returns: list of conformer ids to remove
+
 	dist = np.zeros((len(xyzs),len(xyzs)), dtype=np.float64)
 	remove = []
 	# loop over all conformer/conformer pairs
