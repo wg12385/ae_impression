@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
      name='autoENRICH',
-     version='0.18',
+     version='0.16',
      scripts=['autoENRICH.py', 'IMPRESSION.py', 'aE_utils.py'] ,
      author="Will Gerrard",
      author_email="will.gerrard@bristol.ac.uk",
@@ -14,7 +14,7 @@ setuptools.setup(
      long_description=long_description,
    long_description_content_type="text/markdown",
      url="https://github.com/wg12385/auto-ENRICH",
-     packages=setuptools.find_namespace_packages(exclude=['IMPRESSION.py', 'autoENRICH.py', 'aEutils.py', 'build/*', 'dist/*', 'dockerfiles/*', 'setup.py']),
+     packages=setuptools.find_namespace_packages(exclude=['IMPRESSION.py', 'autoENRICH.py', 'aEutils.py', 'build', 'dist', 'dockerfiles', 'setup.py']),
      classifiers=[
          "Programming Language :: Python :: 3",
          "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
