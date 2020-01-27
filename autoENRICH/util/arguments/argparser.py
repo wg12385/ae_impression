@@ -182,45 +182,45 @@ def util_parser(args):
 
 def combine_args(user_args, file_args, wiz_args, default_args):
 	args = {}
-		for arg in user_args:
-			user = False
-			if type(user_args[arg]) is int:
-				if user_args[arg] != -404:
-					user = True
-			elif type(user_args[arg]) is str:
-				if user_args[arg] not in ['', 'none', '{}']:
-					user = True
-			elif type(user_args[arg]) is dict:
-				if len(user_args[arg]) != 0:
-					user = True
-			elif type(user_args[arg]) is list:
-				if len(user_args[arg]) != 0:
-					user = True
+	for arg in user_args:
+		user = False
+		if type(user_args[arg]) is int:
+			if user_args[arg] != -404:
+				user = True
+		elif type(user_args[arg]) is str:
+			if user_args[arg] not in ['', 'none', '{}']:
+				user = True
+		elif type(user_args[arg]) is dict:
+			if len(user_args[arg]) != 0:
+				user = True
+		elif type(user_args[arg]) is list:
+			if len(user_args[arg]) != 0:
+				user = True
 
-			file = False
-			if arg in file_args:
-				if type(file_args[arg]) is int:
-					if file_args[arg] != -404:
-						file = True
-				elif type(file_args[arg]) is str:
-					if file_args[arg] not in ['', 'none', '{}']:
-						file = True
-				elif type(file_args[arg]) is dict:
-					if len(file_args[arg]) != 0:
-						file = True
-				elif type(file_args[arg]) is list:
-					if len(file_args[arg]) != 0:
-						file = True
+		file = False
+		if arg in file_args:
+			if type(file_args[arg]) is int:
+				if file_args[arg] != -404:
+					file = True
+			elif type(file_args[arg]) is str:
+				if file_args[arg] not in ['', 'none', '{}']:
+					file = True
+			elif type(file_args[arg]) is dict:
+				if len(file_args[arg]) != 0:
+					file = True
+			elif type(file_args[arg]) is list:
+				if len(file_args[arg]) != 0:
+					file = True
 
 
-			if user:
-				args[arg] = user_args[arg]
-			elif file:
-				args[arg] = file_args[arg]
-			elif arg in wiz_args:
-				args[arg] = wiz_args[arg]
-			elif arg in default_args:
-				args[arg] = default_args[arg]
-			else:
-				continue
+		if user:
+			args[arg] = user_args[arg]
+		elif file:
+			args[arg] = file_args[arg]
+		elif arg in wiz_args:
+			args[arg] = wiz_args[arg]
+		elif arg in default_args:
+			args[arg] = default_args[arg]
+		else:
+			continue
 	return args

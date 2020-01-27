@@ -1,3 +1,5 @@
+#!python
+
 # Copyright 2020 Will Gerrard
 #This file is part of autoENRICH.
 
@@ -14,7 +16,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-#!/usr/bin/env python
+
 
 # To quit things
 import sys

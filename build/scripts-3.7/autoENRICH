@@ -1,3 +1,5 @@
+#!python
+
 # Copyright 2020 Will Gerrard
 #This file is part of autoENRICH.
 
@@ -15,7 +17,6 @@
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
 # Central command file for running auto-ENRICH
-#!/usr/bin/env python
 
 from autoENRICH.preferences.preferences import read_prefs, write_default_prefs
 from autoENRICH.molecule.molecule import molecule as moleculeclass
