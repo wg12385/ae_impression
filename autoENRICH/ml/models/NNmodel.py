@@ -29,14 +29,11 @@ try:
 	from keras.callbacks import EarlyStopping
 except:
 	print('Tensorflow not available')
-	sys.exit(0)
 
 
 class NNmodel(genericmodel):
 	def __init__(self, id='NNmodel', x=[], y=[], params={}, model_args={}):
 		genericmodel.__init__(self, id, x, y, params, model_args)
-
-
 
 	def train(self):
 		self.net = Sequential()
