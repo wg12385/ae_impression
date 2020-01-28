@@ -32,7 +32,7 @@ from autoENRICH.top_level import CMD_trainmodel, CMD_predict
 # Import pretty banner printing function (for ego purposes only)
 from autoENRICH.util.header import print_header_IMP
 # Import argument parser
-from autoENRICH.util.arguments.argparser import IMP_parser
+from autoENRICH.util.arguments.argparser import IMP_parser, combine_args
 # Used for memory and code tracing
 import ast
 import tracemalloc
@@ -75,6 +75,9 @@ def impression(inpargs):
 		print('Template preferences file generated')
 		sys.exit()
 	# Else read preferences file or shout at the user for not specifiying one
+	elif args['prefs'] == '':
+		print('Only user arguments')
+		wiz_args = run_wizard(args, default=True)
 	else:
 		print('Reading settings from file ', args['prefs'])
 		try:
