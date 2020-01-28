@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from aE_lib.reference.periodic_table import Get_periodic_table
+from autoENRICH.reference.periodic_table import Get_periodic_table
 
 # Write an nmrmol object to an xyz file
 def nmrmol_to_xyz(mol, outname, num=-404):

@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>autoENRICH.molecule.dataset API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>autoENRICH.molecule.dataset</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># Copyright 2020 Will Gerrard
+#This file is part of autoENRICH.
+
+#autoENRICH is free software: you can redistribute it and/or modify
+#it under the terms of the GNU Affero General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+
+#autoENRICH is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU Affero General Public License for more details.
+
+#You should have received a copy of the GNU Affero General Public License
+#along with autoENRICH.  If not, see &lt;https://www.gnu.org/licenses/&gt;.
+
+
+from .nmrmol import nmrmol
+from autoENRICH.util.file_gettype import get_type
+import numpy as np
+np.set_printoptions(threshold=99999999999)
+
+class dataset(object):
+
+        def __init__(self):
+
+                self.mols = []
+                self.x = []
+                self.y = []
+                self.r = []
+
+                self.params = {}
+
+
+        def get_mols(self, files, type=&#39;&#39;, label_part=0):
+                self.mols = []
+                for file in files:
+                        id = file.split(&#39;/&#39;)[-1].split(&#39;.&#39;)[0].split(&#39;_&#39;)[label_part]
+                        mol = nmrmol(molid=id)
+
+                        if type == &#39;&#39;:
+                                ftype = get_type(file)
+                        else:
+                                ftype = type
+
+                        mol.read_nmr(file, ftype)
+                        self.mols.append(mol)
+                        #print(id)
+                        #print(mol.coupling_len)
+
+
+        def get_features_frommols(self, args, params={}):
+
+                featureflag = args[&#39;featureflag&#39;]
+                targetflag = args[&#39;targetflag&#39;]
+                try:
+                        max = args[&#39;max_size&#39;]
+                except:
+                        max = 200
+
+                if &#39;cutoff&#39; in params:
+                        if params[&#39;cutoff&#39;] &lt; 0.1:
+                                params[&#39;cutoff&#39;] = 0.1
+                else:
+                        params[&#39;cutoff&#39;] = 5.0
+
+
+                x = []
+                y = []
+                r = []
+
+                self.params = params
+
+                if featureflag in [&#39;aSLATM&#39;, &#39;CMAT&#39;, &#39;FCHL&#39;, &#39;ACSF&#39;]:
+                        from autoENRICH.ml.features import QML_features
+                elif featureflag in [&#39;BCAI&#39;]:
+                        from autoENRICH.ml.features import TFM_features
+                elif featureflag in [&#39;dummy&#39;]:
+                        from autoENRICH.ml.features import GNR_features
+
+                if featureflag == &#39;dummy&#39;:
+                        for mol in self.mols:
+                                _x, _y, _r = GNR_features.get_dummy_features([mol], targetflag)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;aSLATM&#39;:
+                        mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
+                        for mol in self.mols:
+                                _x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params[&#39;cutoff&#39;], max=max, mbtypes=mbtypes)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;CMAT&#39;:
+
+                        # Set (not found) parameters to defaults
+                        if not &#39;central_decay&#39; in params:
+                                params[&#39;central_decay&#39;] = -1
+                        if not &#39;interaction_cutoff&#39; in params:
+                                params[&#39;interaction_cutoff&#39;] = 1000000.0
+                        if not &#39;interaction_decay&#39; in params:
+                                params[&#39;interaction_decay&#39;] = -1
+
+                        for mol in self.mols:
+                                if len(mol.types) &gt;max:
+                                        args[&#39;max_size&#39;] = len(mol.types)
+                                        print(&#39;WARNING, SETTING MAXIMUM MOLECULE SIZE TO, &#39;, max)
+                        for mol in self.mols:
+                                _x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params[&#39;cutoff&#39;], args[&#39;max_size&#39;], central_decay=params[&#39;central_decay&#39;],
+                                                                                                                interaction_cutoff=params[&#39;interaction_cutoff&#39;], interaction_decay=params[&#39;interaction_decay&#39;])
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;FCHL&#39;:
+                        for mol in self.mols:
+                                if len(mol.types) &gt;max:
+                                        max = len(mol.types)
+                                        print(&#39;WARNING, SETTING MAXIMUM MOLECULE SIZE TO, &#39;, max)
+
+                                &#39;&#39;&#39;
+                                for mol in self.mols:
+                                _x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params[&#39;cutoff&#39;], max)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+                                &#39;&#39;&#39;
+                        x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params[&#39;cutoff&#39;], max)
+
+
+                elif featureflag == &#39;ACSF&#39;:
+                        elements = set()
+                        for tmp_mol in self.mols:
+                                elements = elements.union(tmp_mol.types)
+                        elements = sorted(list(elements))
+
+                        # Set (not found) parameters to defaults
+
+
+                        for mol in self.mols:
+                                _x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params[&#39;cutoff&#39;], elements=elements, nRs2=params[&#39;nRs2&#39;],
+                                                                                                nRs3=params[&#39;nRs3&#39;], nTs=params[&#39;nTs&#39;], eta2=params[&#39;eta2&#39;], eta3=params[&#39;eta3&#39;], zeta=params[&#39;zeta&#39;],
+                                                                                                acut=params[&#39;acut&#39;], bin_min=params[&#39;bin_min&#39;])
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+                elif featureflag == &#39;BCAI&#39;:
+                        x, y, r = TFM_features.get_BCAI_features(self.mols, targetflag)
+
+                else:
+                        print(&#39;Feature flag not recognised, no feature flag: &#39;, featureflag)
+
+                self.x = np.asarray(x)
+                self.y = np.asarray(y)
+                self.r = r
+
+                if featureflag != &#39;dummy&#39;:
+                        print(&#39;Reps generated, shape: &#39;, self.x.shape)
+
+        def get_features_fromfiles(self, files, featureflag=&#39;CMAT&#39;, targetflag=&#39;CCS&#39;, cutoff=5.0, max=400, mbtypes=[], elements=[]):
+                self.params = {}
+
+                x = []
+                y = []
+                r = []
+
+                if featureflag == &#39;aSLATM&#39;:
+                        mbtypes = QML_features.get_aSLATM_mbtypes([])
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_aSLATM_features(mol, targetflag, cutoff, mbtypes)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;CMAT&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_CMAT_features(mol, targetflag, cutoff, max)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;FCHL&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_FCHL_features(mol, targetflag, cutoff, max)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;ACSF&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_ACSF_features(mol, targetflag, cutoff, elements)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+                elif featureflag == &#39;BCAI&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = TFM_features.get_BCAI_features(mol, targetflag, cutoff)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+                self.x = np.asarray(x)
+                self.y = np.asarray(y)
+                self.r = r
+
+
+        def assign_from_ml(self, pred_y, var, zero=True):
+                assert len(self.r) &gt; 0, print(&#39;Something went wrong, nothing to assign&#39;)
+
+                for mol in self.mols:
+                        if zero:
+                                mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
+                                mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
+
+                        for r, ref in enumerate(self.r):
+
+                                if mol.molid != ref[0]:
+                                        continue
+
+                                if len(ref) == 2:
+                                        for t in range(len(mol.types)):
+                                                if ref[1] == t:
+                                                        mol.shift[t] = pred_y[r]
+                                                        mol.shift_var[t] = var[r]
+
+                                elif len(ref) == 3:
+                                        for t1 in range(len(mol.types)):
+                                                for t2 in range(len(mol.types)):
+                                                        if ref[1] == t1 and ref[2] == t2:
+                                                                mol.coupling[t1][t2] = pred_y[r]
+                                                                mol.coupling_var[t1][t2] = var[r]
+
+
+
+
+
+
+
+
+
+
+
+##</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="autoENRICH.molecule.dataset.dataset"><code class="flex name class">
+<span>class <span class="ident">dataset</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class dataset(object):
+
+        def __init__(self):
+
+                self.mols = []
+                self.x = []
+                self.y = []
+                self.r = []
+
+                self.params = {}
+
+
+        def get_mols(self, files, type=&#39;&#39;, label_part=0):
+                self.mols = []
+                for file in files:
+                        id = file.split(&#39;/&#39;)[-1].split(&#39;.&#39;)[0].split(&#39;_&#39;)[label_part]
+                        mol = nmrmol(molid=id)
+
+                        if type == &#39;&#39;:
+                                ftype = get_type(file)
+                        else:
+                                ftype = type
+
+                        mol.read_nmr(file, ftype)
+                        self.mols.append(mol)
+                        #print(id)
+                        #print(mol.coupling_len)
+
+
+        def get_features_frommols(self, args, params={}):
+
+                featureflag = args[&#39;featureflag&#39;]
+                targetflag = args[&#39;targetflag&#39;]
+                try:
+                        max = args[&#39;max_size&#39;]
+                except:
+                        max = 200
+
+                if &#39;cutoff&#39; in params:
+                        if params[&#39;cutoff&#39;] &lt; 0.1:
+                                params[&#39;cutoff&#39;] = 0.1
+                else:
+                        params[&#39;cutoff&#39;] = 5.0
+
+
+                x = []
+                y = []
+                r = []
+
+                self.params = params
+
+                if featureflag in [&#39;aSLATM&#39;, &#39;CMAT&#39;, &#39;FCHL&#39;, &#39;ACSF&#39;]:
+                        from autoENRICH.ml.features import QML_features
+                elif featureflag in [&#39;BCAI&#39;]:
+                        from autoENRICH.ml.features import TFM_features
+                elif featureflag in [&#39;dummy&#39;]:
+                        from autoENRICH.ml.features import GNR_features
+
+                if featureflag == &#39;dummy&#39;:
+                        for mol in self.mols:
+                                _x, _y, _r = GNR_features.get_dummy_features([mol], targetflag)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;aSLATM&#39;:
+                        mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
+                        for mol in self.mols:
+                                _x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params[&#39;cutoff&#39;], max=max, mbtypes=mbtypes)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;CMAT&#39;:
+
+                        # Set (not found) parameters to defaults
+                        if not &#39;central_decay&#39; in params:
+                                params[&#39;central_decay&#39;] = -1
+                        if not &#39;interaction_cutoff&#39; in params:
+                                params[&#39;interaction_cutoff&#39;] = 1000000.0
+                        if not &#39;interaction_decay&#39; in params:
+                                params[&#39;interaction_decay&#39;] = -1
+
+                        for mol in self.mols:
+                                if len(mol.types) &gt;max:
+                                        args[&#39;max_size&#39;] = len(mol.types)
+                                        print(&#39;WARNING, SETTING MAXIMUM MOLECULE SIZE TO, &#39;, max)
+                        for mol in self.mols:
+                                _x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params[&#39;cutoff&#39;], args[&#39;max_size&#39;], central_decay=params[&#39;central_decay&#39;],
+                                                                                                                interaction_cutoff=params[&#39;interaction_cutoff&#39;], interaction_decay=params[&#39;interaction_decay&#39;])
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;FCHL&#39;:
+                        for mol in self.mols:
+                                if len(mol.types) &gt;max:
+                                        max = len(mol.types)
+                                        print(&#39;WARNING, SETTING MAXIMUM MOLECULE SIZE TO, &#39;, max)
+
+                                &#39;&#39;&#39;
+                                for mol in self.mols:
+                                _x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params[&#39;cutoff&#39;], max)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+                                &#39;&#39;&#39;
+                        x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params[&#39;cutoff&#39;], max)
+
+
+                elif featureflag == &#39;ACSF&#39;:
+                        elements = set()
+                        for tmp_mol in self.mols:
+                                elements = elements.union(tmp_mol.types)
+                        elements = sorted(list(elements))
+
+                        # Set (not found) parameters to defaults
+
+
+                        for mol in self.mols:
+                                _x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params[&#39;cutoff&#39;], elements=elements, nRs2=params[&#39;nRs2&#39;],
+                                                                                                nRs3=params[&#39;nRs3&#39;], nTs=params[&#39;nTs&#39;], eta2=params[&#39;eta2&#39;], eta3=params[&#39;eta3&#39;], zeta=params[&#39;zeta&#39;],
+                                                                                                acut=params[&#39;acut&#39;], bin_min=params[&#39;bin_min&#39;])
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+                elif featureflag == &#39;BCAI&#39;:
+                        x, y, r = TFM_features.get_BCAI_features(self.mols, targetflag)
+
+                else:
+                        print(&#39;Feature flag not recognised, no feature flag: &#39;, featureflag)
+
+                self.x = np.asarray(x)
+                self.y = np.asarray(y)
+                self.r = r
+
+                if featureflag != &#39;dummy&#39;:
+                        print(&#39;Reps generated, shape: &#39;, self.x.shape)
+
+        def get_features_fromfiles(self, files, featureflag=&#39;CMAT&#39;, targetflag=&#39;CCS&#39;, cutoff=5.0, max=400, mbtypes=[], elements=[]):
+                self.params = {}
+
+                x = []
+                y = []
+                r = []
+
+                if featureflag == &#39;aSLATM&#39;:
+                        mbtypes = QML_features.get_aSLATM_mbtypes([])
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_aSLATM_features(mol, targetflag, cutoff, mbtypes)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;CMAT&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_CMAT_features(mol, targetflag, cutoff, max)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;FCHL&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_FCHL_features(mol, targetflag, cutoff, max)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+
+                elif featureflag == &#39;ACSF&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = QML_features.get_ACSF_features(mol, targetflag, cutoff, elements)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+                elif featureflag == &#39;BCAI&#39;:
+                        for file in files:
+                                id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                                mol = nmrmol(id)
+                                mol.read_nmr(file, &#39;nmredata&#39;)
+                                _x, _y, _r = TFM_features.get_BCAI_features(mol, targetflag, cutoff)
+                                x.extend(_x)
+                                y.extend(_y)
+                                r.extend(_r)
+
+                self.x = np.asarray(x)
+                self.y = np.asarray(y)
+                self.r = r
+
+
+        def assign_from_ml(self, pred_y, var, zero=True):
+                assert len(self.r) &gt; 0, print(&#39;Something went wrong, nothing to assign&#39;)
+
+                for mol in self.mols:
+                        if zero:
+                                mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
+                                mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
+
+                        for r, ref in enumerate(self.r):
+
+                                if mol.molid != ref[0]:
+                                        continue
+
+                                if len(ref) == 2:
+                                        for t in range(len(mol.types)):
+                                                if ref[1] == t:
+                                                        mol.shift[t] = pred_y[r]
+                                                        mol.shift_var[t] = var[r]
+
+                                elif len(ref) == 3:
+                                        for t1 in range(len(mol.types)):
+                                                for t2 in range(len(mol.types)):
+                                                        if ref[1] == t1 and ref[2] == t2:
+                                                                mol.coupling[t1][t2] = pred_y[r]
+                                                                mol.coupling_var[t1][t2] = var[r]</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="autoENRICH.molecule.dataset.dataset.assign_from_ml"><code class="name flex">
+<span>def <span class="ident">assign_from_ml</span></span>(<span>self, pred_y, var, zero=True)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assign_from_ml(self, pred_y, var, zero=True):
+        assert len(self.r) &gt; 0, print(&#39;Something went wrong, nothing to assign&#39;)
+
+        for mol in self.mols:
+                if zero:
+                        mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
+                        mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
+
+                for r, ref in enumerate(self.r):
+
+                        if mol.molid != ref[0]:
+                                continue
+
+                        if len(ref) == 2:
+                                for t in range(len(mol.types)):
+                                        if ref[1] == t:
+                                                mol.shift[t] = pred_y[r]
+                                                mol.shift_var[t] = var[r]
+
+                        elif len(ref) == 3:
+                                for t1 in range(len(mol.types)):
+                                        for t2 in range(len(mol.types)):
+                                                if ref[1] == t1 and ref[2] == t2:
+                                                        mol.coupling[t1][t2] = pred_y[r]
+                                                        mol.coupling_var[t1][t2] = var[r]</code></pre>
+</details>
+</dd>
+<dt id="autoENRICH.molecule.dataset.dataset.get_features_fromfiles"><code class="name flex">
+<span>def <span class="ident">get_features_fromfiles</span></span>(<span>self, files, featureflag='CMAT', targetflag='CCS', cutoff=5.0, max=400, mbtypes=[], elements=[])</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_features_fromfiles(self, files, featureflag=&#39;CMAT&#39;, targetflag=&#39;CCS&#39;, cutoff=5.0, max=400, mbtypes=[], elements=[]):
+        self.params = {}
+
+        x = []
+        y = []
+        r = []
+
+        if featureflag == &#39;aSLATM&#39;:
+                mbtypes = QML_features.get_aSLATM_mbtypes([])
+                for file in files:
+                        id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                        mol = nmrmol(id)
+                        mol.read_nmr(file, &#39;nmredata&#39;)
+                        _x, _y, _r = QML_features.get_aSLATM_features(mol, targetflag, cutoff, mbtypes)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+
+        elif featureflag == &#39;CMAT&#39;:
+                for file in files:
+                        id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                        mol = nmrmol(id)
+                        mol.read_nmr(file, &#39;nmredata&#39;)
+                        _x, _y, _r = QML_features.get_CMAT_features(mol, targetflag, cutoff, max)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+
+        elif featureflag == &#39;FCHL&#39;:
+                for file in files:
+                        id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                        mol = nmrmol(id)
+                        mol.read_nmr(file, &#39;nmredata&#39;)
+                        _x, _y, _r = QML_features.get_FCHL_features(mol, targetflag, cutoff, max)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+
+        elif featureflag == &#39;ACSF&#39;:
+                for file in files:
+                        id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                        mol = nmrmol(id)
+                        mol.read_nmr(file, &#39;nmredata&#39;)
+                        _x, _y, _r = QML_features.get_ACSF_features(mol, targetflag, cutoff, elements)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+        elif featureflag == &#39;BCAI&#39;:
+                for file in files:
+                        id = file.split(&#39;.&#39;)[0].split(&#39;_&#39;)[-1]
+                        mol = nmrmol(id)
+                        mol.read_nmr(file, &#39;nmredata&#39;)
+                        _x, _y, _r = TFM_features.get_BCAI_features(mol, targetflag, cutoff)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+        self.x = np.asarray(x)
+        self.y = np.asarray(y)
+        self.r = r</code></pre>
+</details>
+</dd>
+<dt id="autoENRICH.molecule.dataset.dataset.get_features_frommols"><code class="name flex">
+<span>def <span class="ident">get_features_frommols</span></span>(<span>self, args, params={})</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_features_frommols(self, args, params={}):
+
+        featureflag = args[&#39;featureflag&#39;]
+        targetflag = args[&#39;targetflag&#39;]
+        try:
+                max = args[&#39;max_size&#39;]
+        except:
+                max = 200
+
+        if &#39;cutoff&#39; in params:
+                if params[&#39;cutoff&#39;] &lt; 0.1:
+                        params[&#39;cutoff&#39;] = 0.1
+        else:
+                params[&#39;cutoff&#39;] = 5.0
+
+
+        x = []
+        y = []
+        r = []
+
+        self.params = params
+
+        if featureflag in [&#39;aSLATM&#39;, &#39;CMAT&#39;, &#39;FCHL&#39;, &#39;ACSF&#39;]:
+                from autoENRICH.ml.features import QML_features
+        elif featureflag in [&#39;BCAI&#39;]:
+                from autoENRICH.ml.features import TFM_features
+        elif featureflag in [&#39;dummy&#39;]:
+                from autoENRICH.ml.features import GNR_features
+
+        if featureflag == &#39;dummy&#39;:
+                for mol in self.mols:
+                        _x, _y, _r = GNR_features.get_dummy_features([mol], targetflag)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+
+        elif featureflag == &#39;aSLATM&#39;:
+                mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
+                for mol in self.mols:
+                        _x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params[&#39;cutoff&#39;], max=max, mbtypes=mbtypes)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+
+        elif featureflag == &#39;CMAT&#39;:
+
+                # Set (not found) parameters to defaults
+                if not &#39;central_decay&#39; in params:
+                        params[&#39;central_decay&#39;] = -1
+                if not &#39;interaction_cutoff&#39; in params:
+                        params[&#39;interaction_cutoff&#39;] = 1000000.0
+                if not &#39;interaction_decay&#39; in params:
+                        params[&#39;interaction_decay&#39;] = -1
+
+                for mol in self.mols:
+                        if len(mol.types) &gt;max:
+                                args[&#39;max_size&#39;] = len(mol.types)
+                                print(&#39;WARNING, SETTING MAXIMUM MOLECULE SIZE TO, &#39;, max)
+                for mol in self.mols:
+                        _x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params[&#39;cutoff&#39;], args[&#39;max_size&#39;], central_decay=params[&#39;central_decay&#39;],
+                                                                                                        interaction_cutoff=params[&#39;interaction_cutoff&#39;], interaction_decay=params[&#39;interaction_decay&#39;])
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+
+        elif featureflag == &#39;FCHL&#39;:
+                for mol in self.mols:
+                        if len(mol.types) &gt;max:
+                                max = len(mol.types)
+                                print(&#39;WARNING, SETTING MAXIMUM MOLECULE SIZE TO, &#39;, max)
+
+                        &#39;&#39;&#39;
+                        for mol in self.mols:
+                        _x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params[&#39;cutoff&#39;], max)
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+                        &#39;&#39;&#39;
+                x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params[&#39;cutoff&#39;], max)
+
+
+        elif featureflag == &#39;ACSF&#39;:
+                elements = set()
+                for tmp_mol in self.mols:
+                        elements = elements.union(tmp_mol.types)
+                elements = sorted(list(elements))
+
+                # Set (not found) parameters to defaults
+
+
+                for mol in self.mols:
+                        _x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params[&#39;cutoff&#39;], elements=elements, nRs2=params[&#39;nRs2&#39;],
+                                                                                        nRs3=params[&#39;nRs3&#39;], nTs=params[&#39;nTs&#39;], eta2=params[&#39;eta2&#39;], eta3=params[&#39;eta3&#39;], zeta=params[&#39;zeta&#39;],
+                                                                                        acut=params[&#39;acut&#39;], bin_min=params[&#39;bin_min&#39;])
+                        x.extend(_x)
+                        y.extend(_y)
+                        r.extend(_r)
+
+        elif featureflag == &#39;BCAI&#39;:
+                x, y, r = TFM_features.get_BCAI_features(self.mols, targetflag)
+
+        else:
+                print(&#39;Feature flag not recognised, no feature flag: &#39;, featureflag)
+
+        self.x = np.asarray(x)
+        self.y = np.asarray(y)
+        self.r = r
+
+        if featureflag != &#39;dummy&#39;:
+                print(&#39;Reps generated, shape: &#39;, self.x.shape)</code></pre>
+</details>
+</dd>
+<dt id="autoENRICH.molecule.dataset.dataset.get_mols"><code class="name flex">
+<span>def <span class="ident">get_mols</span></span>(<span>self, files, type='', label_part=0)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_mols(self, files, type=&#39;&#39;, label_part=0):
+        self.mols = []
+        for file in files:
+                id = file.split(&#39;/&#39;)[-1].split(&#39;.&#39;)[0].split(&#39;_&#39;)[label_part]
+                mol = nmrmol(molid=id)
+
+                if type == &#39;&#39;:
+                        ftype = get_type(file)
+                else:
+                        ftype = type
+
+                mol.read_nmr(file, ftype)
+                self.mols.append(mol)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="autoENRICH.molecule" href="index.html">autoENRICH.molecule</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="autoENRICH.molecule.dataset.dataset" href="#autoENRICH.molecule.dataset.dataset">dataset</a></code></h4>
+<ul class="">
+<li><code><a title="autoENRICH.molecule.dataset.dataset.assign_from_ml" href="#autoENRICH.molecule.dataset.dataset.assign_from_ml">assign_from_ml</a></code></li>
+<li><code><a title="autoENRICH.molecule.dataset.dataset.get_features_fromfiles" href="#autoENRICH.molecule.dataset.dataset.get_features_fromfiles">get_features_fromfiles</a></code></li>
+<li><code><a title="autoENRICH.molecule.dataset.dataset.get_features_frommols" href="#autoENRICH.molecule.dataset.dataset.get_features_frommols">get_features_frommols</a></code></li>
+<li><code><a title="autoENRICH.molecule.dataset.dataset.get_mols" href="#autoENRICH.molecule.dataset.dataset.get_mols">get_mols</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

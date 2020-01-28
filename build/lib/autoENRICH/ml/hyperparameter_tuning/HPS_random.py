@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from .hyperparameter_tuning import HPS_generic as generic
+from . import HPS_generic as generic
 import numpy as np
 import itertools
 import pickle
@@ -38,13 +38,13 @@ def random_search(dataset, args):
 
 	for _ in range(int(args['epochs'])):
 		for param in args['param_ranges'].keys():
-			if args['param_logs'][param] = 'no':
+			if args['param_logs'][param] == 'no':
 				continue
 			next_point_to_probe[param] = np.random.uniform(args['param_ranges'][param][0], args['param_ranges'][param][1])
 
 		if check_logs:
 			for param in args['param_ranges'].keys():
-				if args['param_logs'][param] = 'no':
+				if args['param_logs'][param] == 'no':
 					continue
 				if args['param_logs'][param] == 'log':
 					next_point_to_probe[param] = 10**next_point_to_probe[param]

@@ -18,7 +18,7 @@
 from autoENRICH.reference.periodic_table import Get_periodic_table
 from autoENRICH.util.flag_handler.hdl_targetflag import flag_to_target
 
-import .features.BCAI_calc.mol_graph_setup as BCAI
+import autoENRICH.ml.features.BCAI_calc.mol_graph_setup as BCAI
 
 import numpy as np
 import pandas as pd
