@@ -52,8 +52,6 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	print('HPS_iteration. . .')
 	time0 = time.time()
 
-	print('Params: ', next_point_to_probe)
-
 	args['max_size'] = 200
 	if args['featureflag'] == 'BCAI' and iter == 0:
 		dataset.get_features_frommols(args, params=next_point_to_probe)

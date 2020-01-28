@@ -30,7 +30,7 @@ def get_minimal_args():
 	args['featureflag'] = 'CMAT'
 
 	args['searchflag'] = 'random'
-	args['feature_optimisation'] = True
+	args['feature_optimisation'] = 'True'
 	args['feature_file'] = ''
 	args['param_ranges'] = {}
 	args['param_logs'] = {}
@@ -62,6 +62,8 @@ def get_minimal_args():
 	args['tracecode'] = False
 	args['tracemem'] = False
 	args['tracetime'] = False
+
+	args['prefs'] = 'default'
 
 	return args
 

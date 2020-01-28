@@ -21,18 +21,19 @@ from autoENRICH.ml.models.model import genericmodel
 from sklearn.model_selection import KFold
 import sys
 
-import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
-from keras.optimizers import RMSprop
-from keras.callbacks import EarlyStopping
+try:
+	import tensorflow as tf
+	from keras.models import Sequential
+	from keras.layers import Dense, Activation, Flatten
+	from keras.optimizers import RMSprop
+	from keras.callbacks import EarlyStopping
+except:
+	print('Tensorflow not available')
 
 
 class NNmodel(genericmodel):
 	def __init__(self, id='NNmodel', x=[], y=[], params={}, model_args={}):
 		genericmodel.__init__(self, id, x, y, params, model_args)
-
-
 
 	def train(self):
 		self.net = Sequential()

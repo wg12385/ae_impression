@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
 
-from .hyperparameter_tuning import HPS_generic as generic
+from . import HPS_generic as generic
 import numpy as np
 import itertools
 import pickle
@@ -35,7 +35,7 @@ def grid_search(dataset, args):
 
 	# create search grid
 	for param in args['param_ranges']:
-		if args['param_logs'][param] = 'no':
+		if args['param_logs'][param] == 'no':
 			continue
 		if check_logs:
 			if args['param_logs'][param] == 'log':
