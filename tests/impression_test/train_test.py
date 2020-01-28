@@ -90,4 +90,8 @@ if __name__ == "__main__":
 		os.remove(file)
 
 	status2 = test_train()
+	files_to_remove = glob.glob('*.pkl')
+	files_to_remove.extend(glob.glob('*.log'))
+	for file in files_to_remove:
+		os.remove(file)
 	print(status1, status2)

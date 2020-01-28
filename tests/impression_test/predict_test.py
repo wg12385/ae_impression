@@ -66,4 +66,11 @@ def test_predict():
 if __name__ == "__main__":
 	status1 = test_setup()
 	status2 = test_predict()
+
+	files_to_remove = glob.glob('*.sdf')
+	files_to_remove.extend(glob.glob('*.pkl'))
+	files_to_remove.extend(glob.glob('*.submit'))
+	for file in files_to_remove:
+		os.remove(file)
+
 	print(status1, status2)
