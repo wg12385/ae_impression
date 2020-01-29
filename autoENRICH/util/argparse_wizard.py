@@ -232,6 +232,7 @@ def run_wizard(args, default=False):
 		args['param_ranges'], args['param_logs'] = paramdict.construct_param_dict(args['modelflag'], args['featureflag'], args['targetflag'])
 
 		# Parameters ##############################################################################
+		"""
 		if not default:
 			for param in args['param_ranges'].keys():
 				check = False
@@ -263,7 +264,7 @@ def run_wizard(args, default=False):
 
 						except Exception as e:
 							print(e)
-
+		"""
 
 
 		# grid density ##############################################################################
