@@ -61,15 +61,6 @@ class TFMmodel(genericmodel):
 
 		device = torch.device('cpu')
 
-		self.params['n_layer'] = 12
-		self.params['final_dim'] = 33
-		self.params['dropout'] = 0.1
-		self.params['dropatt'] = 0.1
-		self.params['final_dropout'] = 0.1
-		self.params['eta_min'] = 0.1
-		self.params['learning_rate'] = 0.1
-
-
 		self.model = BCAI_graph.GraphTransformer(dim=200, n_layers=int(self.params['n_layer']), d_inner=600,
 								 fdim = 200, final_dim=int(self.params['final_dim']), dropout=self.params['dropout'],
 								 dropatt=self.params['dropatt'], final_dropout=self.params['final_dropout'], n_head=10,

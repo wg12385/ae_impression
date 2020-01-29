@@ -159,8 +159,8 @@ def save_models(dataset, BEST_PARAMS, args):
 			print()
 			train_x_list = []
 			train_y_list = []
-			for i in range(len(dataset.x)):
-				train_x_list.append(torch.index_select(dataset.x[i], 0, torch.tensor(train_index)))
+			for ii in range(len(dataset.x)):
+				train_x_list.append(torch.index_select(dataset.x[ii], 0, torch.tensor(train_index)))
 			for r, ref in enumerate(dataset.r):
 				if ref[0] in [molnames[idx] for idx in train_index]:
 					train_y_list.append(dataset.y[r])
