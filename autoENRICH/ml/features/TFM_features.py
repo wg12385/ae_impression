@@ -133,10 +133,6 @@ def get_BCAI_features(mols, targetflag='CCS'):
 
 	x = BCAI.create_dataset(atoms, bonds, triplets, quadruplets, labeled = True, max_count = 10**10)
 
-
-	with gzip.open("torch_proc_submission.pkl.gz", "wb") as f:
-			pickle.dump(x, f, protocol=4)
-
 	return x, y, r
 
 
