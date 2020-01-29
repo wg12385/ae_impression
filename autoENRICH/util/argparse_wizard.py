@@ -175,6 +175,7 @@ def run_wizard(args, default=False):
 			else:
 				target_list = input("What target parameter(s) are you interested in ? XCS or nJXY, e.g. HCS CCS 1JCH : \n")
 				args['target_list'] = target_list.split()
+				print(args['target_list')
 
 				if type(args['target_list']) != list:
 					print(args['target_list'], 'Not a list. . .')
@@ -187,6 +188,7 @@ def run_wizard(args, default=False):
 					print('Invalid parameter flag')
 					check = False
 				else:
+					args['targetflag'] = args['target_list'][0]
 					check = True
 
 		# Search method ##############################################################################
