@@ -1,4 +1,0 @@
-
-
-recursive-exclude tests *
-recursive-exclude dockerfiles *
