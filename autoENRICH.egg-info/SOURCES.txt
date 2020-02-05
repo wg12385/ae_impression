@@ -5,7 +5,6 @@ autoENRICH/__init__.py
 autoENRICH.egg-info/PKG-INFO
 autoENRICH.egg-info/SOURCES.txt
 autoENRICH.egg-info/dependency_links.txt
-autoENRICH.egg-info/requires.txt
 autoENRICH.egg-info/top_level.txt
 autoENRICH/analysis/compare_mols.py
 autoENRICH/boltzmann/averaging.py
