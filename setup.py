@@ -20,6 +20,5 @@ setuptools.setup(
          "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
          "Operating System :: OS Independent",
      ],
-	 install_requires=['numpy',
-						'openbabel']
+	 install_requires=['numpy']
  )
