@@ -5,6 +5,7 @@ autoENRICH/__init__.py
 autoENRICH.egg-info/PKG-INFO
 autoENRICH.egg-info/SOURCES.txt
 autoENRICH.egg-info/dependency_links.txt
+autoENRICH.egg-info/requires.txt
 autoENRICH.egg-info/top_level.txt
 autoENRICH/analysis/compare_mols.py
 autoENRICH/boltzmann/averaging.py
@@ -44,7 +45,6 @@ autoENRICH/ml/models/BCAI/modules/optimizations.py
 autoENRICH/ml/models/BCAI/modules/radam.py
 autoENRICH/molecule/conformer.py
 autoENRICH/molecule/dataset.py
-autoENRICH/molecule/mol_conversion.py
 autoENRICH/molecule/molecule.py
 autoENRICH/molecule/nmrmol.py
 autoENRICH/preferences/preferences.py
@@ -74,9 +74,6 @@ autoENRICH/util/arguments/argparser.py
 autoENRICH/util/flag_handler/flag_combos.py
 autoENRICH/util/flag_handler/hdl_targetflag.py
 autoENRICH/util/flag_handler/paramdict.py
-bin/IMPRESSION
-bin/aE_utils
 bin/ae_utils
-bin/autoENRICH
 bin/autoenrich
 bin/impression

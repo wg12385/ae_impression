@@ -111,6 +111,7 @@ def impression(inpargs):
 	# Unless making predictions check combination of feature / model
 	if args['Command'] not in ['predict', 'setup_predict']:
 		# check target flag is valid (nJxy or XCS):
+		print(args['targetflag'])
 		target = hdl_targetflag.flag_to_target(args['targetflag'])
 		# 0 is the bad number
 		if target == 0:

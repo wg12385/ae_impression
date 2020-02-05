@@ -1,6 +1,4 @@
 autoENRICH
 bin
-build
-dist
 dockerfiles
 docs
