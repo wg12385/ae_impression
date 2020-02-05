@@ -70,14 +70,26 @@ def util(inpargs):
 			#mol.read_structure(file, args['type'])
 			mol.read_nmr(file, args['type'])
 
-			'''
+
 			if args['type'] in ['orca', 'g09']:
 				#functional, basis_set = read_functional(file)
 				functional = 'wb97xd'
 				basis_set = '6311gdp'
-				scaling_factors = Get_tantillo_factors(basis_set, functional)
+				#scaling_factors = Get_tantillo_factors(basis_set, functional)
+				scaling_factors = {
+					"functional": "wb97xd",
+					"basis_set": "6-311g(d,p)",
+					"H": [
+						-1.0719,
+						32.1254
+					],
+					"C": [
+						-1.0399,
+						187.136
+					]
+				}
 				mol.scale_shifts(scaling_factors)
-			'''
+
 
 			outname = file.split('/')[-1].split('.')[0]
 			outfile = args['out_dir'] + outname + '.nmredata.sdf'

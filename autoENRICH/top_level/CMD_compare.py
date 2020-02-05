@@ -113,6 +113,9 @@ def compare_datasets(args):
 					for xx in range(1, len(ref1)):
 						if ref1[xx] != ref2[xx]:
 							bad = True
+					if typeref1 != typeref2:
+						#print(typeref1, typeref2)
+						bad = True
 					if bad:
 						continue
 
