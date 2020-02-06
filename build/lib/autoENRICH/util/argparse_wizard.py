@@ -171,24 +171,25 @@ def run_wizard(args, default=False):
 			if default:
 				if args['target_list'] == '':
 					args['target_list'] = ['HCS', 'CCS', '1JCH']
-					check = True
-				else:
-					check = True
+
 			else:
 				target_list = input("What target parameter(s) are you interested in ? XCS or nJXY, e.g. HCS CCS 1JCH : \n")
-				check = True
 				args['target_list'] = target_list.split()
+				print(args['target_list'])
 
 				if type(args['target_list']) != list:
-					check = False
 					print(args['target_list'], 'Not a list. . .')
+					check = False
 					continue
 
-				for target in args['target_list']:
-					param = hdl_targetflag.flag_to_target(target)
-					if param == 0:
-						print('Invalid parameter flag')
-						check = False
+			for target in args['target_list']:
+				param = hdl_targetflag.flag_to_target(target)
+				if param == 0:
+					print('Invalid parameter flag')
+					check = False
+				else:
+					args['targetflag'] = args['target_list'][0]
+					check = True
 
 		# Search method ##############################################################################
 		check = False
@@ -233,15 +234,19 @@ def run_wizard(args, default=False):
 		args['param_ranges'], args['param_logs'] = paramdict.construct_param_dict(args['modelflag'], args['featureflag'], args['targetflag'])
 
 		# Parameters ##############################################################################
+		"""
 		if not default:
 			for param in args['param_ranges'].keys():
 				check = False
 				IP = input("Optimise {param:<10s} ? (y)/n\n".format(param=param))
+				if len(IP) == 0:
+					IP = 'y'
+
 				if IP[0] in ['n', 'N']:
 					args['param_logs'][param] = 'no'
 					check = True
 
-				elif len(IP) == 0 or IP[0] in ['y', 'Y']:
+				elif IP[0] in ['y', 'Y']:
 
 					IP = input("Select range for parameter (min, max, log) {param:<10s}: default = {min:<10f}, {max:<10f}, {log:<10s} \n".format(param=param,
 																														min=args['param_ranges'][param][0],
@@ -261,7 +266,7 @@ def run_wizard(args, default=False):
 
 						except Exception as e:
 							print(e)
-
+		"""
 
 
 		# grid density ##############################################################################
