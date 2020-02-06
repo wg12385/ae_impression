@@ -19,9 +19,6 @@ requirements:
     - openbabel
     - rdkit
 
-test:
-  imports:
-    - autoenrich
 
 about:
   home: www.autoenrich.co.uk
