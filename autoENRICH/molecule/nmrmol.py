@@ -92,7 +92,6 @@ class nmrmol(object):
 				if periodic_table[self.types[i]] == nucleus:
 					self.shift[i] = (self.shift[i] - factor[1]) / float(factor[0])
 
-
 	def save_pickle(file):
 		pickle.dump(self, open(file, "wb"))
 

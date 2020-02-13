@@ -64,7 +64,6 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	# create model
 	# yes i know this is super bad "practice"
 	# if you can think of a better way of allowing QML code to not be screwed up by TF or PyTorch, etc then let me know
-	# otherwise, fight me . . .
 	if args['modelflag'] == 'KRR':
 		from autoENRICH.ml.models import KRRmodel
 		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
@@ -76,7 +75,7 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		from autoENRICH.ml.models import TFMmodel
-		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
+		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, dataset.r, params=next_point_to_probe, model_args=args)
 
 	y_pred = model.cv_predict(args['cv_steps'])
 
@@ -122,7 +121,7 @@ def save_models(dataset, BEST_PARAMS, args):
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		from autoENRICH.ml.models import TFMmodel
-		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
+		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, dataset.r, params=BEST_PARAMS, model_args=args)
 
 	model.train()
 
@@ -130,21 +129,46 @@ def save_models(dataset, BEST_PARAMS, args):
 
 	pickle.dump(model, open(outname, "wb"))
 
-	kf = KFold(n_splits=args['cv_steps'])
-	kf.get_n_splits(model.train_x)
+	if args['modelflag'] != 'TFM':
+		kf = KFold(n_splits=args['cv_steps'])
+		kf.get_n_splits(dataset.x)
 
-	i = 0
-	for train_index, test_index in kf.split(model.train_x):
-		i += 1
+		i = 0
+		for train_index, _ in kf.split(dataset.x):
+			i += 1
 
-		tmp_model = copy.deepcopy(model)
+			tmp_model = copy.deepcopy(model)
 
-		tmp_model.train_x = np.asarray(model.train_x)[train_index]
-		tmp_model.train_y = np.asarray(model.train_y)[train_index]
-		tmp_model.train()
+			tmp_dataset.x = np.asarray(dataset.x)[train_index]
+			tmp_model.train_y = np.asarray(model.train_y)[train_index]
+			tmp_model.train()
 
-		outfile = args['output_dir'] + outname.split('/')[-1].split('.')[0] + '_' + str(i) + '.pkl'
-		pickle.dump(tmp_model, open(outfile, "wb"))
+			outfile = args['output_dir'] + outname.split('/')[-1].split('.')[0] + '_' + str(i) + '.pkl'
+			pickle.dump(tmp_model, open(outfile, "wb"))
+
+	else:
+		import torch
+		molnames = list(set([dataset.r[i][0] for i in range(len(dataset.r))]))
+
+		kf = KFold(n_splits=args['cv_steps'])
+		kf.get_n_splits(dataset.x)
+
+		i = 0
+		for train_index, _ in kf.split(dataset.x[0]):
+			i += 1
+			print()
+			train_x_list = []
+			train_y_list = []
+			for ii in range(len(dataset.x)):
+				train_x_list.append(torch.index_select(dataset.x[ii], 0, torch.tensor(train_index)))
+			for r, ref in enumerate(dataset.r):
+				if ref[0] in [molnames[idx] for idx in train_index]:
+					train_y_list.append(dataset.y[r])
+
+			model.train(train_x=train_x_list, train_y=train_y_list)
+
+			outfile = args['output_dir'] + outname.split('/')[-1].split('.')[0] + '_' + str(i) + '.pkl'
+			pickle.dump(model, open(outfile, "wb"))
 
 	return outname
 

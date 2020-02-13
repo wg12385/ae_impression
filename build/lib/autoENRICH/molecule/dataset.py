@@ -156,11 +156,16 @@ class dataset(object):
 		else:
 			print('Feature flag not recognised, no feature flag: ', featureflag)
 
-		self.x = np.asarray(x)
-		self.y = np.asarray(y)
-		self.r = r
+		if featureflag != 'BCAI':
+			self.x = np.asarray(x)
+			self.y = np.asarray(y)
+			self.r = r
+		else:
+			self.x = x
+			self.y = y
+			self.r = r
 
-		if featureflag != 'dummy':
+		if featureflag not in ['dummy', 'BCAI']:
 			print('Reps generated, shape: ', self.x.shape)
 
 	def get_features_fromfiles(self, files, featureflag='CMAT', targetflag='CCS', cutoff=5.0, max=400, mbtypes=[], elements=[]):

@@ -98,7 +98,7 @@ def compare_datasets(args):
 				if ref1[0] != group[0].molid:
 					continue
 				val1 = sets[0].y[i]
-				typeref1 = [group[0].types[row-1] for row in ref1[1:]]
+				typeref1 = [group[0].types[row] for row in ref1[1:]]
 
 				for j in range(len(sets[0].r)):
 
@@ -107,7 +107,7 @@ def compare_datasets(args):
 					if ref2[0] != group[1].molid:
 						continue
 					val2 = sets[1].y[j]
-					typeref2 = [group[1].types[row-1] for row in ref2[1:]]
+					typeref2 = [group[1].types[row] for row in ref2[1:]]
 
 					bad = False
 					for xx in range(1, len(ref1)):
@@ -125,7 +125,7 @@ def compare_datasets(args):
 							if ref3[0] != group[2].molid:
 								continue
 							val3 = sets[2].y[k]
-							typeref3 = [group[2].types[row-1] for row in ref3[1:]]
+							typeref3 = [group[2].types[row] for row in ref3[1:]]
 
 
 							bad = False
