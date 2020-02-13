@@ -22,6 +22,7 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 from torch import optim
+from torch import autograd
 import pickle
 import gzip
 
@@ -31,6 +32,8 @@ import autoENRICH.ml.models.BCAI.predictor as BCAI_predict
 from .BCAI.modules import radam
 
 import sys
+
+import random
 
 class TFMmodel(genericmodel):
 
@@ -57,13 +60,18 @@ class TFMmodel(genericmodel):
 
 	def train(self, train_x=[], train_y=[]):
 
+		torch.backends.cudnn.deterministic = True
+		torch.backends.cudnn.benchmark = False
+		np.random.seed(0)
+		random.seed(0)
+
 		if len(train_x) == 0:
 			train_x = self.train_x
 		if len(train_y) == 0:
 			train_y = self.train_y
 
 		train_dataset = TensorDataset(*train_x)
-		train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, drop_last=True)
+		train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True, drop_last=True)
 
 		NUM_ATOM_TYPES = self.N_atypes  # Atom hierarchy has 3 levels
 		NUM_BOND_TYPES = self.N_btypes   # Bond hierarchy has 3 levels
@@ -73,7 +81,7 @@ class TFMmodel(genericmodel):
 		MAX_BOND_COUNT = 500  # params['max_bond_count']
 		max_step = len(train_loader)
 
-		device = torch.device('cpu')
+		device = torch.device('cuda')
 
 		self.model = BCAI_graph.GraphTransformer(dim=200, n_layers=int(self.params['n_layer']), d_inner=600,
 								 fdim = 200, final_dim=int(self.params['final_dim']), dropout=self.params['dropout'],
@@ -91,15 +99,26 @@ class TFMmodel(genericmodel):
 
 		self.params['n_all_param'] = sum([p.nelement() for p in self.model.parameters() if p.requires_grad])
 
-		self.params['optim'] = "Adam"
+		self.params['optim'] = "RAdam"
 		optimizer = getattr(optim if self.params['optim'] != "RAdam" else radam, self.params['optim'])(self.model.parameters(), lr=self.params['learning_rate'])
 		scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, max_step, eta_min=self.params['eta_min'])
 
 		para_model = self.model.to(device)
-
-		BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
+		train_epochs = 10
+		for tr_epoch in range(train_epochs):
+			print('\ttrepoch: ', tr_epoch, '/', train_epochs)
+			loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
 		self.trained = True
+		'''
+		print('PARAMS:')
+		with open('named_model_params.txt', 'w') as f:
+			for name, param in self.model.named_parameters():
+				print('PARAMETER ---------------------------', file=f)
+				print(name, file=f)
+				print(param.data, file=f)
 
+		print(self.model)
+		'''
 
 	def predict(self, test_x, train_x=[]):
 
@@ -108,7 +127,7 @@ class TFMmodel(genericmodel):
 
 		#BCAI_predict.single_model_predict(test_loader, self.model, 'test')
 		MAX_BOND_COUNT = 500
-		dev = "cpu"
+		dev = "cuda"
 		self.model.to(dev)
 		self.model.eval()
 		y_predictions = []
@@ -135,150 +154,104 @@ class TFMmodel(genericmodel):
 
 	def cv_predict(self, fold):
 
+		#with autograd.detect_anomaly():
 
-		if fold >= 2:
-			molnames = self.mol_order
+			if fold >= 2:
+				molnames = self.mol_order
 
-			kf = KFold(n_splits=fold)
-			kf.get_n_splits(self.train_x[0])
-			pred_y = []
+				kf = KFold(n_splits=fold)
+				kf.get_n_splits(self.train_x[0])
+				pred_y = []
 
-			train_dataset = TensorDataset(*self.train_x)
-			self.N_atypes = [int(train_dataset.tensors[1][:,:,i].max()) for i in range(3)]   # Atom hierarchy has 3 levels
-			self.N_btypes = [int(train_dataset.tensors[3][:,:,i].max()) for i in range(3)]   # Bond hierarchy has 3 levels
-			self.N_ttypes = [int(train_dataset.tensors[5][:,:,i].max()) for i in range(2)]  # Triplet hierarchy has 2 levels
-			self.N_qtypes = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
-
-
-			for train_index, test_index in kf.split(self.train_x[0]):
-
-				train_x_list = []
-				train_y_list = []
-				test_x_list = []
-				test_y_list = []
-
-				for i in range(len(self.train_x)):
-					train_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(train_index)))
-					test_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(test_index)))
-
-				for r, ref in enumerate(self.r):
-					if ref[0] in [molnames[idx] for idx in train_index]:
-						train_y_list.append(self.train_y[r])
-					else:
-						test_y_list.append(self.train_y[r])
-
-				assert len(train_x_list) == len(train_x_list)
-
-				self.train(train_x=train_x_list, train_y=train_y_list)
-				preds = self.predict(test_x_list)
-				print('PREDICTIONS')
-				print(preds)
-				print('TEST Y LIST')
-				print(test_y_list)
-				print('SPLIT MAE = ', np.mean(np.absolute(np.asarray(preds) - np.asarray(test_y_list))))
-				print('END')
-				pred_y.extend(self.predict(test_x_list))
-
-		elif fold == 1:
-			# Splits as in 5-fold, but just does 1 permutation
-			molnames = self.mol_order
-
-			kf = KFold(n_splits=5)
-			kf.get_n_splits(self.train_x[0])
-			pred_y = []
-
-			train_dataset = TensorDataset(*self.train_x)
-			self.N_atypes = [int(train_dataset.tensors[1][:,:,i].max()) for i in range(3)]   # Atom hierarchy has 3 levels
-			self.N_btypes = [int(train_dataset.tensors[3][:,:,i].max()) for i in range(3)]   # Bond hierarchy has 3 levels
-			self.N_ttypes = [int(train_dataset.tensors[5][:,:,i].max()) for i in range(2)]  # Triplet hierarchy has 2 levels
-			self.N_qtypes = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
-
-			# This is a bad way to do this, needs fixing
-			# Priority to make sure same as multiple fold atm
-			for train_index, test_index in kf.split(self.train_x[0]):
-
-				train_x_list = []
-				train_y_list = []
-				test_x_list = []
-				test_y_list = []
+				train_dataset = TensorDataset(*self.train_x)
+				self.N_atypes = [int(train_dataset.tensors[1][:,:,i].max()) for i in range(3)]   # Atom hierarchy has 3 levels
+				self.N_btypes = [int(train_dataset.tensors[3][:,:,i].max()) for i in range(3)]   # Bond hierarchy has 3 levels
+				self.N_ttypes = [int(train_dataset.tensors[5][:,:,i].max()) for i in range(2)]  # Triplet hierarchy has 2 levels
+				self.N_qtypes = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
 
 
-				for i in range(len(self.train_x)):
-					train_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(train_index)))
-					test_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(test_index)))
+				for train_index, test_index in kf.split(self.train_x[0]):
 
-				for r, ref in enumerate(self.r):
-					if ref[0] in [molnames[idx] for idx in train_index]:
-						train_y_list.append(self.train_y[r])
-					else:
-						test_y_list.append(self.train_y[r])
+					train_x_list = []
+					train_y_list = []
+					test_x_list = []
+					test_y_list = []
 
-				'''
-				print(len(test_x_list[1][0]))
-				num_test = 0
-				for i in range(len(test_x_list[9])):
-					for j in range(len(test_x_list[9][0])):
-						if test_x_list[9][i][j][3] == 0:
-							continue
-						num_test += 1
+					for i in range(len(self.train_x)):
+						train_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(train_index)))
+						test_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(test_index)))
 
-				print(num_test)
-
-				#assert len(test_y_list) == num_test, print(len(test_y_list), num_test)
-
-				for i in range(len(test_x_list[9])):
-					cpls = 0
-					for j in range(len(test_x_list[9][0])):
-						if test_x_list[9][i][j][3] != 0:
-							cpls += 1
-					print('TFMMOL ', i, ' Couplings ', cpls)
-
-				for i in range(len(train_x_list[9])):
-					cpls = 0
-					for j in range(len(train_x_list[9][i])):
-						if train_x_list[9][i][j][3] != 0:
-							cpls += 1
-					print('TFMMOL ', i, ' Couplings ', cpls)
-
-				# This code is bad and you should feel bad
-				for m, molname in enumerate(molnames):
-					cpls = 0
 					for r, ref in enumerate(self.r):
-						if ref[0] == molname:
-							cpls += 1
-					if m in train_index:
-						print('TRAIN REFMOL ', m, molname, ' Couplings ', cpls)
-					elif m in test_index:
-						print('TEST REFMOL ', m, molname, ' Couplings ', cpls)
-					else:
-						print('Errrr what ?')
-				'''
+						if ref[0] in [molnames[idx] for idx in train_index]:
+							train_y_list.append(self.train_y[r])
+						else:
+							test_y_list.append(self.train_y[r])
 
-				self.train(train_x=train_x_list, train_y=train_y_list)
-				#preds = self.predict(test_x_list)
-				pred_y.extend(self.predict(test_x_list))
+					assert len(train_x_list) == len(train_x_list)
 
-				pred_y = np.asarray(pred_y)
+					self.train(train_x=train_x_list, train_y=train_y_list)
+					preds = self.predict(test_x_list)
+					pred_y.extend(self.predict(test_x_list))
 
-				print(pred_y)
-				print(test_y_list)
+			elif fold == 1:
+				# Splits as in 5-fold, but just does 1 permutation
+				molnames = self.mol_order
 
-				return np.mean(np.absolute(pred_y - np.asarray(test_y_list)))
+				kf = KFold(n_splits=5)
+				kf.get_n_splits(self.train_x[0])
+				pred_y = []
 
-		else:
-			train_dataset = TensorDataset(*self.train_x)
-			self.N_atypes = [int(train_dataset.tensors[1][:,:,i].max()) for i in range(3)]   # Atom hierarchy has 3 levels
-			self.N_btypes = [int(train_dataset.tensors[3][:,:,i].max()) for i in range(3)]   # Bond hierarchy has 3 levels
-			self.N_ttypes = [int(train_dataset.tensors[5][:,:,i].max()) for i in range(2)]  # Triplet hierarchy has 2 levels
-			self.N_qtypes = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
+				train_dataset = TensorDataset(*self.train_x)
+				self.N_atypes = [int(train_dataset.tensors[1][:,:,i].max()) for i in range(3)]   # Atom hierarchy has 3 levels
+				self.N_btypes = [int(train_dataset.tensors[3][:,:,i].max()) for i in range(3)]   # Bond hierarchy has 3 levels
+				self.N_ttypes = [int(train_dataset.tensors[5][:,:,i].max()) for i in range(2)]  # Triplet hierarchy has 2 levels
+				self.N_qtypes = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
 
-			pred_y = []
-			self.train(train_x=self.train_x, train_y=self.train_y)
-			pred_y.extend(self.train_y)
+				# This is a bad way to do this, needs fixing
+				# Priority to make sure same as multiple fold atm
+				for train_index, test_index in kf.split(self.train_x[0]):
 
-		pred_y = np.asarray(pred_y)
+					train_x_list = []
+					train_y_list = []
+					test_x_list = []
+					test_y_list = []
 
-		return pred_y
+
+					for i in range(len(self.train_x)):
+						train_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(train_index)))
+						test_x_list.append(torch.index_select(self.train_x[i], 0, torch.tensor(test_index)))
+
+					for r, ref in enumerate(self.r):
+						if ref[0] in [molnames[idx] for idx in train_index]:
+							train_y_list.append(self.train_y[r])
+						else:
+							test_y_list.append(self.train_y[r])
+
+					self.train(train_x=train_x_list, train_y=train_y_list)
+					#preds = self.predict(test_x_list)
+					pred_y.extend(self.predict(test_x_list))
+
+					pred_y = np.asarray(pred_y)
+
+					print(pred_y)
+					print(test_y_list)
+
+					return np.mean(np.absolute(pred_y - np.asarray(test_y_list)))
+
+			else:
+				train_dataset = TensorDataset(*self.train_x)
+				self.N_atypes = [int(train_dataset.tensors[1][:,:,i].max()) for i in range(3)]   # Atom hierarchy has 3 levels
+				self.N_btypes = [int(train_dataset.tensors[3][:,:,i].max()) for i in range(3)]   # Bond hierarchy has 3 levels
+				self.N_ttypes = [int(train_dataset.tensors[5][:,:,i].max()) for i in range(2)]  # Triplet hierarchy has 2 levels
+				self.N_qtypes = [int(train_dataset.tensors[7][:,:,i].max()) for i in range(1)]   # Quad hierarchy has only 1 level
+
+				pred_y = []
+				self.train(train_x=self.train_x, train_y=self.train_y)
+				pred_y.extend(self.train_y)
+
+			pred_y = np.asarray(pred_y)
+
+			return pred_y
 
 
 
