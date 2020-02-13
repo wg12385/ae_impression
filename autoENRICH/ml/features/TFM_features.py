@@ -42,7 +42,10 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	z = []				# z coordinate
 	conns = []
 
+
+	mol_order = []
 	for m, mol in enumerate(mols):
+		mol_order.append(mol.molid)
 		for t, type in enumerate(mol.types):
 			molecule_name.append(mol.molid)
 			atom_index.append(t)
@@ -130,10 +133,9 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	means, stds = BCAI.get_scaling(bonds)
 	bonds = BCAI.add_scaling(bonds, means, stds)
 
+	x = BCAI.create_dataset(atoms, bonds, triplets, quadruplets, labeled = True, max_count = 10**10, mol_order=mol_order)
 
-	x = BCAI.create_dataset(atoms, bonds, triplets, quadruplets, labeled = True, max_count = 10**10)
-
-	return x, y, r
+	return x, y, r, mol_order
 
 
 

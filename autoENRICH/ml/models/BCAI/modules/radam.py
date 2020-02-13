@@ -273,13 +273,16 @@ class RAdam(Optimizer):
                     p_data_fp32.add_(-group['weight_decay'] * group['lr'], p_data_fp32)
 
                 # more conservative since it's an approximated value
-                if N_sma >= 5:            
+                if N_sma >= 5:
                     denom = exp_avg_sq.sqrt().add_(group['eps'])
                     p_data_fp32.addcdiv_(-step_size, exp_avg, denom)
                 else:
                     p_data_fp32.add_(-step_size, exp_avg)
 
                 p.data.copy_(p_data_fp32)
+
+				print('Gradient step')
+				print(p.grad)
 
         return loss
 
@@ -335,7 +338,7 @@ class PlainRAdam(Optimizer):
                     p_data_fp32.add_(-group['weight_decay'] * group['lr'], p_data_fp32)
 
                 # more conservative since it's an approximated value
-                if N_sma >= 5:                    
+                if N_sma >= 5:
                     step_size = group['lr'] * math.sqrt((1 - beta2_t) * (N_sma - 4) / (N_sma_max - 4) * (N_sma - 2) / N_sma * N_sma_max / (N_sma_max - 2)) / (1 - beta1 ** state['step'])
                     denom = exp_avg_sq.sqrt().add_(group['eps'])
                     p_data_fp32.addcdiv_(-step_size, exp_avg, denom)
@@ -395,14 +398,14 @@ class AdamW(Optimizer):
                 denom = exp_avg_sq.sqrt().add_(group['eps'])
                 bias_correction1 = 1 - beta1 ** state['step']
                 bias_correction2 = 1 - beta2 ** state['step']
-                
+
                 if group['warmup'] > state['step']:
                     scheduled_lr = 1e-8 + state['step'] * group['lr'] / group['warmup']
                 else:
                     scheduled_lr = group['lr']
 
                 step_size = group['lr'] * math.sqrt(bias_correction2) / bias_correction1
-                
+
                 if group['weight_decay'] != 0:
                     p_data_fp32.add_(-group['weight_decay'] * scheduled_lr, p_data_fp32)
 

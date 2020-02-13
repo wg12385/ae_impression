@@ -28,6 +28,7 @@ class dataset(object):
 		self.x = []
 		self.y = []
 		self.r = []
+		self.mol_order = []
 
 		self.params = {}
 
@@ -151,18 +152,19 @@ class dataset(object):
 				r.extend(_r)
 
 		elif featureflag == 'BCAI':
-			x, y, r = TFM_features.get_BCAI_features(self.mols, targetflag)
+			x, y, r, mol_order = TFM_features.get_BCAI_features(self.mols, targetflag)
 
 		else:
 			print('Feature flag not recognised, no feature flag: ', featureflag)
 
-		if featureflag != 'BCAI':
-			self.x = np.asarray(x)
-			self.y = np.asarray(y)
-			self.r = r
-		else:
+		if featureflag == 'BCAI':
 			self.x = x
 			self.y = y
+			self.r = r
+			self.mol_order = mol_order
+		else:
+			self.x = np.asarray(x)
+			self.y = np.asarray(y)
 			self.r = r
 
 		if featureflag not in ['dummy', 'BCAI']:

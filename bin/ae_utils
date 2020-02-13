@@ -77,17 +77,17 @@ def util(inpargs):
 				basis_set = '6311gdp'
 				#scaling_factors = Get_tantillo_factors(basis_set, functional)
 				scaling_factors = {
-										"functional": "wb97xd",
-										"basis_set": "6-311g(d,p)",
-										"H": [
-											-1.0719,
-											32.1254
-										],
-										"C": [
-											-1.0399,
-											187.136
-										]
-									}
+					"functional": "wb97xd",
+					"basis_set": "6-311g(d,p)",
+					"H": [
+						-1.0719,
+						32.1254
+					],
+					"C": [
+						-1.0399,
+						187.136
+					]
+				}
 				mol.scale_shifts(scaling_factors)
 
 

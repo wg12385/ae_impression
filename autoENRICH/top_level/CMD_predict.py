@@ -16,6 +16,7 @@
 
 import pickle
 from autoENRICH.file_creation.HPC_submission import make_HPC_header
+from autoENRICH.util.filename_utils import get_unique_part
 
 import sys
 import numpy as np
@@ -65,7 +66,9 @@ def predict(args):
 		#	print ('No file(s) found matching ', args['training_set'])
 		#	sys.exit(0)
 		dset = dataset()
-		dset.get_mols(files, type='nmredata')
+
+		label_part = get_unique_part(files)
+		dset.get_mols(files, type='nmredata', label_part=label_part)
 		if len(dset.mols) == 0:
 			print('No molecules loaded. . .')
 			sys.exit(0)

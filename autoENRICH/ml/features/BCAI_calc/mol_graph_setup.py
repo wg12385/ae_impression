@@ -42,7 +42,7 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '3JHN_4_3_2_1', '2JHN_4_4_1_1', '3JHN_4.5_2_3_1.5',
 				   '2JHN_4_2_2_2', '3JHN_4_2_2_2', '1JHN_4_3_2_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
-(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (100, 800, 500, 400)
+(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (200, 1600, 1000, 800)
 
 
 def make_structure_dict(atoms_dataframe):
@@ -389,7 +389,7 @@ def make_quadruplets(molecule_list,structure_dict):
 					icount += 1
 					if icount > 50000:
 						raise Exception("50K counts confirmed.")
-				assert abs(costheta)<1.0001,'Cos theta too large'
+				#assert abs(costheta)<1.0001,'Cos theta too large'
 				dihedral = np.arccos( np.clip(costheta,-1.0,1.0) )
 				# Start labeling
 				label = '_'.join(sorted([
@@ -593,7 +593,7 @@ def add_scaling(bonds,means,stds):
 	return bonds
 
 
-def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10**10):
+def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10**10, mol_order=[]):
 	"""Create the python loaders, which we can pkl to a file for batching.
 
 	Args:
@@ -644,7 +644,8 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 
 	y_bond_scalar_coupling = torch.zeros(M, MAX_BOND_COUNT, 4)
 
-	for k,i in tqdm(index.items()):
+	#for k,i in tqdm(index.items()):
+	for i, k in enumerate(mol_order):
 		if i >= M:
 			break
 		mol_atoms = atoms.loc[[k]]
