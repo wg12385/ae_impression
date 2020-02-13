@@ -10,13 +10,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
 from torch.utils.data import DataLoader
+from torch import autograd
 #from graph_transformer import *
 import json
 import time
 import numpy as np
-
+import math
 import argparse
+import sys
 
+np.set_printoptions(threshold=sys.maxsize)
 
 #####################################################################
 #
@@ -25,11 +28,15 @@ import argparse
 #####################################################################
 
 def loss(y_pred, y, x_bond):
-	champs_loss = True
-	y_pred_pad = torch.cat([torch.zeros(y_pred.shape[0], 1, y_pred.shape[2], device=y_pred.device), y_pred], dim=1)
+	NUM_BOND_ORIG_TYPES = 8
+	champs_loss = False
 
+	y_pred[torch.abs(y_pred)<0.000001] = 0.0
+	y_pred_pad = torch.cat([torch.zeros(y_pred.shape[0], 1, y_pred.shape[2], device=y_pred.device), y_pred], dim=1)
 	# Note: The [:,:,1] below should match the num_bond_types[1]*final_dim in graph transformer
 	y_pred_scaled = y_pred_pad.gather(1,x_bond[:,:,1][:,None,:])[:,0,:] * y[:,:,2] + y[:,:,1]
+	## TEMPORARY FIX, SOME VALUES GET SET TO NaN, IN THIS CASE SET TO VERY HIGH NUMBER INSTEAD
+	y_pred_scaled[y_pred_scaled != y_pred_scaled] = 999.99
 	abs_dy = (y_pred_scaled - y[:,:,0]).abs()
 	loss_bonds = (x_bond[:,:,0] > 0)
 	abs_err = abs_dy.masked_select(loss_bonds & (y[:,:,3] > 0)).sum()
@@ -41,10 +48,17 @@ def loss(y_pred, y, x_bond):
 	else:
 		type_err = torch.tensor([t.sum() for t in type_dy])
 		type_cnt = torch.tensor([len(t) for t in type_dy])
+
+	# Issue, i think having 0 of a certain bond sub-type is the problem
+	# It gives a zero loss, which breaks the gradient calculation i think
+	abs_err.add_(0.0001)
+	type_err.add_(0.0001)
+	type_cnt.add_(1)
+
 	return abs_err, type_err, type_cnt
 
 
-def epoch(loader, model, opt=None, ep=-1, lr=0.001):
+def epoch(loader, model, opt=None, lr=0.001):
 	device = torch.device('cpu')
 	para_model = model.to(device)
 
@@ -53,15 +67,20 @@ def epoch(loader, model, opt=None, ep=-1, lr=0.001):
 	log_interval = 1
 	batch_chunk = 1
 	batch_size = 10
-	champs_loss = True
+	# Dont use this, i suspect not having some of every cpl type is an issue
+	champs_loss = False
 	warmup_step = 5000
 	clip = 0.25
+	APEX_AVAILABLE = False
 
 	global train_step
+	train_step = 0
+	start_epoch = 0
 	model.eval() if opt is None else model.train()
 	dev = next(model.parameters()).device
 	abs_err, type_err, type_cnt = 0.0, torch.zeros(NUM_BOND_ORIG_TYPES), torch.zeros(NUM_BOND_ORIG_TYPES, dtype=torch.long)
 	log_interval = log_interval
+
 
 	with torch.enable_grad() if opt else torch.no_grad():
 		batch_id = 0
@@ -106,6 +125,7 @@ def epoch(loader, model, opt=None, ep=-1, lr=0.001):
 						mb_raw_loss.backward()
 			else:
 				y_pred, _ = para_model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
+
 				b_abs_err, b_type_err, b_type_cnt = loss(y_pred, y, x_bond)
 
 			abs_err += b_abs_err.detach()
@@ -114,14 +134,23 @@ def epoch(loader, model, opt=None, ep=-1, lr=0.001):
 			batch_id += 1
 			total_loss += b_type_err / b_type_cnt.float()
 
+			print('\tTOTAL LOSS: ', total_loss.detach().numpy())
+			#if np.isnan(total_loss.detach().numpy()).any():
+				#print('NAN FOUND')
+				#sys.exit()
+
 			if opt:
 				train_step += 1
 				if train_step <= warmup_step:
+					# It does this
 					curr_lr = lr * train_step / warmup_step
 					opt.param_groups[0]['lr'] = curr_lr
+					print('\tLR: ', curr_lr)
 				elif args.scheduler == 'cosine':
+					# Not this
 					scheduler.step(train_step)
 				if batch_chunk == 1:
+					# it does this
 					raw_loss = b_abs_err/b_type_cnt.sum()
 					if champs_loss:
 						nonzero_indices = b_type_cnt.nonzero()
@@ -131,12 +160,14 @@ def epoch(loader, model, opt=None, ep=-1, lr=0.001):
 							scaled_loss.backward()
 					else:
 						raw_loss.backward()
-				torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
+
 				opt.step()
 
+				print('\tLOSS = ', raw_loss.detach().numpy())
 				if batch_id % log_interval == 0:
+					# Dont know what this is but it does it
 					avg_loss = torch.log(total_loss / log_interval).mean().item()
-					logging(f"Epoch {ep:2d} | Step {train_step} | lr {opt.param_groups[0]['lr']:.7f} | Error {avg_loss:.5f}")
+					#logging(f"Epoch {ep:2d} | Step {train_step} | lr {opt.param_groups[0]['lr']:.7f} | Error {avg_loss:.5f}")
 
 					total_loss = 0
 
