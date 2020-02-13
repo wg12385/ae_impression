@@ -54,9 +54,13 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 
 	args['max_size'] = 200
 	if args['featureflag'] == 'BCAI' and iter == 0:
+		print('Making representations')
 		dataset.get_features_frommols(args, params=next_point_to_probe)
-	elif args['feature_optimisation'] == 'True':
+	elif args['featureflag'] != 'BCAI' and args['feature_optimisation'] == 'True':
 		dataset.get_features_frommols(args, params=next_point_to_probe)
+
+	print('Number of molecules in training set: ', len(dataset.mols))
+	print('Number of envs in training set: ', len(dataset.r))
 
 	assert len(dataset.x) > 0
 	assert len(dataset.y) > 0
@@ -75,13 +79,22 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		from autoENRICH.ml.models import TFMmodel
-		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, dataset.r, params=next_point_to_probe, model_args=args)
+		model = TFMmodel.TFMmodel(dataset.mol_order, id, dataset.x, dataset.y, dataset.r, params=next_point_to_probe, model_args=args)
 
-	y_pred = model.cv_predict(args['cv_steps'])
+	if args['cv_steps'] == 1:
+		score = model.cv_predict(args['cv_steps'])
+	else:
+		y_pred = model.cv_predict(args['cv_steps'])
+		score = np.mean(np.absolute(y_pred - dataset.y))
 
-	score = np.mean(np.absolute(y_pred - dataset.y))
+	if args['cv_steps'] != 1:
+		score = np.mean(np.absolute(y_pred - dataset.y))
+	else:
+		score = y_pred
+
 	if score > 99999.99 or np.isnan(score):
 		score = 99999.99
+
 
 	time1 = time.time()
 

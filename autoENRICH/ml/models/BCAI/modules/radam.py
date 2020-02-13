@@ -281,8 +281,6 @@ class RAdam(Optimizer):
 
                 p.data.copy_(p_data_fp32)
 
-				print('Gradient step')
-				print(p.grad)
 
         return loss
 
