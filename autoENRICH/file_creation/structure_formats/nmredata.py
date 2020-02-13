@@ -38,7 +38,10 @@ def nmrmol_to_nmredata(mol, outfile):
 	# Start putting together file lines
 	lines = []
 	# print molecule name
-	lines.append(outfile.split('.')[0])
+	if '/' in outfile:
+		lines.append(outfile.split('/')[-1].split('.')[0])
+	else:
+		lines.append(outfile.split('.')[0])
 	# print file and author
 	lines.append('auto-ENRICH - 2019 - Will Gerrard')
 	lines.append('')
