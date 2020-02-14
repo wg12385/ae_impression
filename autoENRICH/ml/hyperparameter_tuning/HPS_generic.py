@@ -87,11 +87,6 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 		y_pred = model.cv_predict(args['cv_steps'])
 		score = np.mean(np.absolute(y_pred - dataset.y))
 
-	if args['cv_steps'] != 1:
-		score = np.mean(np.absolute(y_pred - dataset.y))
-	else:
-		score = y_pred
-
 	if score > 99999.99 or np.isnan(score):
 		score = 99999.99
 

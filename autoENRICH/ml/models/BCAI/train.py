@@ -134,7 +134,7 @@ def epoch(loader, model, opt=None, lr=0.001):
 			batch_id += 1
 			total_loss += b_type_err / b_type_cnt.float()
 
-			print('\tTOTAL LOSS: ', total_loss.detach().numpy())
+			#print('\tTOTAL LOSS: ', total_loss.detach().numpy())
 			#if np.isnan(total_loss.detach().numpy()).any():
 				#print('NAN FOUND')
 				#sys.exit()
@@ -145,7 +145,7 @@ def epoch(loader, model, opt=None, lr=0.001):
 					# It does this
 					curr_lr = lr * train_step / warmup_step
 					opt.param_groups[0]['lr'] = curr_lr
-					print('\tLR: ', curr_lr)
+					#print('\tLR: ', curr_lr)
 				elif args.scheduler == 'cosine':
 					# Not this
 					scheduler.step(train_step)
@@ -163,7 +163,7 @@ def epoch(loader, model, opt=None, lr=0.001):
 
 				opt.step()
 
-				print('\tLOSS = ', raw_loss.detach().numpy())
+				#print('\tLOSS = ', raw_loss.detach().numpy())
 				if batch_id % log_interval == 0:
 					# Dont know what this is but it does it
 					avg_loss = torch.log(total_loss / log_interval).mean().item()
