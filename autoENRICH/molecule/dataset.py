@@ -17,6 +17,8 @@
 
 from .nmrmol import nmrmol
 from autoENRICH.util.file_gettype import get_type
+from autoENRICH.util.flag_handler.hdl_targetflag import flag_to_target
+
 import numpy as np
 np.set_printoptions(threshold=99999999999)
 
@@ -71,6 +73,40 @@ class dataset(object):
 		r = []
 
 		self.params = params
+
+		target = flag_to_target(targetflag)
+
+		## Discard useless molecules:
+		to_remove = []
+		for mol in self.mols:
+			if len(target) == 1:
+				if not target in mol.types:
+					to_remove.append(mol.molid)
+			elif len(target) == 3:
+				found = False
+				for i, it in enumerate(mol.types):
+					for j, jt in enumerate(mol.types):
+						if i >= j:
+							continue
+
+						if mol.coupling_len[i][j] == target[0]:
+							if it == target[1] and jt == target[2]:
+								found = True
+							elif it == target[2] and jt == target[1]:
+								found = True
+
+				if not found:
+					to_remove.append(mol.molid)
+
+		keep = []
+		for i in range(len(self.mols)):
+			if self.mols[i].molid in to_remove:
+				continue
+			keep.append(self.mols[i])
+		self.mols = keep
+
+		print('REMOVED ', len(to_remove), ' molecules due to lack of features')
+		print(to_remove)
 
 		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
 			from autoENRICH.ml.features import QML_features
