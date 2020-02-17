@@ -1,18 +1,18 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 
 # Write file to perform conformational search
@@ -34,7 +34,7 @@ def make_confsearch_script(scriptname, pickle_file, smiles, path='', iterations=
 	strings = []
 	# produce script to do conformational search
 	strings.append('import sys')
-	strings.append("import autoENRICH')")
+	strings.append("import autoenrich')")
 	strings.append('import pickle')
 	strings.append('from file_creation.structure_formats import xyz')
 	strings.append("file = '{0:<10s}'".format(pickle_file.split('/')[-1]))

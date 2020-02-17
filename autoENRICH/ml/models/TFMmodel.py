@@ -1,21 +1,21 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from autoENRICH.ml.models.model import genericmodel
+from autoenrich.ml.models.model import genericmodel
 from sklearn.model_selection import KFold
 
 import torch
@@ -26,9 +26,9 @@ from torch import autograd
 import pickle
 import gzip
 
-import autoENRICH.ml.models.BCAI.train as BCAI_train
-import autoENRICH.ml.models.BCAI.graph_transformer as BCAI_graph
-import autoENRICH.ml.models.BCAI.predictor as BCAI_predict
+import autoenrich.ml.models.BCAI.train as BCAI_train
+import autoenrich.ml.models.BCAI.graph_transformer as BCAI_graph
+import autoenrich.ml.models.BCAI.predictor as BCAI_predict
 from .BCAI.modules import radam
 
 import sys

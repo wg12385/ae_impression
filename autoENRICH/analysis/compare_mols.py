@@ -1,27 +1,27 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.util.flag_handler.hdl_targetflag import target_to_flag
+from autoenrich.util.flag_handler.hdl_targetflag import target_to_flag
 import numpy as np
 
 # Attempts to determine if the molecules are the same molecule
 def mol_isequal(mol1, mol2, print=False):
 	# input:
-	# mol1: autoENRICH nmrmol object (molecule 1)
-	# mol2: autoENRICH nmrmol object (molecule 2)
+	# mol1: autoenrich nmrmol object (molecule 1)
+	# mol2: autoenrich nmrmol object (molecule 2)
 	# print: True/False , whether to print information about bad matches
 
 	# Returns: True/False

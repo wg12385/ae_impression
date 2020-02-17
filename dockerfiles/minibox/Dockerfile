@@ -41,21 +41,21 @@ RUN cd /tmp/l_mkl_2019.3.199 && \
 	echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /etc/bash.bashrc
 
 # Download aE and qml python libraries
-RUN git clone https://github.com/wg12385/auto-ENRICH.git opt/autoENRICH
+RUN git clone https://github.com/wg12385/auto-ENRICH.git opt/autoenrich
 RUN git clone https://github.com/qmlcode/qml.git --branch develop opt/qml && \
 	cd opt/qml && git checkout 18f4e9b4fec38b71c9246fb2735a4821229e37b8 && cd ../../
 
 # Create conda environment
-RUN conda env create -f opt/autoENRICH/autoENRICH/IMPgen1.yml
+RUN conda env create -f opt/autoenrich/autoenrich/IMPgen1.yml
 SHELL ["conda", "run", "-n", "IMPgen1", "/bin/bash", "-c"]
 RUN python -m pip install opt/qml/
-RUN python -m pip install opt/autoENRICH/
+RUN python -m pip install opt/autoenrich/
 SHELL ["/bin/bash", "-c"]
 
 # Add aliases to bashrc file (only affects scripts run using source /.bashrc)
-RUN echo 'alias autoENRICH="python /opt/autoENRICH/autoENRICH.py" ' >> /.bashrc && \
-	echo 'alias IMPRESSION="python /opt/autoENRICH/IMPRESSION.py" ' >> /.bashrc && \
-	echo 'alias aEutils="python /opt/autoENRICH/aE_utils.py" ' >> /.bashrc && \
+RUN echo 'alias autoenrich="python /opt/autoenrich/autoenrich.py" ' >> /.bashrc && \
+	echo 'alias IMPRESSION="python /opt/autoenrich/IMPRESSION.py" ' >> /.bashrc && \
+	echo 'alias aEutils="python /opt/autoenrich/aE_utils.py" ' >> /.bashrc && \
 	mkdir output
 
 # Add models directory

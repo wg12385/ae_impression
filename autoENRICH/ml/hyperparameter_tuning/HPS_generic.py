@@ -1,18 +1,18 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 from sklearn.model_selection import KFold
 import pickle
@@ -69,16 +69,16 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	# yes i know this is super bad "practice"
 	# if you can think of a better way of allowing QML code to not be screwed up by TF or PyTorch, etc then let me know
 	if args['modelflag'] == 'KRR':
-		from autoENRICH.ml.models import KRRmodel
+		from autoenrich.ml.models import KRRmodel
 		model = KRRmodel.KRRmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'FCHL':
-		from autoENRICH.ml.models import FCHLmodel
+		from autoenrich.ml.models import FCHLmodel
 		model = FCHLmodel.FCHLmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'NN':
-		from autoENRICH.ml.models import NNmodel
+		from autoenrich.ml.models import NNmodel
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
-		from autoENRICH.ml.models import TFMmodel
+		from autoenrich.ml.models import TFMmodel
 		model = TFMmodel.TFMmodel(dataset.mol_order, id, dataset.x, dataset.y, dataset.r, params=next_point_to_probe, model_args=args)
 
 	if args['cv_steps'] == 1:
@@ -119,16 +119,16 @@ def save_models(dataset, BEST_PARAMS, args):
 
 	# create model
 	if args['modelflag'] == 'KRR':
-		from autoENRICH.ml.models import KRRmodel
+		from autoenrich.ml.models import KRRmodel
 		model = KRRmodel.KRRmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'FCHL':
-		from autoENRICH.ml.models import FCHLmodel
+		from autoenrich.ml.models import FCHLmodel
 		model = FCHLmodel.FCHLmodel(id, np.asarray(dataset.x), np.asarray(dataset.y), params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'NN':
-		from autoENRICH.ml.models import NNmodel
+		from autoenrich.ml.models import NNmodel
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=BEST_PARAMS, model_args=args)
 	elif args['modelflag'] == 'TFM':
-		from autoENRICH.ml.models import TFMmodel
+		from autoenrich.ml.models import TFMmodel
 		model = TFMmodel.TFMmodel(id, dataset.x, dataset.y, dataset.r, params=BEST_PARAMS, model_args=args)
 
 	model.train()

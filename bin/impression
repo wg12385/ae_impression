@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 
 
@@ -24,15 +24,15 @@ import sys
 import json
 
 # Functions for checking input flags
-from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
+from autoenrich.util.flag_handler import hdl_targetflag, flag_combos
 # Preferences wizard function
-from autoENRICH.util.argparse_wizard import run_wizard, get_minimal_args
+from autoenrich.util.argparse_wizard import run_wizard, get_minimal_args
 # Import main command functions
-from autoENRICH.top_level import CMD_trainmodel, CMD_predict
+from autoenrich.top_level import CMD_trainmodel, CMD_predict
 # Import pretty banner printing function (for ego purposes only)
-from autoENRICH.util.header import print_header_IMP
+from autoenrich.util.header import print_header_IMP
 # Import argument parser
-from autoENRICH.util.arguments.argparser import IMP_parser, combine_args
+from autoenrich.util.arguments.argparser import IMP_parser, combine_args
 # Used for memory and code tracing
 import ast
 import tracemalloc

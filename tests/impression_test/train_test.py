@@ -2,10 +2,10 @@
 
 # Test setup_train and train commands
 
-from autoENRICH.top_level import CMD_trainmodel
-from autoENRICH.util.argparse_wizard import get_minimal_args, run_wizard
-from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
-from autoENRICH.util.arguments.argparser import combine_args
+from autoenrich.top_level import CMD_trainmodel
+from autoenrich.util.argparse_wizard import get_minimal_args, run_wizard
+from autoenrich.util.flag_handler import hdl_targetflag, flag_combos
+from autoenrich.util.arguments.argparser import combine_args
 
 import glob
 import os

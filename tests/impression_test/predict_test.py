@@ -1,7 +1,7 @@
 
 # Tests setup_predict and predict functions
-from autoENRICH.top_level import CMD_predict
-from autoENRICH.util.argparse_wizard import get_minimal_args
+from autoenrich.top_level import CMD_predict
+from autoenrich.util.argparse_wizard import get_minimal_args
 import glob
 import os
 

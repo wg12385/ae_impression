@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 # Central command file for running auto-ENRICH
 
-from autoENRICH.preferences.preferences import read_prefs, write_default_prefs
-from autoENRICH.molecule.molecule import molecule as moleculeclass
-from autoENRICH.util.header import print_header_aE
+from autoenrich.preferences.preferences import read_prefs, write_default_prefs
+from autoenrich.molecule.molecule import molecule as moleculeclass
+from autoenrich.util.header import print_header_aE
 import pybel as pyb
 import os
 import glob
@@ -28,15 +28,15 @@ import sys
 
 import pickle
 
-import autoENRICH.top_level.CMD_confsearch as CMD_confsearch
-import autoENRICH.top_level.CMD_optimisation as CMD_opt
-import autoENRICH.top_level.CMD_nmr as CMD_nmr
-import autoENRICH.top_level.CMD_resubmission as CMD_resub
-from autoENRICH.top_level.progress import check_proceed
-from autoENRICH.top_level.user_util import yes_or_no
+import autoenrich.top_level.CMD_confsearch as CMD_confsearch
+import autoenrich.top_level.CMD_optimisation as CMD_opt
+import autoenrich.top_level.CMD_nmr as CMD_nmr
+import autoenrich.top_level.CMD_resubmission as CMD_resub
+from autoenrich.top_level.progress import check_proceed
+from autoenrich.top_level.user_util import yes_or_no
 
 # Import argument parser
-from autoENRICH.util.arguments.argparser import aE_parser
+from autoenrich.util.arguments.argparser import aE_parser
 
 # Main auto-ENRICH program
 def autoenrich(inpargs):

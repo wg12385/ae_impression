@@ -1,23 +1,23 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
-from autoENRICH.file_creation import HPC_submission as HPCsub
-import autoENRICH.file_read.orca_read as orcaread
-import autoENRICH.file_creation.orca_submission as orcasub
-import autoENRICH.file_creation.structure_formats.nmredata as nmredata
+from autoenrich.file_creation import HPC_submission as HPCsub
+import autoenrich.file_read.orca_read as orcaread
+import autoenrich.file_creation.orca_submission as orcasub
+import autoenrich.file_creation.structure_formats.nmredata as nmredata
 import sys
 
 def setup_nmr(molecule, prefs, path='', ids=[], max=50):

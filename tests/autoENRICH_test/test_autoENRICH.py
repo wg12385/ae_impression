@@ -1,10 +1,10 @@
 
-# Script to test autoENRICH workflow
-from autoENRICH.molecule.molecule import molecule as moleculeclass
-from autoENRICH.preferences.preferences import write_default_prefs
-import autoENRICH.top_level.CMD_confsearch as CMD_confsearch
-import autoENRICH.top_level.CMD_optimisation as CMD_opt
-import autoENRICH.top_level.CMD_nmr as CMD_nmr
+# Script to test autoenrich workflow
+from autoenrich.molecule.molecule import molecule as moleculeclass
+from autoenrich.preferences.preferences import write_default_prefs
+import autoenrich.top_level.CMD_confsearch as CMD_confsearch
+import autoenrich.top_level.CMD_optimisation as CMD_opt
+import autoenrich.top_level.CMD_nmr as CMD_nmr
 import pickle
 
 

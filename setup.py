@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-     name='autoENRICH',
+     name='autoenrich',
      version='2.1',
      scripts=['bin/autoenrich', 'bin/impression', 'bin/ae_utils'] ,
      author="Will Gerrard",

@@ -1,23 +1,23 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 # define functions to produce QML based features
 import qml.fchl
 import qml.representations
-from autoENRICH.util.flag_handler.hdl_targetflag import flag_to_target
+from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
 import numpy as np
 
 
@@ -29,7 +29,7 @@ import numpy as np
 # Make FCHL features
 def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 	# Input:
-	#	mols: list of autoENRICH nmrmol objects
+	#	mols: list of autoenrich nmrmol objects
 	#	targetflag: flag corresponding to nmr parameter (string)
 	#	cutoff: distance cutoff for representation
 	#	max: maximum size of molecules
@@ -83,7 +83,7 @@ def get_FCHL_features(mols, targetflag='CCS', cutoff=5.0, max=400):
 # Make mbtypes for aSLATM representation
 def get_aSLATM_mbtypes(mols):
 	# Input:
-	#	mols: list of autoENRICH nmrmol objects
+	#	mols: list of autoenrich nmrmol objects
 
 	# Returns: mbtypes (list of atom type combinations)
 
@@ -101,7 +101,7 @@ def get_aSLATM_mbtypes(mols):
 # Make aSLATM features
 def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[]):
 	# Input:
-	#	mols: list of autoENRICH nmrmol objects
+	#	mols: list of autoenrich nmrmol objects
 	#	targetflag: flag corresponding to nmr parameter (string)
 	#	cutoff: distance cutoff for representation
 	#	max: maximum size of molecules
@@ -166,7 +166,7 @@ def get_aSLATM_features(mols, targetflag='CCS', cutoff=5.0, max=400, mbtypes=[])
 def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=100,
 				central_decay=-1, interaction_cutoff =1e6, interaction_decay=-1):
 	# Input:
-	#	mols: list of autoENRICH nmrmol objects
+	#	mols: list of autoenrich nmrmol objects
 	#	targetflag: flag corresponding to nmr parameter (string)
 	#	cutoff: distance cutoff for representation
 	#	max: maximum size of molecules
@@ -229,7 +229,7 @@ def get_CMAT_features(mols, targetflag='CCS', cutoff=5.0, max=100,
 def get_ACSF_features(mols, targetflag='CCS', cutoff=5.0, max=400, elements=[], nRs2=3, nRs3=3, nTs=3, eta2=1,
 									eta3=1, zeta=1, acut=5, bin_min=0.8):
 	# Input:
-	#	mols: list of autoENRICH nmrmol objects
+	#	mols: list of autoenrich nmrmol objects
 	#	targetflag: flag corresponding to nmr parameter (string)
 	#	cutoff: distance cutoff for representation
 	#	max: maximum size of molecules

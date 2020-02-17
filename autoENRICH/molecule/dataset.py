@@ -1,23 +1,23 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 
 from .nmrmol import nmrmol
-from autoENRICH.util.file_gettype import get_type
-from autoENRICH.util.flag_handler.hdl_targetflag import flag_to_target
+from autoenrich.util.file_gettype import get_type
+from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
 
 import numpy as np
 np.set_printoptions(threshold=99999999999)
@@ -119,11 +119,11 @@ class dataset(object):
 		print(to_remove)
 
 		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
-			from autoENRICH.ml.features import QML_features
+			from autoenrich.ml.features import QML_features
 		elif featureflag in ['BCAI']:
-			from autoENRICH.ml.features import TFM_features
+			from autoenrich.ml.features import TFM_features
 		elif featureflag in ['dummy']:
-			from autoENRICH.ml.features import GNR_features
+			from autoenrich.ml.features import GNR_features
 
 		if featureflag == 'dummy':
 			for mol in self.mols:

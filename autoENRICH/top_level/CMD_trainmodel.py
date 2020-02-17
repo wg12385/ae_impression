@@ -1,21 +1,21 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from autoENRICH.file_creation.HPC_submission import make_HPC_header
+from autoenrich.file_creation.HPC_submission import make_HPC_header
 
 import pickle
 import glob
@@ -52,9 +52,9 @@ def setup_trainmodel(args):
 
 def trainmodel(args):
 
-	from autoENRICH.ml.HPS import HPS
-	from autoENRICH.molecule.dataset import dataset
-	from autoENRICH.molecule.nmrmol import nmrmol
+	from autoenrich.ml.HPS import HPS
+	from autoenrich.molecule.dataset import dataset
+	from autoenrich.molecule.nmrmol import nmrmol
 
 	params = []
 	for param in args['param_ranges'].keys():

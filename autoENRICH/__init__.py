@@ -1,21 +1,21 @@
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-autoENRICH main module
+autoenrich main module
 ======================
 
 Provides
@@ -49,7 +49,7 @@ from . import util
 
 __author__ = "Will Gerrard"
 __copyright__ = "Copyright 2020"
-__credits__ = ["Will Gerrard (2020) https://github.com/wg12385/autoENRICH"]
+__credits__ = ["Will Gerrard (2020) https://github.com/wg12385/autoenrich"]
 __licence__ = "GNU APGL v3+"
 __version__ = "0.0.1"
 __maintainer__ = "Will Gerrard"

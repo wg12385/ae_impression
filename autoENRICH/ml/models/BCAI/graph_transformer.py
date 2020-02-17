@@ -14,8 +14,8 @@ import pickle
 import sys
 from termcolor import colored
 
-from autoENRICH.ml.models.BCAI.modules.hierarchical_embedding import HierarchicalEmbedding
-from autoENRICH.ml.models.BCAI.modules.embeddings import LearnableEmbedding, SineEmbedding
+from autoenrich.ml.models.BCAI.modules.hierarchical_embedding import HierarchicalEmbedding
+from autoenrich.ml.models.BCAI.modules.embeddings import LearnableEmbedding, SineEmbedding
 
 
 def sqdist(A,B):

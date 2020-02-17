@@ -1,5 +1,5 @@
-from autoENRICH.molecule.nmrmol import nmrmol
-from autoENRICH.top_level import CMD_compare
+from autoenrich.molecule.nmrmol import nmrmol
+from autoenrich.top_level import CMD_compare
 print(CMD_compare.__file__)
 
 

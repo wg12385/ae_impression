@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 
 # Copyright 2020 Will Gerrard
-#This file is part of autoENRICH.
+#This file is part of autoenrich.
 
-#autoENRICH is free software: you can redistribute it and/or modify
+#autoenrich is free software: you can redistribute it and/or modify
 #it under the terms of the GNU Affero General Public License as published by
 #the Free Software Foundation, either version 3 of the License, or
 #(at your option) any later version.
 
-#autoENRICH is distributed in the hope that it will be useful,
+#autoenrich is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU Affero General Public License for more details.
 
 #You should have received a copy of the GNU Affero General Public License
-#along with autoENRICH.  If not, see <https://www.gnu.org/licenses/>.
+#along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 # master script to do everything IMPRESSION-y
 
@@ -23,21 +23,21 @@
 import argparse
 import sys
 import json
-sys.path.append('autoENRICH/')
+sys.path.append('autoenrich/')
 
-from autoENRICH.util.flag_handler import hdl_targetflag, flag_combos
-from autoENRICH.util.argparse_wizard import run_wizard
+from autoenrich.util.flag_handler import hdl_targetflag, flag_combos
+from autoenrich.util.argparse_wizard import run_wizard
 
-from autoENRICH.top_level import CMD_compare
+from autoenrich.top_level import CMD_compare
 
-from autoENRICH.util.header import print_header_IMP
+from autoenrich.util.header import print_header_IMP
 
-from autoENRICH.molecule.nmrmol import nmrmol
-from autoENRICH.file_creation.structure_formats import nmredata
-from autoENRICH.file_read.g09_read import read_functional
-from autoENRICH.reference.tantillo import Get_tantillo_factors
+from autoenrich.molecule.nmrmol import nmrmol
+from autoenrich.file_creation.structure_formats import nmredata
+from autoenrich.file_read.g09_read import read_functional
+from autoenrich.reference.tantillo import Get_tantillo_factors
 # Import argument parser
-from autoENRICH.util.arguments.argparser import util_parser
+from autoenrich.util.arguments.argparser import util_parser
 import glob
 
 
