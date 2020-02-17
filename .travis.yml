@@ -47,4 +47,4 @@ after_success:
   # Install the command line API for CONDA uploads
   - conda install -y anaconda-client
   - export ANACONDA_API_TOKEN=$CONDA_UPLOAD_TOKEN
-  - anaconda upload bld-dir/**/PACKAGENAME-*.tar.bz2 --label develop
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --label develop
