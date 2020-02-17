@@ -18,6 +18,7 @@
 from .nmrmol import nmrmol
 from autoenrich.util.file_gettype import get_type
 from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
+from autoenrich.util.filename_utils import get_unique_part
 
 import numpy as np
 np.set_printoptions(threshold=99999999999)
@@ -35,13 +36,12 @@ class dataset(object):
 		self.params = {}
 
 
-	def get_mols(self, files, type='', label_part=1, fallback=False):
+	def get_mols(self, files, type='', label_part=-1, fallback=False):
 		self.mols = []
-		if len(files) > 1:
-			id1 = files[0].split('/')[-1].split('.')[0].split('_')[label_part]
-			id2 = files[1].split('/')[-1].split('.')[0].split('_')[label_part]
 
-			if id1 == id2:
+		if label_part == -1:
+			label_part = get_unique_part(files)
+			if label_part == -1:
 				fallback = True
 
 		for f, file in enumerate(files):
@@ -49,6 +49,13 @@ class dataset(object):
 				id = str(f)
 			else:
 				id = file.split('/')[-1].split('.')[0].split('_')[label_part]
+
+			try:
+				int(id)
+				id = 'nmrmol' + str(id)
+			except:
+				pass
+
 			mol = nmrmol(molid=id)
 
 			if type == '':
@@ -58,8 +65,6 @@ class dataset(object):
 
 			mol.read_nmr(file, ftype)
 			self.mols.append(mol)
-			#print(id)
-			#print(mol.coupling_len)
 
 
 	def get_features_frommols(self, args, params={}):
@@ -115,8 +120,7 @@ class dataset(object):
 			keep.append(self.mols[i])
 		self.mols = keep
 
-		print('REMOVED ', len(to_remove), ' molecules due to lack of features')
-		print(to_remove)
+		print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
 
 		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
 			from autoenrich.ml.features import QML_features

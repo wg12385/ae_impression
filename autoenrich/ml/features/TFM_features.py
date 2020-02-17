@@ -42,7 +42,6 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	z = []				# z coordinate
 	conns = []
 
-
 	mol_order = []
 	for m, mol in enumerate(mols):
 		mol_order.append(mol.molid)

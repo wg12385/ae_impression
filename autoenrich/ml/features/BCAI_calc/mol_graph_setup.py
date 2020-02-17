@@ -6,6 +6,8 @@
 ## This source code is licensed under the MIT license found in the
 ## LICENSE file in the root directory of this source tree.
 
+# Edited, Will Gerrard, 2020, for use in autoenrich
+
 import collections
 import gzip
 import itertools
@@ -107,15 +109,24 @@ def enhance_structure_dict(structure_dict):
 		molecule['angle'] = angle[:,0]
 
 		# bond orders - array (N,N) of the bond order (0 for no chemical bond)
-		# Note this relies on a few manual corrections
 		molecule['bond_orders'] = np.zeros((n_atom,n_atom))
 		atomicNumList = [atomic_num_dict[symbol] for symbol in molecule['symbols']]
 
 		for atom0 in range(len(molecule['symbols'])):
 			for atom1 in range(len(molecule['symbols'])):
-
-				molecule['bond_orders'][atom0,atom1] = conn[atom0][atom1]
-				molecule['bond_orders'][atom1,atom0] = conn[atom1][atom0]
+				try:
+					molecule['bond_orders'][atom0,atom1] = conn[atom0][atom1]
+					molecule['bond_orders'][atom1,atom0] = conn[atom1][atom0]
+				except Exception as e:
+					print(e)
+					print(molecule_name)
+					print(atom0, atom1)
+					print('positions:', molecule['positions'].shape, positions.shape)
+					print('conn:', len(molecule['conn']), len(molecule['conn'][0]), conn.shape)
+					print('conn[0]:', conn[0].shape)
+					print('bond_orders:', molecule['bond_orders'].shape)
+					print(n_atom)
+					sys.exit(0)
 
 		# Supplementary information for tagging:
 		# top_bonds: (N,4 or less) bond orders of the top 4 bonds, for each atom

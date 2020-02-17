@@ -20,7 +20,7 @@
 
 # To quit things
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'autoenrich'))
+sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]),''))
 # Preferences files are all in json
 import json
 
