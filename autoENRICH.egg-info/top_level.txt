@@ -1,5 +1,0 @@
-autoenrich
-bin
-build
-dist
-dockerfiles
