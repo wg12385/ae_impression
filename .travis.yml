@@ -1,0 +1,51 @@
+language: python
+
+matrix:
+    include:
+        - python: 3.7
+
+before_install:
+  # Install the latest version of Miniconda
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  # For some reason miniconda installs here instead of the above path
+  - export PATH=/home/travis/miniconda2/bin:$PATH
+  - conda update --yes conda  # Update CONDA without command line prompt
+
+install:
+  - conda install -y conda-build
+  # You can add any CONDA channels you may need here. CONDA supports
+  # both the commands add and append. The only difference is that
+  # the add command places the channel at the front of the priority
+  # list, while append does the opposite.
+  - conda config --add channels conda-forge
+  - conda config --add channels rdkit
+  - conda config --add channels openbabel
+
+  # Build the conda recipe for this package
+  - conda build -q conda-recipe --python=$TRAVIS_PYTHON_VERSION --output-folder bld-dir
+  # Add the built package as a channel with highest priority
+  - conda config --add channels "file://`pwd`/bld-dir"
+
+  # Create and activate the test environment
+  - conda create -q -y -n test-environment python=$TRAVIS_PYTHON_VERSION autoenrich --file dev-requirements.txt
+  - source activate test-environment
+
+script:
+  # Run any test suite you may have
+  - autoenrich -h
+  - impression -h
+  - ae_utils -h
+
+after_success:
+  # Install the command line API for CONDA uploads
+  - conda install -y anaconda-client
+  - |
+    # Only upload builds from tags
+    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == "wg12385/autoenrich_public"
+          && $TRAVIS_BRANCH == $TRAVIS_TAG  && $TRAVIS_TAG != '' ]]; then
+      export ANACONDA_API_TOKEN=$CONDA_UPLOAD_TOKEN
+      anaconda upload bld-dir/**/PACKAGENAME-*.tar.bz2
+    fi
