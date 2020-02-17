@@ -4,6 +4,10 @@ matrix:
     include:
         - python: 3.7
 
+branches:
+    only:
+    - master
+
 before_install:
   # Install the latest version of Miniconda
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
