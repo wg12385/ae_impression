@@ -46,10 +46,9 @@ RUN git clone https://github.com/qmlcode/qml.git --branch develop opt/qml && \
 	cd opt/qml && git checkout 18f4e9b4fec38b71c9246fb2735a4821229e37b8 && cd ../../
 
 # Create conda environment
-RUN conda env create -f opt/autoenrich/autoenrich/IMPgen1.yml
-SHELL ["conda", "run", "-n", "IMPgen1", "/bin/bash", "-c"]
+RUN conda create -n IMPenv python=3
+SHELL ["conda", "run", "-n", "IMPenv", "/bin/bash", "-c"]
 RUN conda install -c wg12385 autoenrich -c rdkit -c openbabel
 RUN python -m pip install opt/qml/
-
 
 SHELL ["/bin/bash", "-c"]
