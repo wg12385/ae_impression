@@ -1,0 +1,47 @@
+package:
+  name: "autoenrich_develop"
+  version: "2.1.4"
+
+source:
+  git_url: https://github.com/wg12385/auto-ENRICH
+  git_ref: master
+
+build:
+  noarch: python
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+  run:
+    - python=3
+    - numpy
+    - tqdm
+    - pytorch
+    - scipy
+    - rdkit
+    - openbabel
+
+test:
+  imports:
+    - autoenrich
+  commands:
+    - autoenrich -h
+    - impression -h
+    - ae_utils -h
+
+about:
+  home: https://github.com/wg12385/auto-ENRICH
+  license: GNU Affero General Public v3 or later (AGPLv3+)
+  license_family: AGPL
+  license_file: LICENSE
+  summary: Computational NMR Library
+  doc_url: www.autoenrich.co.uk
+  dev_url:
+
+extra:
+  recipe-maintainers:
+    - wg12385

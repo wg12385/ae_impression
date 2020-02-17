@@ -71,7 +71,13 @@ class TFMmodel(genericmodel):
 			train_y = self.train_y
 
 		train_dataset = TensorDataset(*train_x)
-		train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True, drop_last=True)
+
+		batch_size = 100
+
+		if len(train_dataset[0]) <= batch_size:
+			batch_size = len(train_dataset[0]) - 1
+
+		train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=False)
 
 		NUM_ATOM_TYPES = self.N_atypes  # Atom hierarchy has 3 levels
 		NUM_BOND_TYPES = self.N_btypes   # Bond hierarchy has 3 levels
@@ -106,7 +112,7 @@ class TFMmodel(genericmodel):
 		para_model = self.model.to(device)
 		train_epochs = 10
 		for tr_epoch in range(train_epochs):
-			print('\ttrepoch: ', tr_epoch, '/', train_epochs)
+			#print('\ttrepoch: ', tr_epoch, '/', train_epochs)
 			loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
 		self.trained = True
 		'''
@@ -145,7 +151,7 @@ class TFMmodel(genericmodel):
 
 				y_selected = y_pred_scaled.masked_select((x_bond[:,:,0] > 0) & (y[:,:,3] > 0)).cpu().numpy()
 				ids_selected = y[:,:,0].masked_select((x_bond[:,:,0] > 0) & (y[:,:,3] > 0))
-				ids_selected = ids_selected.numpy()
+				ids_selected = ids_selected.cpu().numpy()
 
 				for id_, pred in zip(ids_selected, y_selected):
 					y_predictions.append(pred)
@@ -232,9 +238,6 @@ class TFMmodel(genericmodel):
 					pred_y.extend(self.predict(test_x_list))
 
 					pred_y = np.asarray(pred_y)
-
-					print(pred_y)
-					print(test_y_list)
 
 					return np.mean(np.absolute(pred_y - np.asarray(test_y_list)))
 
