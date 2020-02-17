@@ -35,10 +35,20 @@ class dataset(object):
 		self.params = {}
 
 
-	def get_mols(self, files, type='', label_part=0):
+	def get_mols(self, files, type='', label_part=1, fallback=False):
 		self.mols = []
-		for file in files:
-			id = file.split('/')[-1].split('.')[0].split('_')[label_part]
+		if len(files) > 1:
+			id1 = files[0].split('/')[-1].split('.')[0].split('_')[label_part]
+			id2 = files[1].split('/')[-1].split('.')[0].split('_')[label_part]
+
+			if id1 == id2:
+				fallback = True
+
+		for f, file in enumerate(files):
+			if fallback:
+				id = str(f)
+			else:
+				id = file.split('/')[-1].split('.')[0].split('_')[label_part]
 			mol = nmrmol(molid=id)
 
 			if type == '':
