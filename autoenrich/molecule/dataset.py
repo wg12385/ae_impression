@@ -67,7 +67,7 @@ class dataset(object):
 			self.mols.append(mol)
 
 
-	def get_features_frommols(self, args, params={}):
+	def get_features_frommols(self, args, params={}, molcheck_run=False):
 
 		featureflag = args['featureflag']
 		targetflag = args['targetflag']
@@ -121,6 +121,12 @@ class dataset(object):
 		self.mols = keep
 
 		print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
+		print(to_remove[:10])
+		assert len(keep) > 1
+
+		if molcheck_run:
+			print('molcheck complete')
+			return
 
 		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
 			from autoenrich.ml.features import QML_features

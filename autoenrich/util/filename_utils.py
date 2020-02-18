@@ -31,10 +31,11 @@ def get_unique_part(files):
 			except:
 				label_part = -1
 				success = True
-				
-		if len(ids) == len(set(ids)):
-			success = True
-		else:
-			label_part += 1
+
+		if not success:
+			if len(ids) == len(set(ids)):
+				success = True
+			else:
+				label_part += 1
 
 	return label_part
