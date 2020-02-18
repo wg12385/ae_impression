@@ -32,12 +32,18 @@ class dataset(object):
 		self.y = []
 		self.r = []
 		self.mol_order = []
+		self.big_data = False
+		self.files = []
 
 		self.params = {}
 
 
 	def get_mols(self, files, type='', label_part=-1, fallback=False):
 		self.mols = []
+		self.files = files
+
+		if len(files > 2000):
+			self.big_data = True
 
 		if label_part == -1:
 			label_part = get_unique_part(files)
@@ -56,15 +62,18 @@ class dataset(object):
 			except:
 				pass
 
-			mol = nmrmol(molid=id)
-
-			if type == '':
-				ftype = get_type(file)
+			if self.big_data:
+				self.mols.append([file, id, type])
 			else:
-				ftype = type
+				mol = nmrmol(molid=id)
 
-			mol.read_nmr(file, ftype)
-			self.mols.append(mol)
+				if type == '':
+					ftype = get_type(file)
+				else:
+					ftype = type
+
+				mol.read_nmr(file, ftype)
+				self.mols.append(mol)
 
 
 	def get_features_frommols(self, args, params={}, molcheck_run=False):
@@ -90,39 +99,7 @@ class dataset(object):
 		self.params = params
 
 		target = flag_to_target(targetflag)
-
-		## Discard useless molecules:
-		to_remove = []
-		for mol in self.mols:
-			if len(target) == 1:
-				if not target in mol.types:
-					to_remove.append(mol.molid)
-			elif len(target) == 3:
-				found = False
-				for i, it in enumerate(mol.types):
-					for j, jt in enumerate(mol.types):
-						if i >= j:
-							continue
-
-						if mol.coupling_len[i][j] == target[0]:
-							if it == target[1] and jt == target[2]:
-								found = True
-							elif it == target[2] and jt == target[1]:
-								found = True
-
-				if not found:
-					to_remove.append(mol.molid)
-
-		keep = []
-		for i in range(len(self.mols)):
-			if self.mols[i].molid in to_remove:
-				continue
-			keep.append(self.mols[i])
-		self.mols = keep
-
-		print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
-		print(to_remove[:10])
-		assert len(keep) > 1
+		self.remove_mols(target)
 
 		if molcheck_run:
 			print('molcheck complete')
@@ -208,7 +185,35 @@ class dataset(object):
 				r.extend(_r)
 
 		elif featureflag == 'BCAI':
-			x, y, r, mol_order = TFM_features.get_BCAI_features(self.mols, targetflag)
+			b_no = int(len(self.mols) / 2000)
+			batches = []
+			for i in range(b_no):
+				idx1 = i*2000
+				idx2 = min((i+1)*2000, len(self.mols))
+				batches.append([idx1, idx2])
+
+			for batch in batches:
+				batch_mols = []
+				for molrf in self.mols[idx1:idx2]:
+					if big_data:
+						mol = nmrmol(molid=molrf[1])
+
+						if molrf[2] == '':
+							ftype = get_type(molrf[0])
+						else:
+							ftype = molrf[2]
+
+						mol.read_nmr(molrf[0], ftype)
+					else:
+						mol = molrf
+					batch_mols.append(mol)
+
+				_x, _y, _r, mol_order = TFM_features.get_BCAI_features(batch_mols, targetflag)
+
+				x.extend(_x)
+				y.extend(_y)
+				r.extend(_r)
+				batch_mols = []
 
 		else:
 			print('Feature flag not recognised, no feature flag: ', featureflag)
@@ -225,72 +230,6 @@ class dataset(object):
 
 		if featureflag not in ['dummy', 'BCAI']:
 			print('Reps generated, shape: ', self.x.shape)
-
-	def get_features_fromfiles(self, files, featureflag='CMAT', targetflag='CCS', cutoff=5.0, max=400, mbtypes=[], elements=[]):
-		self.params = {}
-
-		x = []
-		y = []
-		r = []
-
-		if featureflag == 'aSLATM':
-			mbtypes = QML_features.get_aSLATM_mbtypes([])
-			for file in files:
-				id = file.split('.')[0].split('_')[-1]
-				mol = nmrmol(id)
-				mol.read_nmr(file, 'nmredata')
-				_x, _y, _r = QML_features.get_aSLATM_features(mol, targetflag, cutoff, mbtypes)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
-
-		elif featureflag == 'CMAT':
-			for file in files:
-				id = file.split('.')[0].split('_')[-1]
-				mol = nmrmol(id)
-				mol.read_nmr(file, 'nmredata')
-				_x, _y, _r = QML_features.get_CMAT_features(mol, targetflag, cutoff, max)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
-
-		elif featureflag == 'FCHL':
-			for file in files:
-				id = file.split('.')[0].split('_')[-1]
-				mol = nmrmol(id)
-				mol.read_nmr(file, 'nmredata')
-				_x, _y, _r = QML_features.get_FCHL_features(mol, targetflag, cutoff, max)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
-
-		elif featureflag == 'ACSF':
-			for file in files:
-				id = file.split('.')[0].split('_')[-1]
-				mol = nmrmol(id)
-				mol.read_nmr(file, 'nmredata')
-				_x, _y, _r = QML_features.get_ACSF_features(mol, targetflag, cutoff, elements)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
-		elif featureflag == 'BCAI':
-			for file in files:
-				id = file.split('.')[0].split('_')[-1]
-				mol = nmrmol(id)
-				mol.read_nmr(file, 'nmredata')
-				_x, _y, _r = TFM_features.get_BCAI_features(mol, targetflag, cutoff)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
-		self.x = np.asarray(x)
-		self.y = np.asarray(y)
-		self.r = r
-
 
 	def assign_from_ml(self, pred_y, var, zero=True):
 		assert len(self.r) > 0, print('Something went wrong, nothing to assign')
@@ -318,7 +257,56 @@ class dataset(object):
 								mol.coupling[t1][t2] = pred_y[r]
 								mol.coupling_var[t1][t2] = var[r]
 
+	def remove_mols(self, target):
+		## Discard useless molecules:
+		to_remove = []
 
+		for molrf in self.mols:
+			if big_data:
+				mol = nmrmol(molid=molrf[1])
+
+				if molrf[2] == '':
+					ftype = get_type(molrf[0])
+				else:
+					ftype = molrf[2]
+
+				mol.read_nmr(molrf[0], ftype)
+			else:
+				mol = molrf
+
+			if len(target) == 1:
+				if not target in mol.types:
+					to_remove.append(mol.molid)
+			elif len(target) == 3:
+				found = False
+				for i, it in enumerate(mol.types):
+					for j, jt in enumerate(mol.types):
+						if i >= j:
+							continue
+
+						if mol.coupling_len[i][j] == target[0]:
+							if it == target[1] and jt == target[2]:
+								found = True
+							elif it == target[2] and jt == target[1]:
+								found = True
+
+				if not found:
+					to_remove.append(mol.molid)
+
+		keep = []
+		for i in range(len(self.mols)):
+			if big_data:
+				if self.mols[1] in to_remove:
+					continue
+			else:
+				if self.mols[i].molid in to_remove:
+					continue
+			keep.append(self.mols[i])
+		self.mols = keep
+
+		print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
+		print(to_remove[:10])
+		assert len(keep) > 1
 
 
 
