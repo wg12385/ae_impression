@@ -110,7 +110,7 @@ class TFMmodel(genericmodel):
 		scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, max_step, eta_min=self.params['eta_min'])
 
 		para_model = self.model.to(device)
-		train_epochs = 10
+		train_epochs = 200
 		for tr_epoch in range(train_epochs):
 			#print('\ttrepoch: ', tr_epoch, '/', train_epochs)
 			loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
