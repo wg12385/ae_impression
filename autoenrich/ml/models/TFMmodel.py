@@ -89,9 +89,9 @@ class TFMmodel(genericmodel):
 
 		device = torch.device('cuda')
 
-		self.model = BCAI_graph.GraphTransformer(dim=200, n_layers=int(self.params['n_layer']), d_inner=600,
+		self.model = BCAI_graph.GraphTransformer(dim=int(self.params['d_model']/int(self.params['n_head']))*int(self.params['n_head']), n_layers=int(self.params['n_layer']), d_inner=int(self.params['d_inner']),
 								 fdim = 200, final_dim=int(self.params['final_dim']), dropout=self.params['dropout'],
-								 dropatt=self.params['dropatt'], final_dropout=self.params['final_dropout'], n_head=10,
+								 dropatt=self.params['dropatt'], final_dropout=self.params['final_dropout'], n_head=int(self.params['n_head']),
 								 num_atom_types=NUM_ATOM_TYPES,
 								 num_bond_types=NUM_BOND_TYPES,
 								 num_triplet_types=NUM_TRIPLET_TYPES,
@@ -110,21 +110,11 @@ class TFMmodel(genericmodel):
 		scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, max_step, eta_min=self.params['eta_min'])
 
 		para_model = self.model.to(device)
-		train_epochs = 200
-		for tr_epoch in range(train_epochs):
+
+		for tr_epoch in range(int(self.params['tr_epochs'])):
 			#print('\ttrepoch: ', tr_epoch, '/', train_epochs)
 			loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
 		self.trained = True
-		'''
-		print('PARAMS:')
-		with open('named_model_params.txt', 'w') as f:
-			for name, param in self.model.named_parameters():
-				print('PARAMETER ---------------------------', file=f)
-				print(name, file=f)
-				print(param.data, file=f)
-
-		print(self.model)
-		'''
 
 	def predict(self, test_x, train_x=[]):
 

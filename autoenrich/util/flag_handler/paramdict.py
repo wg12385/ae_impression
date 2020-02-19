@@ -113,6 +113,9 @@ def construct_param_dict(modelflag, featureflag, targetflag):
 		param_ranges['learning_rate'] = [0.0009, 0.0011]
 		param_logs['learning_rate'] = 'lin'
 
+		param_ranges['tr_epochs'] = [1, 10000]
+		param_logs['tr_epochs'] = 'lin'
+
 
 	if featureflag == 'CMAT':
 		param_ranges['cutoff'] = [1, 10]

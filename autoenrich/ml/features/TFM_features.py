@@ -17,6 +17,8 @@
 # get features for TransForMer models
 from autoenrich.reference.periodic_table import Get_periodic_table
 from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
+from autoenrich.molecule.nmrmol import nmrmol
+from autoenrich.util.file_gettype import get_type
 
 import autoenrich.ml.features.BCAI_calc.mol_graph_setup as BCAI
 
@@ -43,7 +45,17 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	conns = []
 
 	mol_order = []
-	for m, mol in enumerate(mols):
+	for m, molrf in enumerate(mols):
+		if len(mols) > 2000:
+			mol = nmrmol(molid=molrf[1])
+
+			if molrf[2] == '':
+				ftype = get_type(molrf[2])
+			else:
+				ftype = molrf[2]
+			mol.read_nmr(molrf[0], ftype)
+		else:
+			mol = molrf
 		mol_order.append(mol.molid)
 		for t, type in enumerate(mol.types):
 			molecule_name.append(mol.molid)
@@ -82,7 +94,18 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	y = []
 
 	i = -1
-	for m, mol in enumerate(mols):
+	for m, molrf in enumerate(mols):
+		if len(mols) > 2000:
+			mol = nmrmol(molid=molrf[1])
+
+			if molrf[2] == '':
+				ftype = get_type(molrf[2])
+			else:
+				ftype = molrf[2]
+			mol.read_nmr(molrf[0], ftype)
+		else:
+			mol = molrf
+			
 		for t, type in enumerate(mol.types):
 			for t2, type2 in enumerate(mol.types):
 				if t == t2:
