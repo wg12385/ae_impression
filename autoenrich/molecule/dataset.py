@@ -42,7 +42,7 @@ class dataset(object):
 		self.mols = []
 		self.files = files
 
-		if len(files > 2000):
+		if len(files) > 2000:
 			self.big_data = True
 
 		if label_part == -1:
@@ -185,30 +185,8 @@ class dataset(object):
 				r.extend(_r)
 
 		elif featureflag == 'BCAI':
-			b_no = int(len(self.mols) / 2000)
-			batches = []
-			for i in range(b_no):
-				idx1 = i*2000
-				idx2 = min((i+1)*2000, len(self.mols))
-				batches.append([idx1, idx2])
 
-			for batch in batches:
-				batch_mols = []
-				for molrf in self.mols[idx1:idx2]:
-					if big_data:
-						mol = nmrmol(molid=molrf[1])
-
-						if molrf[2] == '':
-							ftype = get_type(molrf[0])
-						else:
-							ftype = molrf[2]
-
-						mol.read_nmr(molrf[0], ftype)
-					else:
-						mol = molrf
-					batch_mols.append(mol)
-
-				_x, _y, _r, mol_order = TFM_features.get_BCAI_features(batch_mols, targetflag)
+				_x, _y, _r, mol_order = TFM_features.get_BCAI_features(self.mols, targetflag)
 
 				x.extend(_x)
 				y.extend(_y)
@@ -262,7 +240,7 @@ class dataset(object):
 		to_remove = []
 
 		for molrf in self.mols:
-			if big_data:
+			if self.big_data:
 				mol = nmrmol(molid=molrf[1])
 
 				if molrf[2] == '':
@@ -293,20 +271,22 @@ class dataset(object):
 				if not found:
 					to_remove.append(mol.molid)
 
-		keep = []
-		for i in range(len(self.mols)):
-			if big_data:
-				if self.mols[1] in to_remove:
-					continue
-			else:
-				if self.mols[i].molid in to_remove:
-					continue
-			keep.append(self.mols[i])
-		self.mols = keep
+		if len(to_remove) > 1:
+			keep = []
+			for i in range(len(self.mols)):
+				if self.big_data:
+					if self.mols[i][1] in to_remove:
+						continue
+				else:
+					if self.mols[i].molid in to_remove:
+						continue
+				keep.append(self.mols[i])
 
-		print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
-		print(to_remove[:10])
-		assert len(keep) > 1
+			self.mols = keep
+
+			print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
+			print(to_remove[:10])
+			assert len(keep) > 1
 
 
 
