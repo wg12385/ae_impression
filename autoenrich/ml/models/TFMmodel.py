@@ -87,7 +87,10 @@ class TFMmodel(genericmodel):
 		MAX_BOND_COUNT = 500  # params['max_bond_count']
 		max_step = len(train_loader)
 
-		device = torch.device('cuda')
+		device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+		if torch.cuda.device_count() > 1:
+			print("Using", torch.cuda.device_count(), "GPUs!")
+			self.model = torch.nn.DataParallel(model)
 
 		self.model = BCAI_graph.GraphTransformer(dim=int(self.params['d_model']/int(self.params['n_head']))*int(self.params['n_head']), n_layers=int(self.params['n_layer']), d_inner=int(self.params['d_inner']),
 								 fdim = 200, final_dim=int(self.params['final_dim']), dropout=self.params['dropout'],
@@ -102,6 +105,8 @@ class TFMmodel(genericmodel):
 								 quad_angle_embedding='sine',
 								 wnorm=True,
 								 use_quad=False).to(device)
+
+
 
 		self.params['n_all_param'] = sum([p.nelement() for p in self.model.parameters() if p.requires_grad])
 

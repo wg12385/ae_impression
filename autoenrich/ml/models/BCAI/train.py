@@ -85,13 +85,14 @@ def epoch(loader, model, opt=None, lr=0.001):
 	with torch.enable_grad() if opt else torch.no_grad():
 		batch_id = 0
 		total_loss = torch.zeros(NUM_BOND_ORIG_TYPES)
+		iter = 0
 		for x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y in loader:
 			x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = \
 				x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
 				x_triplet.to(dev), x_triplet_angle.to(dev), x_quad.to(dev), x_quad_angle.to(dev), y.to(dev)
 
 			x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
-
+			iter += 1
 			if opt:
 				# Put this here so that the batch_chunk setting will work
 				opt.zero_grad()
@@ -125,7 +126,12 @@ def epoch(loader, model, opt=None, lr=0.001):
 						mb_raw_loss.backward()
 			else:
 				print(x_atom.shape, x_atom_pos.shape)
-				y_pred, _ = para_model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
+				try:
+					y_pred, _ = para_model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
+				except Exception as e:
+					print(e)
+					print(iter)
+					print(x_atom.size, x_atom_pos.size, x_bond.size)
 
 				b_abs_err, b_type_err, b_type_cnt = loss(y_pred, y, x_bond)
 
