@@ -27,6 +27,7 @@ import pandas as pd
 import sys
 import pickle
 import gzip
+from tqdm import tqdm
 
 # make BCAI features
 def get_BCAI_features(mols, targetflag='CCS'):
@@ -45,7 +46,10 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	conns = []
 
 	mol_order = []
-	for m, molrf in enumerate(mols):
+	m = -1
+	print('Constructing atom dictionary')
+	for molrf in tqdm(mols):
+		m += 1
 		if len(mols) > 2000:
 			mol = nmrmol(molid=molrf[1])
 
@@ -94,7 +98,10 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	y = []
 
 	i = -1
-	for m, molrf in enumerate(mols):
+	m = -1
+	print('Constructing bond dictionary')
+	for molrf in tqdm(mols):
+		m += 1
 		if len(mols) > 2000:
 			mol = nmrmol(molid=molrf[1])
 
@@ -105,7 +112,7 @@ def get_BCAI_features(mols, targetflag='CCS'):
 			mol.read_nmr(molrf[0], ftype)
 		else:
 			mol = molrf
-			
+
 		for t, type in enumerate(mol.types):
 			for t2, type2 in enumerate(mol.types):
 				if t == t2:
@@ -140,22 +147,20 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	BCAI.enhance_bonds(bonds, structure_dict)
 	bonds = BCAI.add_all_pairs(bonds, structure_dict) # maybe replace this
 	triplets = BCAI.make_triplets(bonds["molecule_name"].unique(), structure_dict)
-	quadruplets = BCAI.make_quadruplets(bonds["molecule_name"].unique(),structure_dict)
 
 	atoms = pd.DataFrame(atoms)
 	bonds = pd.DataFrame(bonds)
 	triplets = pd.DataFrame(triplets)
-	qudadruplets = pd.DataFrame(quadruplets)
 
 	atoms.sort_values(['molecule_name','atom_index'],inplace=True)
 	bonds.sort_values(['molecule_name','atom_index_0','atom_index_1'],inplace=True)
 	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
 
-	embeddings = BCAI.add_embedding(atoms, bonds, triplets, quadruplets)
+	embeddings = BCAI.add_embedding(atoms, bonds, triplets)
 	means, stds = BCAI.get_scaling(bonds)
 	bonds = BCAI.add_scaling(bonds, means, stds)
 
-	x = BCAI.create_dataset(atoms, bonds, triplets, quadruplets, labeled = True, max_count = 10**10, mol_order=mol_order)
+	x = BCAI.create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=mol_order)
 
 	return x, y, r, mol_order
 

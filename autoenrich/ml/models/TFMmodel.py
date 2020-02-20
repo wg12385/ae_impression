@@ -19,6 +19,7 @@ from autoenrich.ml.models.model import genericmodel
 from sklearn.model_selection import KFold
 
 import torch
+torch.manual_seed(0)
 from tqdm import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 from torch import optim
@@ -34,7 +35,6 @@ from .BCAI.modules import radam
 import sys
 import time
 import random
-import tqdm
 
 class TFMmodel(genericmodel):
 
@@ -99,13 +99,10 @@ class TFMmodel(genericmodel):
 								 num_atom_types=NUM_ATOM_TYPES,
 								 num_bond_types=NUM_BOND_TYPES,
 								 num_triplet_types=NUM_TRIPLET_TYPES,
-								 num_quad_types=NUM_QUAD_TYPES,
 								 dist_embedding='sine',
 								 atom_angle_embedding='sine',
 								 trip_angle_embedding='sine',
-								 quad_angle_embedding='sine',
-								 wnorm=True,
-								 use_quad=False).to(device)
+								 wnorm=True).to(device)
 
 
 
@@ -117,18 +114,11 @@ class TFMmodel(genericmodel):
 
 		para_model = self.model.to(device)
 
-
-		st_time = time.time()
-		loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
-		nd_time = time.time()
-		duration = nd_time - st_time
-		string = "Model training started at {0:<5s}, expected to take {1:<5d}Hrs, will finish at {2:<5s}".format(time.ctime(st_time),
-																						duration*tr_epochs/(60*60),
-																						time.ctime(st_time+duration*tr_epochs)
-		print(string)
-		for tr_epoch in tqdm(range(1, int(self.params['tr_epochs']))):
-			loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
-
+		pbar_iter = tqdm(range(int(self.params['tr_epochs'])), desc='epoch loss: ')
+		for tr_epoch in pbar_iter:
+			loss1, loss2, loss3 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
+			string = "curr loss: {0:<10.4f}".format(loss1)
+			pbar_iter.set_description(string)
 		self.trained = True
 
 	def predict(self, test_x, train_x=[]):
@@ -147,13 +137,13 @@ class TFMmodel(genericmodel):
 		y_predictions = []
 		with torch.no_grad():
 			for arr in tqdm(test_loader):
-				x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = arr
-				x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = \
+				x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y = arr
+				x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y = \
 					x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
-					x_triplet.to(dev), x_triplet_angle.to(dev), x_quad.to(dev), x_quad_angle.to(dev), y.to(dev)
+					x_triplet.to(dev), x_triplet_angle.to(dev), y.to(dev)
 
 				x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
-				y_pred, _ = self.model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
+				y_pred, _ = self.model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle)
 				y_pred_pad = torch.cat([torch.zeros(y_pred.shape[0], 1, y_pred.shape[2], device=y_pred.device), y_pred], dim=1)
 				y_pred_scaled = y_pred_pad.gather(1,x_bond[:,:,1][:,None,:])[:,0,:] * y[:,:,2] + y[:,:,1]
 

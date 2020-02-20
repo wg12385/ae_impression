@@ -75,11 +75,6 @@ def trainmodel(args):
 			if args['store_datasets'] == 'True':
 				pickle.dump(dset, open('training_set.pkl', 'wb'))
 
-		# Check / Remove molecules with no features
-		print('MOLCHECK:', len(dset.mols))
-		dset.get_features_frommols(args, molcheck_run=True)
-		# Do HPS
-		print(':MOLCHECK', len(dset.mols))
 		dset, score = HPS(dset, args)
 
 		if args['store_datasets'] == 'True':

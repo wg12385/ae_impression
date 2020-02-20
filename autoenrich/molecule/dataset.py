@@ -20,6 +20,8 @@ from autoenrich.util.file_gettype import get_type
 from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
 from autoenrich.util.filename_utils import get_unique_part
 
+from tqdm import tqdm
+
 import numpy as np
 np.set_printoptions(threshold=99999999999)
 
@@ -238,8 +240,8 @@ class dataset(object):
 	def remove_mols(self, target):
 		## Discard useless molecules:
 		to_remove = []
-
-		for molrf in self.mols:
+		print('Checking structures')
+		for molrf in tqdm(self.mols):
 			if self.big_data:
 				mol = nmrmol(molid=molrf[1])
 
@@ -285,7 +287,7 @@ class dataset(object):
 			self.mols = keep
 
 			print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
-			print(to_remove[:10])
+			#print(to_remove[:10])
 			assert len(keep) > 1
 
 
