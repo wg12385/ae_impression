@@ -124,7 +124,6 @@ def epoch(loader, model, opt=None, lr=0.001):
 					else:
 						mb_raw_loss.backward()
 			else:
-				print(x_atom.shape, x_atom_pos.shape)
 				y_pred, _ = para_model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
 
 				b_abs_err, b_type_err, b_type_cnt = loss(y_pred, y, x_bond)
