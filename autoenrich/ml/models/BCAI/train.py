@@ -6,6 +6,7 @@
 
 import os
 import torch
+torch.manual_seed(0)
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
@@ -18,6 +19,7 @@ import numpy as np
 import math
 import argparse
 import sys
+from tqdm import tqdm
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -85,91 +87,96 @@ def epoch(loader, model, opt=None, lr=0.001):
 	with torch.enable_grad() if opt else torch.no_grad():
 		batch_id = 0
 		total_loss = torch.zeros(NUM_BOND_ORIG_TYPES)
-		for x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y in loader:
-			x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y = \
-				x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
-				x_triplet.to(dev), x_triplet_angle.to(dev), x_quad.to(dev), x_quad_angle.to(dev), y.to(dev)
+		iter = 0
+		with tqdm(total=len(loader), desc='tr loss: ', leave=False) as pbar:
+			for x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y in loader:
+				x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y = \
+					x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
+					x_triplet.to(dev), x_triplet_angle.to(dev), y.to(dev)
 
-			x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
+				x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
+				iter += 1
+				if opt:
+					# Put this here so that the batch_chunk setting will work
+					opt.zero_grad()
 
-			if opt:
-				# Put this here so that the batch_chunk setting will work
-				opt.zero_grad()
+					# Perform cutout on the molecule (i.e., for a large molecule, randomly remove an atom and its nearest
+					# neighbor; then remove all bonds/triplets related to this atom)
+					#x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, _ = \
+					#	subgraph_filter(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, args)
 
-				# Perform cutout on the molecule (i.e., for a large molecule, randomly remove an atom and its nearest
-				# neighbor; then remove all bonds/triplets related to this atom)
-				#x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, _ = \
-				#	subgraph_filter(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, args)
+				if batch_chunk > 1:
+					mbsz = batch_size // batch_chunk
+					b_abs_err = 0
+					b_type_err = 0
+					b_type_cnt = 0
+					types_cnt = sum([(x_bond[:,:,0] == i).sum() for i in range(1,NUM_BOND_ORIG_TYPES+1)])
+					for i in range(batch_chunk):
+						mini = slice(i*mbsz,(i+1)*mbsz)
+						y_pred_mb, _ = para_model(x_atom[mini], x_atom_pos[mini], x_bond[mini], x_bond_dist[mini],
+												  x_triplet[mini], x_triplet_angle[mini])
+						mb_abs_err, mb_type_err, mb_type_cnt = loss(y_pred_mb, y[mini], x_bond[mini])
+						b_abs_err += mb_abs_err.detach()       # No need to average, as it's sum
+						b_type_err += mb_type_err.detach()
+						b_type_cnt += mb_type_cnt.detach()
+						mb_raw_loss = mb_abs_err / types_cnt.float()
+						if champs_loss:
+							raise ValueError("CHAMPS loss not supported yet with batch_chunk mode")
+						if APEX_AVAILABLE:
+							with amp.scale_loss(mb_raw_loss, opt) as scaled_loss:
+								scaled_loss.backward()
+						else:
+							mb_raw_loss.backward()
+				else:
+					y_pred, _ = para_model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle)
 
-			if batch_chunk > 1:
-				mbsz = batch_size // batch_chunk
-				b_abs_err = 0
-				b_type_err = 0
-				b_type_cnt = 0
-				types_cnt = sum([(x_bond[:,:,0] == i).sum() for i in range(1,NUM_BOND_ORIG_TYPES+1)])
-				for i in range(batch_chunk):
-					mini = slice(i*mbsz,(i+1)*mbsz)
-					y_pred_mb, _ = para_model(x_atom[mini], x_atom_pos[mini], x_bond[mini], x_bond_dist[mini],
-											  x_triplet[mini], x_triplet_angle[mini], x_quad[mini], x_quad_angle[mini])
-					mb_abs_err, mb_type_err, mb_type_cnt = loss(y_pred_mb, y[mini], x_bond[mini])
-					b_abs_err += mb_abs_err.detach()       # No need to average, as it's sum
-					b_type_err += mb_type_err.detach()
-					b_type_cnt += mb_type_cnt.detach()
-					mb_raw_loss = mb_abs_err / types_cnt.float()
-					if champs_loss:
-						raise ValueError("CHAMPS loss not supported yet with batch_chunk mode")
-					if APEX_AVAILABLE:
-						with amp.scale_loss(mb_raw_loss, opt) as scaled_loss:
-							scaled_loss.backward()
-					else:
-						mb_raw_loss.backward()
-			else:
-				y_pred, _ = para_model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle)
+					b_abs_err, b_type_err, b_type_cnt = loss(y_pred, y, x_bond)
 
-				b_abs_err, b_type_err, b_type_cnt = loss(y_pred, y, x_bond)
+				abs_err += b_abs_err.detach()
+				type_err += b_type_err.detach()
+				type_cnt += b_type_cnt.detach()
+				batch_id += 1
+				total_loss += b_type_err / b_type_cnt.float()
 
-			abs_err += b_abs_err.detach()
-			type_err += b_type_err.detach()
-			type_cnt += b_type_cnt.detach()
-			batch_id += 1
-			total_loss += b_type_err / b_type_cnt.float()
+				#print('\tTOTAL LOSS: ', total_loss.detach().numpy())
+				#if np.isnan(total_loss.detach().numpy()).any():
+					#print('NAN FOUND')
+					#sys.exit()
 
-			#print('\tTOTAL LOSS: ', total_loss.detach().numpy())
-			#if np.isnan(total_loss.detach().numpy()).any():
-				#print('NAN FOUND')
-				#sys.exit()
+				if opt:
+					train_step += 1
+					if train_step <= warmup_step:
+						# It does this
+						curr_lr = lr * train_step / warmup_step
+						opt.param_groups[0]['lr'] = curr_lr
+						#print('\tLR: ', curr_lr)
+					elif args.scheduler == 'cosine':
+						# Not this
+						scheduler.step(train_step)
+					if batch_chunk == 1:
+						# it does this
+						raw_loss = b_abs_err/b_type_cnt.sum()
+						if champs_loss:
+							nonzero_indices = b_type_cnt.nonzero()
+							raw_loss = torch.log((b_type_err[nonzero_indices] / b_type_cnt[nonzero_indices].float()) + 1e-9).mean()
+						if APEX_AVAILABLE:
+							with amp.scale_loss(raw_loss, opt) as scaled_loss:
+								scaled_loss.backward()
+						else:
+							raw_loss.backward()
 
-			if opt:
-				train_step += 1
-				if train_step <= warmup_step:
-					# It does this
-					curr_lr = lr * train_step / warmup_step
-					opt.param_groups[0]['lr'] = curr_lr
-					#print('\tLR: ', curr_lr)
-				elif args.scheduler == 'cosine':
-					# Not this
-					scheduler.step(train_step)
-				if batch_chunk == 1:
-					# it does this
-					raw_loss = b_abs_err/b_type_cnt.sum()
-					if champs_loss:
-						nonzero_indices = b_type_cnt.nonzero()
-						raw_loss = torch.log((b_type_err[nonzero_indices] / b_type_cnt[nonzero_indices].float()) + 1e-9).mean()
-					if APEX_AVAILABLE:
-						with amp.scale_loss(raw_loss, opt) as scaled_loss:
-							scaled_loss.backward()
-					else:
-						raw_loss.backward()
+					opt.step()
 
-				opt.step()
+					#print('\tLOSS = ', raw_loss.detach().numpy())
+					if batch_id % log_interval == 0:
+						# Dont know what this is but it does it
+						avg_loss = torch.log(total_loss / log_interval).mean().item()
+						#logging(f"Epoch {ep:2d} | Step {train_step} | lr {opt.param_groups[0]['lr']:.7f} | Error {avg_loss:.5f}")
 
-				#print('\tLOSS = ', raw_loss.detach().numpy())
-				if batch_id % log_interval == 0:
-					# Dont know what this is but it does it
-					avg_loss = torch.log(total_loss / log_interval).mean().item()
-					#logging(f"Epoch {ep:2d} | Step {train_step} | lr {opt.param_groups[0]['lr']:.7f} | Error {avg_loss:.5f}")
+						total_loss = 0
 
-					total_loss = 0
+				pbar.update(1)
+				pbar.set_description("tr loss: {0:<10.4f}".format(abs_err/type_cnt.sum()))
 
 	torch.cuda.empty_cache()
 	return abs_err / type_cnt.sum(), torch.log(type_err / type_cnt.float()).mean(), torch.log(type_err / type_cnt.float())

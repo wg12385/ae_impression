@@ -32,8 +32,9 @@ import autoenrich.ml.models.BCAI.predictor as BCAI_predict
 from .BCAI.modules import radam
 
 import sys
-
+import time
 import random
+import tqdm
 
 class TFMmodel(genericmodel):
 
@@ -87,7 +88,10 @@ class TFMmodel(genericmodel):
 		MAX_BOND_COUNT = 500  # params['max_bond_count']
 		max_step = len(train_loader)
 
-		device = torch.device('cuda')
+		device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+		if torch.cuda.device_count() > 1:
+			print("Using", torch.cuda.device_count(), "GPUs")
+			self.model = torch.nn.DataParallel(model)
 
 		self.model = BCAI_graph.GraphTransformer(dim=int(self.params['d_model']/int(self.params['n_head']))*int(self.params['n_head']), n_layers=int(self.params['n_layer']), d_inner=int(self.params['d_inner']),
 								 fdim = 200, final_dim=int(self.params['final_dim']), dropout=self.params['dropout'],
@@ -103,6 +107,8 @@ class TFMmodel(genericmodel):
 								 wnorm=True,
 								 use_quad=False).to(device)
 
+
+
 		self.params['n_all_param'] = sum([p.nelement() for p in self.model.parameters() if p.requires_grad])
 
 		self.params['optim'] = "RAdam"
@@ -110,9 +116,19 @@ class TFMmodel(genericmodel):
 		scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, max_step, eta_min=self.params['eta_min'])
 
 		para_model = self.model.to(device)
-		for tr_epoch in range(int(self.params['tr_epochs'])):
-			#print('\ttrepoch: ', tr_epoch, '/', train_epochs)
+
+
+		st_time = time.time()
+		loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
+		nd_time = time.time()
+		duration = nd_time - st_time
+		string = "Model training started at {0:<5s}, expected to take {1:<5d}Hrs, will finish at {2:<5s}".format(time.ctime(st_time),
+																						duration*tr_epochs/(60*60),
+																						time.ctime(st_time+duration*tr_epochs)
+		print(string)
+		for tr_epoch in tqdm(range(1, int(self.params['tr_epochs']))):
 			loss1, loss2, loss2 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
+
 		self.trained = True
 
 	def predict(self, test_x, train_x=[]):
@@ -122,7 +138,10 @@ class TFMmodel(genericmodel):
 
 		#BCAI_predict.single_model_predict(test_loader, self.model, 'test')
 		MAX_BOND_COUNT = 500
-		dev = "cuda"
+		device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+		if torch.cuda.device_count() > 1:
+			print("Using", torch.cuda.device_count(), "GPUs!")
+			self.model = torch.nn.DataParallel(model)
 		self.model.to(dev)
 		self.model.eval()
 		y_predictions = []
