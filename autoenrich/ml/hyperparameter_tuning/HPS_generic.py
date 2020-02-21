@@ -106,6 +106,8 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	if score < BEST_SCORE:
 		BEST_SCORE = score
 		BEST_PARAMS = next_point_to_probe
+		outname = args['output_dir'] +  args['modelflag'] + '_' + args['targetflag'] + '_' + args['featureflag'] + '_' + args['searchflag'] + '_model.pkl'
+		pickle.dump(model, open(outname, "wb"))
 		print('BEST_SCORE = ', score)
 	else:
 		print('score = ', score)
@@ -164,7 +166,6 @@ def save_models(dataset, BEST_PARAMS, args):
 		i = 0
 		for train_index, _ in kf.split(dataset.x[0]):
 			i += 1
-			print()
 			train_x_list = []
 			train_y_list = []
 			for ii in range(len(dataset.x)):

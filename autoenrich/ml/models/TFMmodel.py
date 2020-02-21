@@ -93,7 +93,10 @@ class TFMmodel(genericmodel):
 			print("Using", torch.cuda.device_count(), "GPUs")
 			self.model = torch.nn.DataParallel(model)
 
-		self.model = BCAI_graph.GraphTransformer(dim=int(self.params['d_model']/int(self.params['n_head']))*int(self.params['n_head']), n_layers=int(self.params['n_layer']), d_inner=int(self.params['d_inner']),
+		d_model = int(self.params['d_model']/int(self.params['n_head'])*2)*int(self.params['n_head'])*2
+		assert d_model % 2 == 0
+		self.params['d_model'] = d_model
+		self.model = BCAI_graph.GraphTransformer(dim=d_model, n_layers=int(self.params['n_layer']), d_inner=int(self.params['d_inner']),
 								 fdim = 200, final_dim=int(self.params['final_dim']), dropout=self.params['dropout'],
 								 dropatt=self.params['dropatt'], final_dropout=self.params['final_dropout'], n_head=int(self.params['n_head']),
 								 num_atom_types=NUM_ATOM_TYPES,
@@ -116,8 +119,8 @@ class TFMmodel(genericmodel):
 
 		pbar_iter = tqdm(range(int(self.params['tr_epochs'])), desc='epoch loss: ')
 		for tr_epoch in pbar_iter:
-			loss1, loss2, loss3 = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
-			string = "curr loss: {0:<10.4f}".format(loss1)
+			loss1, loss2, loss3, mabs = BCAI_train.epoch(train_loader, self.model, optimizer, self.params['learning_rate'])
+			string = "epoch loss: {0:<10.4f} / {1:<10.4f}".format(mabs, loss1)
 			pbar_iter.set_description(string)
 		self.trained = True
 
@@ -128,33 +131,11 @@ class TFMmodel(genericmodel):
 
 		#BCAI_predict.single_model_predict(test_loader, self.model, 'test')
 		MAX_BOND_COUNT = 500
-		device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-		if torch.cuda.device_count() > 1:
-			print("Using", torch.cuda.device_count(), "GPUs!")
-			self.model = torch.nn.DataParallel(model)
-		self.model.to(dev)
-		self.model.eval()
-		y_predictions = []
-		with torch.no_grad():
-			for arr in tqdm(test_loader):
-				x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y = arr
-				x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y = \
-					x_atom.to(dev), x_atom_pos.to(dev), x_bond.to(dev), x_bond_dist.to(dev), \
-					x_triplet.to(dev), x_triplet_angle.to(dev), y.to(dev)
 
-				x_bond, x_bond_dist, y = x_bond[:, :MAX_BOND_COUNT], x_bond_dist[:, :MAX_BOND_COUNT], y[:,:MAX_BOND_COUNT]
-				y_pred, _ = self.model(x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle)
-				y_pred_pad = torch.cat([torch.zeros(y_pred.shape[0], 1, y_pred.shape[2], device=y_pred.device), y_pred], dim=1)
-				y_pred_scaled = y_pred_pad.gather(1,x_bond[:,:,1][:,None,:])[:,0,:] * y[:,:,2] + y[:,:,1]
+		y_test, y_pred = BCAI_predict.single_model_predict(test_loader, self.model, "name")
 
-				y_selected = y_pred_scaled.masked_select((x_bond[:,:,0] > 0) & (y[:,:,3] > 0)).cpu().numpy()
-				ids_selected = y[:,:,0].masked_select((x_bond[:,:,0] > 0) & (y[:,:,3] > 0))
-				ids_selected = ids_selected.cpu().numpy()
 
-				for id_, pred in zip(ids_selected, y_selected):
-					y_predictions.append(pred)
-
-		return y_predictions
+		return y_test, y_pred
 
 	def cv_predict(self, fold):
 
@@ -194,8 +175,8 @@ class TFMmodel(genericmodel):
 					assert len(train_x_list) == len(train_x_list)
 
 					self.train(train_x=train_x_list, train_y=train_y_list)
-					preds = self.predict(test_x_list)
-					pred_y.extend(self.predict(test_x_list))
+					test, preds = self.predict(test_x_list)
+					pred_y.extend(preds)
 
 			elif fold == 1:
 				# Splits as in 5-fold, but just does 1 permutation
@@ -232,12 +213,12 @@ class TFMmodel(genericmodel):
 							test_y_list.append(self.train_y[r])
 
 					self.train(train_x=train_x_list, train_y=train_y_list)
-					#preds = self.predict(test_x_list)
-					pred_y.extend(self.predict(test_x_list))
+					test, preds = self.predict(test_x_list)
+					pred_y.extend(preds)
 
 					pred_y = np.asarray(pred_y)
 
-					return np.mean(np.absolute(pred_y - np.asarray(test_y_list)))
+					return np.mean(np.absolute(pred_y - np.asarray(test)))
 
 			else:
 				train_dataset = TensorDataset(*self.train_x)

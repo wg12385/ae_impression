@@ -422,7 +422,7 @@ def add_embedding(atoms,bonds,triplets,embeddings=None):
 	for t in range(2):
 		triplets["type_index_" + str(t)] = triplets["type_" + str(t)].apply(lambda x : embeddings[('triplet',t)][x])
 
-	return embeddings
+	return embeddings, atoms, bonds, triplets
 
 
 def get_scaling(bonds_train):
@@ -438,6 +438,12 @@ def get_scaling(bonds_train):
 	# Get the mean/std scaling factors
 	means = bonds_train.groupby("labeled_type").mean()["scalar_coupling_constant"].to_dict()
 	stds = bonds_train.groupby("labeled_type").std()["scalar_coupling_constant"].to_dict()
+	# stds of 0 were causing NaNs in training, assuming this workflow originally assumed at least one of
+	# every coupling type would be present
+	for key in stds:
+		if np.isnan(stds[key]) or stds[key] == 0:
+			stds[key] = 1
+
 	return means,stds
 
 

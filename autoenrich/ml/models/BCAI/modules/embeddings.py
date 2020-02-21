@@ -64,13 +64,27 @@ class SineEmbedding(TokenFeatureEmbedding):
 		d_embed = max(self.d_embeds)
 		token_embedding = self.embedding(tokens)
 		inv_freq = 1 / (1000 ** (torch.arange(0.0, d_embed, 2.0) / d_embed))[None,None,:].to(dev).type(token_embedding.dtype)
+		# dimensions must be even number !!
 		for i in range(self.n_feature):
 			encoding = torch.zeros(features.shape[0], features.shape[1], d_embed).to(dev).type(token_embedding.dtype)
 			encoding[:,:,0::2] = torch.cos(features[:,:,i].unsqueeze(2)*inv_freq)
-			try:
-				encoding[:,:,1::2] = torch.sin(features[:,:,i].unsqueeze(2)*inv_freq)
-			except:
-				print(encoding.size(), features[:,:,i].size(), features[:,:,i].unsqueeze_().size(), inv_freq.size())
-				encoding[:,:,1::2] = torch.sin(features[:,:,i].unsqueeze(2)*inv_freq)
+			encoding[:,:,1::2] = torch.sin(features[:,:,i].unsqueeze(2)*inv_freq)
 			token_embedding += self.projs[i](encoding).type(token_embedding.dtype)
 		return token_embedding
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##

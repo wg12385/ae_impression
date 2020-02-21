@@ -127,8 +127,15 @@ def get_BCAI_features(mols, targetflag='CCS'):
 				molecule_name.append(mol.molid)
 				atom_index_0.append(t)
 				atom_index_1.append(t2)
-				cpltype.append(targetflag)
+
+				TFM_flag = targetflag[2] + '-' + targetflag[3] + '_' + targetflag[0] + '.0'
+
+				cpltype.append(TFM_flag)
+
 				coupling.append(mol.coupling[t][t2])
+
+				if np.isnan(mol.coupling[t][t2]):
+					print(mol.molid)
 
 				y.append(mol.coupling[t][t2])
 				r.append([mol.molid, t, t2])
@@ -144,7 +151,9 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	#print(len(id), len(molecule_name), len(atom_index), len(atom))
 
 	bonds = pd.DataFrame(bonds)
-	BCAI.enhance_bonds(bonds, structure_dict)
+
+	bonds = BCAI.enhance_bonds(bonds, structure_dict)
+
 	bonds = BCAI.add_all_pairs(bonds, structure_dict) # maybe replace this
 	triplets = BCAI.make_triplets(bonds["molecule_name"].unique(), structure_dict)
 
@@ -156,7 +165,9 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	bonds.sort_values(['molecule_name','atom_index_0','atom_index_1'],inplace=True)
 	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
 
-	embeddings = BCAI.add_embedding(atoms, bonds, triplets)
+	embeddings, atoms, bonds, triplets = BCAI.add_embedding(atoms, bonds, triplets)
+	bonds.dropna()
+	atoms.dropna()
 	means, stds = BCAI.get_scaling(bonds)
 	bonds = BCAI.add_scaling(bonds, means, stds)
 
