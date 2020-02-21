@@ -47,8 +47,7 @@ def get_BCAI_features(mols, targetflag='CCS'):
 
 	mol_order = []
 	m = -1
-	print('Constructing atom dictionary')
-	for molrf in tqdm(mols):
+	for molrf in tqdm(mols, desc='Constructing atom dictionary'):
 		m += 1
 		if len(mols) > 2000:
 			mol = nmrmol(molid=molrf[1])
@@ -99,8 +98,7 @@ def get_BCAI_features(mols, targetflag='CCS'):
 
 	i = -1
 	m = -1
-	print('Constructing bond dictionary')
-	for molrf in tqdm(mols):
+	for molrf in tqdm(mols, desc='Constructing bond dictionary'):
 		m += 1
 		if len(mols) > 2000:
 			mol = nmrmol(molid=molrf[1])
