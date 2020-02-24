@@ -85,8 +85,7 @@ def enhance_structure_dict(structure_dict):
 
 	atomic_num_dict = { 'H':1, 'C':6, 'N':7, 'O':8, 'F':9 }
 
-	print('Enhance atom dictionary')
-	for molecule_name in tqdm(structure_dict):
+	for molecule_name in tqdm(structure_dict, desc='Enhancing atom dictionary'):
 
 		# positions - array (N,3) of Cartesian positions
 		molecule = structure_dict[molecule_name]
@@ -182,9 +181,8 @@ def enhance_atoms(atoms_dataframe,structure_dict):
 
 	"""
 	assert int(atoms_dataframe.groupby("molecule_name").count().max()[0]) <= MAX_ATOM_COUNT
-	print('Enhancing atoms')
 	for key in tqdm(['distances','angle', 'bond_orders', 'top_bonds', 'bond_ids', 'long_symbols','sublabel_atom',
-				'charges', 'spins', 'heavyvalences', 'heterovalences', 'valences', 'hyb_types']):
+				'charges', 'spins', 'heavyvalences', 'heterovalences', 'valences', 'hyb_types'], desc='Enhancing atoms'):
 		newkey = key if key[-1]!='s' else key[:-1]
 		atoms_dataframe[newkey] = atoms_dataframe.apply(lambda x:
 														structure_dict[x['molecule_name']][key][x['atom_index']],
@@ -512,8 +510,7 @@ def create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, m
 	y_bond_scalar_coupling = torch.zeros(M, MAX_BOND_COUNT, 4)
 
 	i = -1
-	print('Constructing training dataset')
-	for k in tqdm(mol_order):
+	for k in tqdm(mol_order, desc='Constructing training dataset'):
 		i += 1
 		if i >= M:
 			break
