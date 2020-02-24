@@ -56,6 +56,15 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	if args['featureflag'] == 'BCAI' and iter == 0:
 		print('Making representations')
 		dataset.get_features_frommols(args, params=next_point_to_probe)
+		if args['store_datasets'] == 'True':
+			try:
+				pickle.dump(dataset.x[:30000], open('training_set_wfeatures_x1.pkl', 'wb'))
+				pickle.dump(dataset.x[30000:], open('training_set_wfeatures_x2.pkl', 'wb'))
+				pickle.dump(dataset.r, open('training_set_wfeatures_r.pkl', 'wb'))
+				pickle.dump(dataset.y, open('training_set_wfeatures_y.pkl', 'wb'))
+			except Exception as e:
+				print(e)
+				print('Couldnt save dataset')
 	elif args['featureflag'] != 'BCAI' and args['feature_optimisation'] == 'True':
 		dataset.get_features_frommols(args, params=next_point_to_probe)
 

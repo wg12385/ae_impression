@@ -55,7 +55,7 @@ def loss(y_pred, y, x_bond):
 
 
 def epoch(loader, model, opt=None, lr=0.001):
-	device = torch.device('cpu')
+	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 	para_model = model.to(device)
 
 	NUM_BOND_ORIG_TYPES = 8

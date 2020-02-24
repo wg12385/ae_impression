@@ -89,9 +89,6 @@ class TFMmodel(genericmodel):
 		max_step = len(train_loader)
 
 		device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-		if torch.cuda.device_count() > 1:
-			print("Using", torch.cuda.device_count(), "GPUs")
-			self.model = torch.nn.DataParallel(model)
 
 		d_model = int(self.params['d_model']/int(self.params['n_head'])*2)*int(self.params['n_head'])*2
 		assert d_model % 2 == 0
@@ -107,7 +104,9 @@ class TFMmodel(genericmodel):
 								 trip_angle_embedding='sine',
 								 wnorm=True).to(device)
 
-
+		if torch.cuda.device_count() > 1:
+			print("Using", torch.cuda.device_count(), "GPUs")
+			self.model = torch.nn.DataParallel(self.model)
 
 		self.params['n_all_param'] = sum([p.nelement() for p in self.model.parameters() if p.requires_grad])
 
