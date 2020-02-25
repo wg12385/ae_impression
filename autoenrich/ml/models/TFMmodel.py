@@ -73,7 +73,7 @@ class TFMmodel(genericmodel):
 
 		train_dataset = TensorDataset(*train_x)
 
-		batch_size = 100
+		batch_size = 10
 
 		if len(train_dataset[0]) <= batch_size:
 			batch_size = len(train_dataset[0]) - 1
