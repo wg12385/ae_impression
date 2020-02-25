@@ -58,8 +58,12 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 		dataset.get_features_frommols(args, params=next_point_to_probe)
 		if args['store_datasets'] == 'True':
 			try:
-				pickle.dump(dataset.x[:30000], open('training_set_wfeatures_x1.pkl', 'wb'))
-				pickle.dump(dataset.x[30000:], open('training_set_wfeatures_x2.pkl', 'wb'))
+				set = 0
+				iii = 5000
+				while iii < len(dataset.x):
+					set += 1
+					pickle.dump(dataset.x[iii-5000:iii], open('training_set_wfeatures_x' + str(set) + '.pkl', 'wb'))
+					iii += 5000
 				pickle.dump(dataset.r, open('training_set_wfeatures_r.pkl', 'wb'))
 				pickle.dump(dataset.y, open('training_set_wfeatures_y.pkl', 'wb'))
 			except Exception as e:
