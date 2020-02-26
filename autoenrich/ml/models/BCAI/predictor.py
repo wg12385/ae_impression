@@ -67,10 +67,13 @@ def load_model(name):
 def single_model_predict(loader, model, modelname):
 	MAX_BOND_COUNT = 500
 	out_str = "id,scalar_coupling_constant\n"
-	dev = "cuda"
-	#dev = "cpu"
+	dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 	model = model.to(dev)
 	model.eval()
+
+	test = []
+	pred = []
+
 	with torch.no_grad():
 		for arr in tqdm(loader):
 			x_idx, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y = arr
@@ -90,11 +93,10 @@ def single_model_predict(loader, model, modelname):
 				ids_selected = ids_selected.cpu()
 			ids_selected = ids_selected.numpy()
 
-			#for id_, pred in zip(ids_selected, y_selected):
-				#out_str += "{0:d},{1:f}\n".format(int(id_), pred)
-	#with open(os.path.join(root,settings['SUBMISSION_DIR'],modelname+'.csv.bz2'), "wb") as f:
-		#f.write(bz2.compress(out_str.encode('utf-8')))
-	return ids_selected, y_selected
+			test.extend(ids_selected)
+			pred.extend(y_selected)
+
+	return test, pred
 
 
 def load_submission(modelname):

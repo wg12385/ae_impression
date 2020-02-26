@@ -127,9 +127,9 @@ class TFMmodel(genericmodel):
 			pbar_iter.set_description(string)
 		self.trained = True
 
-	def predict(self, test_x, train_x=[]):
+	def predict(self, test_x):
 
-		with gzip.open(train_x[1], "rb") as f:
+		with gzip.open(test_x, "rb") as f:
 			test_dataset = TensorDataset(*pickle.load(f))
 
 		test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True, drop_last=True)
@@ -153,9 +153,8 @@ class TFMmodel(genericmodel):
 		self.train(train_x=self.train_x[0], train_y=self.train_y[0])
 
 		test, preds = self.predict(self.train_x[1])
-		pred_y.extend(preds)
 
-		pred_y = np.asarray(pred_y)
+		pred_y = np.asarray(preds)
 
 		return np.mean(np.absolute(pred_y - np.asarray(test)))
 

@@ -61,7 +61,7 @@ def trainmodel(args):
 		params.append(param)
 	args['param_list'] = params
 
-	args['BCAI_load'] = 'False'
+	args['BCAI_load'] = 'True'
 
 	if args['featureflag'] == 'BCAI':
 
@@ -75,7 +75,7 @@ def trainmodel(args):
 		print('Number of molecules in training set: ', len(dset.mols))
 
 		if args['BCAI_load'] != 'True' or len(dset.x) == 0:
-			dset.get_features_frommols(args, params={})
+			dset.get_features_frommols(args, params={}, training=True)
 
 		with open('training_data/BCAI_dataset.pkl', "wb") as f:
 			pickle.dump(dset, f)

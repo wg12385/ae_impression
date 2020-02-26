@@ -21,6 +21,8 @@ from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
 from autoenrich.util.filename_utils import get_unique_part
 
 from tqdm import tqdm
+import gzip
+import pickle
 
 import numpy as np
 np.set_printoptions(threshold=99999999999)
@@ -78,7 +80,7 @@ class dataset(object):
 				self.mols.append(mol)
 
 
-	def get_features_frommols(self, args, params={}, molcheck_run=False):
+	def get_features_frommols(self, args, params={}, molcheck_run=False, training=True):
 
 		featureflag = args['featureflag']
 		targetflag = args['targetflag']
@@ -188,7 +190,7 @@ class dataset(object):
 
 		elif featureflag == 'BCAI':
 
-				_x, _y, _r, mol_order = TFM_features.get_BCAI_features(self.mols, targetflag)
+				_x, _y, _r, mol_order = TFM_features.get_BCAI_features(self.mols, targetflag, training=training)
 
 				x.extend(_x)
 				y.extend(_y)
@@ -214,28 +216,48 @@ class dataset(object):
 	def assign_from_ml(self, pred_y, var, zero=True):
 		assert len(self.r) > 0, print('Something went wrong, nothing to assign')
 
-		for mol in self.mols:
+		try:
+			with gzip.open(self.r[0], "rb") as f:
+				self.r = pickle.load(f)
+		except Exception as e:
+			print(e)
+			pass
+
+		for molrf in tqdm(self.mols, desc='Assigning predictions'):
+
+			if type(molrf) == list:
+					mol = nmrmol(molid=molrf[1])
+
+					if molrf[2] == '':
+						ftype = get_type(molrf[2])
+					else:
+						ftype = molrf[2]
+
+					mol.read_nmr(molrf[0], ftype)
+			else:
+				mol = molrf
+
 			if zero:
 				mol.coupling = np.zeros((len(mol.types), len(mol.types)), dtype=np.float64)
 				mol.shift = np.zeros((len(mol.types)), dtype=np.float64)
 
-			for r, ref in enumerate(self.r):
+			for m, refs in enumerate(self.r):
+				for r, ref in enumerate(refs):
+					if mol.molid != ref[0]:
+						continue
 
-				if mol.molid != ref[0]:
-					continue
+					if len(ref) == 2:
+						for t in range(len(mol.types)):
+							if ref[1] == t:
+								mol.shift[t] = pred_y[r]
+								mol.shift_var[t] = var[r]
 
-				if len(ref) == 2:
-					for t in range(len(mol.types)):
-						if ref[1] == t:
-							mol.shift[t] = pred_y[r]
-							mol.shift_var[t] = var[r]
-
-				elif len(ref) == 3:
-					for t1 in range(len(mol.types)):
-						for t2 in range(len(mol.types)):
-							if ref[1] == t1 and ref[2] == t2:
-								mol.coupling[t1][t2] = pred_y[r]
-								mol.coupling_var[t1][t2] = var[r]
+					elif len(ref) == 3:
+						for t1 in range(len(mol.types)):
+							for t2 in range(len(mol.types)):
+								if ref[1] == t1 and ref[2] == t2:
+									mol.coupling[t1][t2] = pred_y[r]
+									mol.coupling_var[t1][t2] = var[r]
 
 	def remove_mols(self, target):
 		## Discard useless molecules:
@@ -289,13 +311,3 @@ class dataset(object):
 			print('REMOVED ', len(to_remove), '/', len(to_remove)+len(keep), ' molecules due to lack of features')
 			#print(to_remove[:10])
 			assert len(keep) > 1
-
-
-
-
-
-
-
-
-
-##

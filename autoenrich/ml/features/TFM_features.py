@@ -31,8 +31,94 @@ from tqdm import tqdm
 
 import torch
 
+def save_dataset(Dset, y, r, mol_order):
+	p = np.random.permutation(Dset[0].shape[0])
+	idx_train = torch.cat([torch.tensor(p[:int(0.6*len(p))]), torch.tensor(p[int(0.8*len(p)):])])
+	idx_val = torch.tensor(p[int(0.6*len(p)):int(0.8*len(p))])
+
+	D_train = tuple([d[idx_train] for d in Dset])
+	D_val = tuple([d[idx_val] for d in Dset])
+
+	train_file = "training_data/dataset_features_x.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(Dset, f, protocol=4)
+	x = [train_file, train_file]
+
+	train_file = "training_data/dataset_features_r.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(r, f, protocol=4)
+	r = [train_file, train_file]
+
+	train_file = "training_data/dataset_features_y.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(y, f, protocol=4)
+	y = [train_file, train_file]
+
+	train_file = "training_data/dataset_features_m.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(mol_order, f, protocol=4)
+	mol_order = [train_file, train_file]
+
+	return x, y, r, mol_order
+
+
+def save_split_dataset(Dset, y, r, mol_order):
+	p = np.random.permutation(Dset[0].shape[0])
+	idx_train = torch.cat([torch.tensor(p[:int(0.6*len(p))]), torch.tensor(p[int(0.8*len(p)):])])
+	idx_val = torch.tensor(p[int(0.6*len(p)):int(0.8*len(p))])
+
+	D_train = tuple([d[idx_train] for d in Dset])
+	D_val = tuple([d[idx_val] for d in Dset])
+
+	train_file = "training_data/dataset_features_xtrain.pkl.gz"
+	val_file = "training_data/dataset_features_xval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(D_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(D_val, f, protocol=4)
+	x = [train_file, val_file]
+
+	idx_train = [np.asscalar(id.numpy()) for id in idx_train]
+	idx_val = [np.asscalar(id.numpy()) for id in idx_val]
+
+	r_train = [r[id] for id in idx_train]
+	r_val = [r[id] for id in idx_val]
+	train_file = "training_data/dataset_features_rtrain.pkl.gz"
+	val_file = "training_data/dataset_features_rval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(r_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(r_val, f, protocol=4)
+	r = [train_file, val_file]
+
+
+	y_train = [y[id] for id in idx_train]
+	y_val = [y[id] for id in idx_val]
+	train_file = "training_data/dataset_features_ytrain.pkl.gz"
+	val_file = "training_data/dataset_features_yval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(y_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(y_val, f, protocol=4)
+	y = [train_file, val_file]
+
+
+	m_train = [mol_order[id] for id in idx_train]
+	m_val = [mol_order[id] for id in idx_val]
+	train_file = "training_data/dataset_features_mtrain.pkl.gz"
+	val_file = "training_data/dataset_features_mval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(m_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(m_val, f, protocol=4)
+	mol_order = [train_file, val_file]
+
+	return x, y, r, mol_order
+
+
+
 # make BCAI features
-def get_BCAI_features(mols, targetflag='CCS'):
+def get_BCAI_features(mols, targetflag='CCS', training=True):
 
 	target = flag_to_target(targetflag)
 	p_table = Get_periodic_table()
@@ -179,60 +265,12 @@ def get_BCAI_features(mols, targetflag='CCS'):
 
 	Dset = BCAI.create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=mol_order)
 
-	p = np.random.permutation(Dset[0].shape[0])
-
-	idx_train = torch.cat([torch.tensor(p[:int(0.6*len(p))]), torch.tensor(p[int(0.8*len(p)):])])
-	idx_val = torch.tensor(p[int(0.6*len(p)):int(0.8*len(p))])
-
-	D_train = tuple([d[idx_train] for d in Dset])
-	D_val = tuple([d[idx_val] for d in Dset])
-
-	train_file = "training_data/dataset_features_xtrain.pkl.gz"
-	val_file = "training_data/dataset_features_xval.pkl.gz"
-	with gzip.open(train_file, "wb") as f:
-		pickle.dump(D_train, f, protocol=4)
-	with gzip.open(val_file, "wb") as f:
-		pickle.dump(D_val, f, protocol=4)
-	x = [train_file, val_file]
-
-	idx_train = [np.asscalar(id.numpy()) for id in idx_train]
-	idx_val = [np.asscalar(id.numpy()) for id in idx_val]
-
-	r_train = [r[id] for id in idx_train]
-	r_val = [r[id] for id in idx_val]
-	train_file = "training_data/dataset_features_rtrain.pkl.gz"
-	val_file = "training_data/dataset_features_rval.pkl.gz"
-	with gzip.open(train_file, "wb") as f:
-		pickle.dump(r_train, f, protocol=4)
-	with gzip.open(val_file, "wb") as f:
-		pickle.dump(r_val, f, protocol=4)
-	r = [train_file, val_file]
-
-
-	y_train = [y[id] for id in idx_train]
-	y_val = [y[id] for id in idx_val]
-	train_file = "training_data/dataset_features_ytrain.pkl.gz"
-	val_file = "training_data/dataset_features_yval.pkl.gz"
-	with gzip.open(train_file, "wb") as f:
-		pickle.dump(y_train, f, protocol=4)
-	with gzip.open(val_file, "wb") as f:
-		pickle.dump(y_val, f, protocol=4)
-	y = [train_file, val_file]
-
-
-	m_train = [mol_order[id] for id in idx_train]
-	m_val = [mol_order[id] for id in idx_val]
-	train_file = "training_data/dataset_features_mtrain.pkl.gz"
-	val_file = "training_data/dataset_features_mval.pkl.gz"
-	with gzip.open(train_file, "wb") as f:
-		pickle.dump(m_train, f, protocol=4)
-	with gzip.open(val_file, "wb") as f:
-		pickle.dump(m_val, f, protocol=4)
-	mol_order = [train_file, val_file]
+	if training:
+		x, y, r, mol_order = save_split_dataset(Dset, y, r, mol_order)
+	else:
+		x, y, r, mol_order = save_dataset(Dset, y, r, mol_order)
 
 	return x, y, r, mol_order
-
-
 
 
 

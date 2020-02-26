@@ -23,7 +23,7 @@
 import argparse
 import sys, os
 import json
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'autoenrich'))
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]), ''))
 
 from autoenrich.util.flag_handler import hdl_targetflag, flag_combos
 from autoenrich.util.argparse_wizard import run_wizard
