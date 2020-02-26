@@ -17,6 +17,7 @@
 from sklearn.model_selection import KFold
 import pickle
 import numpy as np
+import gzip
 import copy
 import time
 
@@ -53,30 +54,16 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	time0 = time.time()
 
 	args['max_size'] = 200
-	if args['featureflag'] == 'BCAI' and iter == 0:
-		print('Making representations')
-		dataset.get_features_frommols(args, params=next_point_to_probe)
-		if args['store_datasets'] == 'True':
-			try:
-				set = 0
-				iii = 5000
-				while iii < len(dataset.x):
-					set += 1
-					pickle.dump(dataset.x[iii-5000:iii], open('training_set_wfeatures_x' + str(set) + '.pkl', 'wb'))
-					iii += 5000
-				pickle.dump(dataset.r, open('training_set_wfeatures_r.pkl', 'wb'))
-				pickle.dump(dataset.y, open('training_set_wfeatures_y.pkl', 'wb'))
-			except Exception as e:
-				print(e)
-				print('Couldnt save dataset')
-	elif args['featureflag'] != 'BCAI' and args['feature_optimisation'] == 'True':
+	args['load_dataset'] = 'false'
+
+	if args['featureflag'] != 'BCAI' and args['feature_optimisation'] == 'True':
 		dataset.get_features_frommols(args, params=next_point_to_probe)
 
-	print('Number of molecules in training set: ', len(dataset.mols))
-	print('Number of envs in training set: ', len(dataset.r))
+		print('Number of molecules in training set: ', len(dataset.mols))
+		print('Number of envs in training set: ', len(dataset.r))
 
-	assert len(dataset.x) > 0
-	assert len(dataset.y) > 0
+		assert len(dataset.x) > 0
+		assert len(dataset.y) > 0
 
 	# create model
 	# yes i know this is super bad "practice"
@@ -92,9 +79,10 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		from autoenrich.ml.models import TFMmodel
+		id = 'TFM_model'
 		model = TFMmodel.TFMmodel(dataset.mol_order, id, dataset.x, dataset.y, dataset.r, params=next_point_to_probe, model_args=args)
 
-	if args['cv_steps'] == 1:
+	if args['modelflag'] == 'TFM':
 		score = model.cv_predict(args['cv_steps'])
 	else:
 		y_pred = model.cv_predict(args['cv_steps'])

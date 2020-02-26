@@ -29,6 +29,8 @@ import pickle
 import gzip
 from tqdm import tqdm
 
+import torch
+
 # make BCAI features
 def get_BCAI_features(mols, targetflag='CCS'):
 
@@ -111,6 +113,9 @@ def get_BCAI_features(mols, targetflag='CCS'):
 		else:
 			mol = molrf
 
+		moly = []
+		molr = []
+
 		for t, type in enumerate(mol.types):
 			for t2, type2 in enumerate(mol.types):
 				if t == t2:
@@ -135,8 +140,11 @@ def get_BCAI_features(mols, targetflag='CCS'):
 				if np.isnan(mol.coupling[t][t2]):
 					print(mol.molid)
 
-				y.append(mol.coupling[t][t2])
-				r.append([mol.molid, t, t2])
+				moly.append(mol.coupling[t][t2])
+				molr.append([mol.molid, t, t2])
+
+		y.append(moly)
+		r.append(molr)
 
 	bonds = {	'id': id,
 				'molecule_name': molecule_name,
@@ -169,7 +177,58 @@ def get_BCAI_features(mols, targetflag='CCS'):
 	means, stds = BCAI.get_scaling(bonds)
 	bonds = BCAI.add_scaling(bonds, means, stds)
 
-	x = BCAI.create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=mol_order)
+	Dset = BCAI.create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=mol_order)
+
+	p = np.random.permutation(Dset[0].shape[0])
+
+	idx_train = torch.cat([torch.tensor(p[:int(0.6*len(p))]), torch.tensor(p[int(0.8*len(p)):])])
+	idx_val = torch.tensor(p[int(0.6*len(p)):int(0.8*len(p))])
+
+	D_train = tuple([d[idx_train] for d in Dset])
+	D_val = tuple([d[idx_val] for d in Dset])
+
+	train_file = "training_data/dataset_features_xtrain.pkl.gz"
+	val_file = "training_data/dataset_features_xval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(D_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(D_val, f, protocol=4)
+	x = [train_file, val_file]
+
+	idx_train = [np.asscalar(id.numpy()) for id in idx_train]
+	idx_val = [np.asscalar(id.numpy()) for id in idx_val]
+
+	r_train = [r[id] for id in idx_train]
+	r_val = [r[id] for id in idx_val]
+	train_file = "training_data/dataset_features_rtrain.pkl.gz"
+	val_file = "training_data/dataset_features_rval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(r_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(r_val, f, protocol=4)
+	r = [train_file, val_file]
+
+
+	y_train = [y[id] for id in idx_train]
+	y_val = [y[id] for id in idx_val]
+	train_file = "training_data/dataset_features_ytrain.pkl.gz"
+	val_file = "training_data/dataset_features_yval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(y_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(y_val, f, protocol=4)
+	y = [train_file, val_file]
+
+
+	m_train = [mol_order[id] for id in idx_train]
+	m_val = [mol_order[id] for id in idx_val]
+	train_file = "training_data/dataset_features_mtrain.pkl.gz"
+	val_file = "training_data/dataset_features_mval.pkl.gz"
+	with gzip.open(train_file, "wb") as f:
+		pickle.dump(m_train, f, protocol=4)
+	with gzip.open(val_file, "wb") as f:
+		pickle.dump(m_val, f, protocol=4)
+	mol_order = [train_file, val_file]
 
 	return x, y, r, mol_order
 
