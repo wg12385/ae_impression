@@ -99,9 +99,12 @@ def impression(inpargs):
 	# Optional, trace code execution
 	if args['tracecode']:
 		sys.settrace(trace)
+	# THESE ARENT WORKING PROPERLY, ARGS DONT GET CARRIED THROUGH
+	sys.settrace(trace)
 	# Optional, trace memory
 	if args['tracemem']:
 		tracemalloc.start()
+	tracemalloc.start()
 
 	if args['tracetime']:
 		TRACETIME = True

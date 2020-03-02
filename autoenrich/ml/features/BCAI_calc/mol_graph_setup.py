@@ -45,7 +45,7 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '3JHN_4_3_2_1', '2JHN_4_4_1_1', '3JHN_4.5_2_3_1.5',
 				   '2JHN_4_2_2_2', '3JHN_4_2_2_2', '1JHN_4_3_2_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
-(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (200, 1600, 1000, 800)
+(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
 
 
 def make_structure_dict(atoms_dataframe):

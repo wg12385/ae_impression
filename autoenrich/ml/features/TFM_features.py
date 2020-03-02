@@ -22,6 +22,8 @@ from autoenrich.util.file_gettype import get_type
 
 import autoenrich.ml.features.BCAI_calc.mol_graph_setup as BCAI
 
+import tracemalloc
+
 import numpy as np
 import pandas as pd
 import sys
@@ -30,6 +32,26 @@ import gzip
 from tqdm import tqdm
 
 import torch
+
+def get_size(obj, seen=None):
+	"""Recursively finds size of objects"""
+	size = sys.getsizeof(obj)
+	if seen is None:
+		seen = set()
+	obj_id = id(obj)
+	if obj_id in seen:
+		return 0
+	# Important mark as seen *before* entering recursion to gracefully handle
+	# self-referential objects
+	seen.add(obj_id)
+	if isinstance(obj, dict):
+		size += sum([get_size(v, seen) for v in obj.values()])
+		size += sum([get_size(k, seen) for k in obj.keys()])
+	elif hasattr(obj, '__dict__'):
+		size += get_size(obj.__dict__, seen)
+	elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+		size += sum([get_size(i, seen) for i in obj])
+	return size
 
 def save_dataset(Dset, y, r, mol_order):
 	p = np.random.permutation(Dset[0].shape[0])
@@ -63,12 +85,21 @@ def save_dataset(Dset, y, r, mol_order):
 
 
 def save_split_dataset(Dset, y, r, mol_order):
+
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("12[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
+
 	p = np.random.permutation(Dset[0].shape[0])
 	idx_train = torch.cat([torch.tensor(p[:int(0.6*len(p))]), torch.tensor(p[int(0.8*len(p)):])])
 	idx_val = torch.tensor(p[int(0.6*len(p)):int(0.8*len(p))])
 
 	D_train = tuple([d[idx_train] for d in Dset])
 	D_val = tuple([d[idx_val] for d in Dset])
+
 
 	train_file = "training_data/dataset_features_xtrain.pkl.gz"
 	val_file = "training_data/dataset_features_xval.pkl.gz"
@@ -120,6 +151,12 @@ def save_split_dataset(Dset, y, r, mol_order):
 # make BCAI features
 def get_BCAI_features(mols, targetflag='CCS', training=True):
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("1[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
 	target = flag_to_target(targetflag)
 	p_table = Get_periodic_table()
 
@@ -166,12 +203,36 @@ def get_BCAI_features(mols, targetflag='CCS', training=True):
 				'conn': conns,
 			}
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("2[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
 	atoms = pd.DataFrame(atoms)
 	structure_dict = BCAI.make_structure_dict(atoms)
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("3[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
 	BCAI.enhance_structure_dict(structure_dict)
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("4[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
 	BCAI.enhance_atoms(atoms, structure_dict)
+
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("5[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
 
 	# construct dataframe as BCAI requires from mols
 	# atoms has: molecule_name, atom, labeled atom,
@@ -242,12 +303,45 @@ def get_BCAI_features(mols, targetflag='CCS', training=True):
 
 	#print(len(id), len(molecule_name), len(atom_index), len(atom))
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("6[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat, '------------------------------')
+		for line in stat.traceback.format():
+			print(line)
+
 	bonds = pd.DataFrame(bonds)
 
 	bonds = BCAI.enhance_bonds(bonds, structure_dict)
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("7[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat, '------------------------------')
+		for line in stat.traceback.format():
+			print(line)
+
 	bonds = BCAI.add_all_pairs(bonds, structure_dict) # maybe replace this
+
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("7.5[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat, '------------------------------')
+		for line in stat.traceback.format():
+			print(line)
+
 	triplets = BCAI.make_triplets(bonds["molecule_name"].unique(), structure_dict)
+
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("8[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat, '------------------------------')
+		for line in stat.traceback.format():
+			print(line)
 
 	atoms = pd.DataFrame(atoms)
 	bonds = pd.DataFrame(bonds)
@@ -257,13 +351,31 @@ def get_BCAI_features(mols, targetflag='CCS', training=True):
 	bonds.sort_values(['molecule_name','atom_index_0','atom_index_1'],inplace=True)
 	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("9[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
 	embeddings, atoms, bonds, triplets = BCAI.add_embedding(atoms, bonds, triplets)
 	bonds.dropna()
 	atoms.dropna()
 	means, stds = BCAI.get_scaling(bonds)
 	bonds = BCAI.add_scaling(bonds, means, stds)
 
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("10[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
+
 	Dset = BCAI.create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=mol_order)
+
+	snapshot = tracemalloc.take_snapshot()
+	top_stats = snapshot.statistics('lineno')
+	print("11[ Top 2 ]")
+	for stat in top_stats[:2]:
+		print(stat)
 
 	if training:
 		x, y, r, mol_order = save_split_dataset(Dset, y, r, mol_order)
