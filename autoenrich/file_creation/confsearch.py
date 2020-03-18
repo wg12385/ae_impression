@@ -34,7 +34,7 @@ def make_confsearch_script(scriptname, pickle_file, smiles, path='', iterations=
 	strings = []
 	# produce script to do conformational search
 	strings.append('import sys')
-	strings.append("import autoenrich')")
+	strings.append("import autoenrich")
 	strings.append('import pickle')
 	strings.append('from file_creation.structure_formats import xyz')
 	strings.append("file = '{0:<10s}'".format(pickle_file.split('/')[-1]))

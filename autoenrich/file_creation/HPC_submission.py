@@ -140,10 +140,10 @@ def make_HPC_orca_batch_submission(prefs, molname, in_array, start, end, jobname
 
 	elif prefs['comp']['system'] =='BC4':
 		print('not done yet . . .')
-	elif prefs['comp']['system'] == 'localbox':
+	elif prefs['comp']['system'] == 'local':
 		strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 		strings.append("for NUM in ${NUMBERS}; do")
-		strings.append("  NMRNAME=$(head -n${{NUM}}" + " {0:<5s} | tail -1)".format(in_array))
+		strings.append("  NMRNAME=$(head -n${NUM}" + " {0:<5s} | tail -1)".format(in_array))
 		strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/')")
 		strings.append("  orca ${NMRNAME} > ${OUTNAME}")
 		strings.append("done")

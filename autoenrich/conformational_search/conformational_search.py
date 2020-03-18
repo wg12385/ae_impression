@@ -57,7 +57,7 @@ def torsional_search(smiles, iterations=100000, RMSthresh=1):
 	for id in confIds:
 		xyz = []
 		# Loop over length of molecule (defined by size of mol type array)
-		for t in range(len(rdmol.getatoms())):
+		for t in range(len(rdmol.GetAtoms())):
 			# append atom coordinates
 			xyz.append([float(rdmol.GetConformer(id).GetAtomPosition(t)[0]),
 						float(rdmol.GetConformer(id).GetAtomPosition(t)[1]),

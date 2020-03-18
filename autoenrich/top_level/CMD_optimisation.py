@@ -57,14 +57,14 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 
 		#header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_optimisation'
-		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, ck=ck,
+		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end,
 									jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
 		if prefs['comp']['system'] == 'BC3':
 			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.qsub'
 		elif prefs['comp']['system'] == 'BC4':
 			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.slurm'
-		elif prefs['comp']['system'] == 'localbox':
+		elif prefs['comp']['system'] == 'local':
 			filename = path + 'OPT_' + molecule.molid + '_' + str(ck) + '.sh'
 		with open(filename, 'w') as f:
 			for string in strings:

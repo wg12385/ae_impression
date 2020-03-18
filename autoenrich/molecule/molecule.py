@@ -44,7 +44,7 @@ class molecule(nmrmol):
 
 	# do conformational searching
 	def generate_conformers(self, smiles, path='', iterations=100, RMSthresh=1, maxconfs=100, Ethresh=100000):
-		xyzs, energies = conf_search.torsional_search(self, smiles, iterations=iterations, RMSthresh=RMSthresh)
+		xyzs, energies = conf_search.torsional_search(smiles, iterations=iterations, RMSthresh=RMSthresh)
 		print('Initial search complete,', len(xyzs), 'conformers found')
 
 		xyzs, energies = conf_search.select_conformers(xyzs, energies, maxconfs=maxconfs, Ethresh=Ethresh)

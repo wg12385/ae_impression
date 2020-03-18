@@ -35,6 +35,7 @@ def make_optin(prefs, molname, xyz, types, path=''):
 	basis_set = prefs['optimisation']['basisset']
 	solvent = prefs['optimisation']['solvent']
 	direct_cmd_line_opt = prefs['optimisation']['custom_cmd_line']
+	processors = prefs['optimisation']['processors']
 	# Get periodic table
 	Periodic_table = Get_periodic_table()
 	# Define instruction line for ORCA
