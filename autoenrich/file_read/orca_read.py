@@ -14,6 +14,8 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
+import numpy as np
+
 # Get status of ORCA optimisation
 def get_opt_status(file):
 	# Input:
@@ -41,13 +43,19 @@ def get_nmr_status(file):
 
 		# Returns: status
 	status = 'unknown'
+	finished = False
 	with open(file, 'r') as f:
 		for line in f:
 			if 'SUCCESS' in line:
 				status = 'successful'
 			if 'ERROR' in line:
 				status = 'failed'
-	return status
+			if '****ORCA TERMINATED NORMALLY****' in line:
+				finished = True
+	if finished:
+		return status
+	else:
+		return 'unknown'
 
 # Read Optimisation energy from ORCA optimisation file
 def read_opt(file):
@@ -66,9 +74,91 @@ def read_opt(file):
 
 	return energy
 
-# Need to write this
+# Read NMR information from ORCA NMR log files
 def read_nmr(file):
 
+	print('/////// beta orca nmr-read /////////')
 
+	shiftswitch = False
+	shifts = []
+	cplswitch = False
+	cpls = []
+	strucswitch = False
+	atoms = 0
+
+	with open(file ,'r') as f:
+		for line in f:
+
+			if 'CARTESIAN COORDINATES (A.U.)' in line:
+				strucswitch = True
+
+			if 'CHEMICAL SHIELDING SUMMARY (ppm)' in line:
+				shiftswitch = True
+				cplswitch = False
+				strucswitch = False
+
+			if 'NMR SPIN-SPIN COUPLING CONSTANTS' in line:
+				shiftswitch = False
+				strucswitch = False
+				cplswitch = True
+
+			items = line.split()
+			if len(items) == 0:
+				continue
+
+			if strucswitch and len(items) == 8 and items[0] != 'NO':
+				try:
+					atoms = int(items[0]) + 1
+				except:
+					continue
+
+			if shiftswitch and len(items) == 4:
+				try:
+					int(items[0])
+					float(items[2])
+					float(items[3])
+				except:
+					continue
+
+				shifts.append([int(items[0]), float(items[2])])
+
+			if cplswitch and len(items) in [6, 10]:
+				if 'NUCLEUS A' in line and len(items) == 10:
+					a = int(items[4])
+					b = int(items[9])
+
+				if items[0] == 'Total' and len(items) == 6:
+					c = float(items[5])
+
+					cpls.append([a, b, c])
+
+	shift = np.zeros((atoms), dtype=np.float64)
+	for sh in shifts:
+		shift[sh[0]] = sh[1]
+
+	coupling = np.zeros((atoms, atoms), dtype=np.float64)
+	for cp in cpls:
+		coupling[cp[0]][cp[1]] = cp[2]
+		coupling[cp[1]][cp[0]] = cp[2]
 
 	return shift, coupling
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##

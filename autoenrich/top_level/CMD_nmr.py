@@ -19,6 +19,7 @@ import autoenrich.file_read.orca_read as orcaread
 import autoenrich.file_creation.orca_submission as orcasub
 import autoenrich.file_creation.structure_formats.nmredata as nmredata
 import sys
+import os.path
 
 def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 
@@ -57,14 +58,14 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 
 		#header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_NMR'
-		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, ck=ck,
+		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end,
 									jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
 		if prefs['comp']['system'] == 'BC3':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.qsub'
 		elif prefs['comp']['system'] == 'BC4':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.slurm'
-		elif prefs['comp']['system'] == 'localbox':
+		elif prefs['comp']['system'] == 'local':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.sh'
 		with open(filename, 'w') as f:
 			for string in strings:
@@ -91,17 +92,21 @@ def process_nmr(molecule, prefs, path=''):
 	process = False
 
 	for conformer in molecule.conformers:
-		status = orcaread.get_nmr_status(conformer.nmr_log)
-		if status == 'successful':
-			good +=1
-			conformer.read_nmr(conformer.nmr_log, type='orca')
+		if os.path.isfile(conformer.nmr_log):
+			status = orcaread.get_nmr_status(conformer.nmr_log)
+			if status == 'successful':
+				good +=1
+				conformer.read_nmr(conformer.nmr_log, type='orca')
+			else:
+				bad += 1
 		else:
 			bad += 1
+			status = 'pre-submission'
 
-		if conformer.nmr_status != status:
+		if conformer.nmr_status != status and status == 'successful':
 			process = True
 			outname = path + 'OUTPUT/' + molecule.molid + '_' + conformer.molid + '.nmredata.sdf'
-			nmredata.nmrmol_to_nmredata(molecule, outname)
+			nmredata.nmrmol_to_nmredata(conformer, outname)
 
 		conformer.nmr_status = status
 		string = 'Conformer {molid:^3s} status: {status:^10s}'.format(molid=str(conformer.molid),

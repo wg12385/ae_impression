@@ -63,8 +63,11 @@ class nmrmol(object):
 
 	def read_nmr(self, file, type):
 		if type == 'orca':
-			self.xyz, self.types, self.conn, self.coupling_len = orca_read.read_structure(file)
+			#self.xyz, self.types, self.conn, self.coupling_len = orca_read.read_structure(file)
 			self.shift, self.coupling = orca_read.read_nmr(file)
+			atoms = len(self.types)
+			self.shift_var = np.zeros((atoms), dtype=np.float64)
+			self.coupling_var = np.zeros((atoms, atoms), dtype=np.float64)
 		elif type == 'g09':
 			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, 'g09')
 			self.shift, self.coupling = g09_read.read_nmr(file, len(self.types))

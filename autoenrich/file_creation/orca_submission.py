@@ -123,6 +123,7 @@ def make_nmrin(prefs, molname, xyz, types, path=''):
 		strings.append(string)
 	strings.append('*')
 	strings.append('%eprnmr')
+	strings.append("       GIAO_2el = GIAO_2el_RIJCOSX")
 	for type in prefs['NMR']['shift_nuclei']:
 		strings.append("       Nuclei = all {type:<2s}".format(type=type) + '  { shift }')
 	for type in prefs['NMR']['spin_nuclei']:
