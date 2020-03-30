@@ -19,14 +19,24 @@ import numpy as np
 # Get relative populations of conformers
 def get_pop_array(conformers, temp=298):
 
+    exclude = []
+
+    for c, conformer in enumerate(conformers):
+        if conformer.nmr_status != 'successful':
+            exclude.append(0)
+        else:
+            exclude.append(1)
+
+
     e_array = np.zeros(len(conformers), dtype=np.float64)
     for c, conformer in enumerate(conformers):
         e_array[c] = conformer.energy
 
     kj_array = e_array * 2625.5
     min_val = np.amin(kj_array)
-    rel_array = (kj_array - min_val)
+    rel_array = (kj_array - min_val) * exclude
     exp_array = -(rel_array*1000) / float(8.31*temp)
+    exp_array = np.exp(exp_array) * exclude
     sum_val = np.sum(exp_array)
 
     pop_array = exp_array / sum_val

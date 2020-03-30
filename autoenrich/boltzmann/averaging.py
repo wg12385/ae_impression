@@ -23,6 +23,8 @@ def boltzmann_shift(conformers):
 	shift_array = np.zeros(atoms, dtype=np.float64)
 	shift_var = np.zeros(atoms, dtype=np.float64)
 	for conformer in conformers:
+		if conformer.pop == 0:
+			continue
 		shift_array += conformer.shift * conformer.pop
 		shift_var += conformer.shift_var * conformer.pop
 
@@ -35,6 +37,8 @@ def boltzmann_coupling(conformers):
 	coupling = np.zeros((atoms, atoms), dtype=np.float64)
 	coupling_var = np.zeros((atoms, atoms), dtype=np.float64)
 	for conformer in conformers:
+		if conformer.pop == 0:
+			continue
 		coupling += conformer.coupling * conformer.pop
 		coupling_var += conformer.coupling_var * conformer.pop
 

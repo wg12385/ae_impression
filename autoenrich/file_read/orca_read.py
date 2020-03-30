@@ -77,8 +77,6 @@ def read_opt(file):
 # Read NMR information from ORCA NMR log files
 def read_nmr(file):
 
-	print('/////// beta orca nmr-read /////////')
-
 	shiftswitch = False
 	shifts = []
 	cplswitch = False

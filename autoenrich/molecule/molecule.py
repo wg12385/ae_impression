@@ -39,7 +39,7 @@ class molecule(nmrmol):
 
 	# average NMR properties
 	def boltzmann_average(self):
-		# should there be equivalent bolzmann functions for variance ??
+
 		pops = get_pop_array(self.conformers)
 		for c in range(len(self.conformers)):
 			self.conformers[c].pop = pops[c]

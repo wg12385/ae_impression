@@ -118,8 +118,9 @@ def process_nmr(molecule, prefs, path=''):
 		outname = path + 'OUTPUT/' + molecule.molid + '.nmredata.sdf'
 		nmredata.nmrmol_to_nmredata(molecule, outname)
 
-	print(good, ' successful NMR calculations, ', bad, ' failed, out of ', len(statuss))
+	#print(good, ' successful NMR calculations, ', bad, ' failed, out of ', len(status))
 
+	print('NMR Processing completed.')
 
 
 
