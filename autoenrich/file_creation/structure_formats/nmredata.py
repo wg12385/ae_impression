@@ -43,7 +43,7 @@ def nmrmol_to_nmredata(mol, outfile):
 	else:
 		lines.append(outfile.split('.')[0])
 	# print file and author
-	lines.append('auto-ENRICH - 2019 - Will Gerrard')
+	lines.append('auto-ENRICH - 2020 - Will Gerrard')
 	lines.append('')
 
 	# Structure section

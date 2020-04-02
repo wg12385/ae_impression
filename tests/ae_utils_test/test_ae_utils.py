@@ -1,6 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
+
+
 from autoenrich.molecule.nmrmol import nmrmol
 from autoenrich.top_level import CMD_compare
-print(CMD_compare.__file__)
 
 
 def test_convertnmredata():
