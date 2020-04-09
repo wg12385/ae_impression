@@ -17,6 +17,7 @@
 from sklearn.model_selection import KFold
 import pickle
 import numpy as np
+import gzip
 import copy
 import time
 
@@ -53,17 +54,16 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	time0 = time.time()
 
 	args['max_size'] = 200
-	if args['featureflag'] == 'BCAI' and iter == 0:
-		print('Making representations')
-		dataset.get_features_frommols(args, params=next_point_to_probe)
-	elif args['featureflag'] != 'BCAI' and args['feature_optimisation'] == 'True':
+	args['load_dataset'] = 'false'
+
+	if args['featureflag'] != 'BCAI' and args['feature_optimisation'] == 'True':
 		dataset.get_features_frommols(args, params=next_point_to_probe)
 
-	print('Number of molecules in training set: ', len(dataset.mols))
-	print('Number of envs in training set: ', len(dataset.r))
+		print('Number of molecules in training set: ', len(dataset.mols))
+		print('Number of envs in training set: ', len(dataset.r))
 
-	assert len(dataset.x) > 0
-	assert len(dataset.y) > 0
+		assert len(dataset.x) > 0
+		assert len(dataset.y) > 0
 
 	# create model
 	# yes i know this is super bad "practice"
@@ -79,9 +79,10 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 		model = NNmodel.NNmodel(id, dataset.x, dataset.y, params=next_point_to_probe, model_args=args)
 	elif args['modelflag'] == 'TFM':
 		from autoenrich.ml.models import TFMmodel
+		id = 'TFM_model'
 		model = TFMmodel.TFMmodel(dataset.mol_order, id, dataset.x, dataset.y, dataset.r, params=next_point_to_probe, model_args=args)
 
-	if args['cv_steps'] == 1:
+	if args['modelflag'] == 'TFM':
 		score = model.cv_predict(args['cv_steps'])
 	else:
 		y_pred = model.cv_predict(args['cv_steps'])
@@ -106,6 +107,8 @@ def HPS_iteration(iter, dataset, args, next_point_to_probe={}, BEST_SCORE=100000
 	if score < BEST_SCORE:
 		BEST_SCORE = score
 		BEST_PARAMS = next_point_to_probe
+		outname = args['output_dir'] +  args['modelflag'] + '_' + args['targetflag'] + '_' + args['featureflag'] + '_' + args['searchflag'] + '_model.pkl'
+		pickle.dump(model, open(outname, "wb"))
 		print('BEST_SCORE = ', score)
 	else:
 		print('score = ', score)
@@ -164,7 +167,6 @@ def save_models(dataset, BEST_PARAMS, args):
 		i = 0
 		for train_index, _ in kf.split(dataset.x[0]):
 			i += 1
-			print()
 			train_x_list = []
 			train_y_list = []
 			for ii in range(len(dataset.x)):

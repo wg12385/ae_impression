@@ -80,15 +80,13 @@ def predict(args):
 			model = pickle.load(open(model_file, 'rb'))
 
 			print(model.args["targetflag"])
-
-			dset.get_features_frommols(model.args, params=model.params)
+			dset.get_features_frommols(model.args, params=model.params, training=False)
 			assert len(dset.x) > 0, print('No features made. . . ')
 
 			if args['store_datasets']:
 				pickle.dump(dset, open('OPT_testing_set.pkl', 'wb'))
 
-			y_pred = model.predict(dset.x)
-			assert len(y_pred) == len(dset.y)
+			y_test, y_pred = model.predict(dset.x[0])
 
 			v_preds = []
 			for i in range(args['var']):

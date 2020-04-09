@@ -161,6 +161,9 @@ def test_update():
 		status = 'Fail'
 	return status
 
+def test_resubfailed():
+	print('Not Done Yet')
+	return 'Pass'
 
 def test_undo():
 	status = 'Pass'
@@ -199,7 +202,7 @@ if __name__ == "__main__":
 	print('process_nmr', status)
 	status = test_update()
 	print('update', status)
-	status = test_resubfailes()
+	status = test_resubfailed()
 	print('resub_failed', status)
 	status = test_undo()
 	print('undo', status)

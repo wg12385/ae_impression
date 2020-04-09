@@ -20,7 +20,7 @@
 
 # To quit things
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'autoenrich'))
+sys.path.insert(0, os.path.join(os.path.dirname(sys.path[0]),''))
 # Preferences files are all in json
 import json
 
@@ -99,9 +99,12 @@ def impression(inpargs):
 	# Optional, trace code execution
 	if args['tracecode']:
 		sys.settrace(trace)
+	# THESE ARENT WORKING PROPERLY, ARGS DONT GET CARRIED THROUGH
+	sys.settrace(trace)
 	# Optional, trace memory
 	if args['tracemem']:
 		tracemalloc.start()
+	tracemalloc.start()
 
 	if args['tracetime']:
 		TRACETIME = True

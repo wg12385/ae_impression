@@ -20,6 +20,8 @@ import pickle
 from autoenrich.conformational_search import conformational_search as conf_search
 from .conformer import conformer as conformerclass
 from .nmrmol import nmrmol
+from autoenrich.boltzmann.population import get_pop_array
+from autoenrich.boltzmann.averaging import *
 import glob
 
 # global molecule object, contains everything for one auto-ENRICH run
@@ -37,14 +39,17 @@ class molecule(nmrmol):
 
 	# average NMR properties
 	def boltzmann_average(self):
-		# should there be equivalent bolzmann functions for variance ??
-		self.shift = boltzmann_shift(self.conformers)
-		self.coupling = boltzmann_coupling(self.conformers)
-		self.variance = boltzmann_variance(self.conformers)
+
+		pops = get_pop_array(self.conformers)
+		for c in range(len(self.conformers)):
+			self.conformers[c].pop = pops[c]
+
+		self.shift, self.shift_var = boltzmann_shift(self.conformers)
+		self.coupling, self.coupling_var = boltzmann_coupling(self.conformers)
 
 	# do conformational searching
 	def generate_conformers(self, smiles, path='', iterations=100, RMSthresh=1, maxconfs=100, Ethresh=100000):
-		xyzs, energies = conf_search.torsional_search(self, smiles, iterations=iterations, RMSthresh=RMSthresh)
+		xyzs, energies = conf_search.torsional_search(smiles, iterations=iterations, RMSthresh=RMSthresh)
 		print('Initial search complete,', len(xyzs), 'conformers found')
 
 		xyzs, energies = conf_search.select_conformers(xyzs, energies, maxconfs=maxconfs, Ethresh=Ethresh)

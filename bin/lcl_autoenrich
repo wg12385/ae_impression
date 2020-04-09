@@ -18,14 +18,16 @@
 
 # Central command file for running auto-ENRICH
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]),''))
 from autoenrich.preferences.preferences import read_prefs, write_default_prefs
 from autoenrich.molecule.molecule import molecule as moleculeclass
 from autoenrich.util.header import print_header_aE
 import pybel as pyb
-import os
+
 import glob
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'autoenrich'))
+
 
 import pickle
 
@@ -72,8 +74,8 @@ def autoenrich(inpargs):
 	# Initialisation command
 	if args['Command'] == 'init':
 		# Check for supplied xyz file, quit if not found
-		if args['xyz_file'] == 'None':
-			print('ERROR: Must supply xyz file to initialise molecule')
+		if args['init_file'] == 'None':
+			print('ERROR: Must supply init structure file to initialise molecule')
 			sys.exit(0)
 
 		if os.path.isfile(pickle_file):
@@ -86,7 +88,8 @@ def autoenrich(inpargs):
 
 		# Load xyz coords and types from xyz file, create molecule object
 		molecule = moleculeclass(molid=args['Molecule'], path=args['path'])
-		molecule.read_structure(args['path'] + args['xyz_file'], 'xyz')
+		type = args['init_file'].split('.')[-1]
+		molecule.read_structure(args['path'] + args['init_file'], type)
 		pickle.dump(molecule, open(pickle_file, "wb"))
 
 

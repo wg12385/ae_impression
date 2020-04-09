@@ -53,7 +53,7 @@ def random_search(dataset, args):
 		score, BEST_SCORE, BEST_PARAMS = generic.HPS_iteration(_, dataset, args, next_point_to_probe=next_point_to_probe,
 															BEST_SCORE=BEST_SCORE, BEST_PARAMS=BEST_PARAMS)
 
-	outname = generic.save_models(dataset, BEST_PARAMS, args)
-	print('Optimised model saved in ', outname)
+	#outname = generic.save_models(dataset, BEST_PARAMS, args)
+	#print('Optimised model saved in ', outname)
 
 	return dataset, BEST_SCORE

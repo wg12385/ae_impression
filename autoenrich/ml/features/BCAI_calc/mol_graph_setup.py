@@ -6,6 +6,8 @@
 ## This source code is licensed under the MIT license found in the
 ## LICENSE file in the root directory of this source tree.
 
+# Edited, Will Gerrard, 2020, for use in autoenrich
+
 import collections
 import gzip
 import itertools
@@ -18,6 +20,7 @@ import numpy as np
 import pandas as pd
 import rdkit
 import autoenrich.ml.features.BCAI_calc.xyz2mol as x2m
+from tqdm import tqdm
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
 # Rules are meant to be broken, including best-programming practices :)
@@ -42,7 +45,7 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '3JHN_4_3_2_1', '2JHN_4_4_1_1', '3JHN_4.5_2_3_1.5',
 				   '2JHN_4_2_2_2', '3JHN_4_2_2_2', '1JHN_4_3_2_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
-(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (200, 1600, 1000, 800)
+(MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
 
 
 def make_structure_dict(atoms_dataframe):
@@ -82,8 +85,7 @@ def enhance_structure_dict(structure_dict):
 
 	atomic_num_dict = { 'H':1, 'C':6, 'N':7, 'O':8, 'F':9 }
 
-
-	for molecule_name in structure_dict:
+	for molecule_name in tqdm(structure_dict, desc='Enhancing atom dictionary'):
 
 		# positions - array (N,3) of Cartesian positions
 		molecule = structure_dict[molecule_name]
@@ -107,15 +109,24 @@ def enhance_structure_dict(structure_dict):
 		molecule['angle'] = angle[:,0]
 
 		# bond orders - array (N,N) of the bond order (0 for no chemical bond)
-		# Note this relies on a few manual corrections
 		molecule['bond_orders'] = np.zeros((n_atom,n_atom))
 		atomicNumList = [atomic_num_dict[symbol] for symbol in molecule['symbols']]
 
 		for atom0 in range(len(molecule['symbols'])):
 			for atom1 in range(len(molecule['symbols'])):
-
-				molecule['bond_orders'][atom0,atom1] = conn[atom0][atom1]
-				molecule['bond_orders'][atom1,atom0] = conn[atom1][atom0]
+				try:
+					molecule['bond_orders'][atom0,atom1] = conn[atom0][atom1]
+					molecule['bond_orders'][atom1,atom0] = conn[atom1][atom0]
+				except Exception as e:
+					print(e)
+					print(molecule_name)
+					print(atom0, atom1)
+					print('positions:', molecule['positions'].shape, positions.shape)
+					print('conn:', len(molecule['conn']), len(molecule['conn'][0]), conn.shape)
+					print('conn[0]:', conn[0].shape)
+					print('bond_orders:', molecule['bond_orders'].shape)
+					print(n_atom)
+					sys.exit(0)
 
 		# Supplementary information for tagging:
 		# top_bonds: (N,4 or less) bond orders of the top 4 bonds, for each atom
@@ -170,8 +181,8 @@ def enhance_atoms(atoms_dataframe,structure_dict):
 
 	"""
 	assert int(atoms_dataframe.groupby("molecule_name").count().max()[0]) <= MAX_ATOM_COUNT
-	for key in ['distances','angle', 'bond_orders', 'top_bonds', 'bond_ids', 'long_symbols','sublabel_atom',
-				'charges', 'spins', 'heavyvalences', 'heterovalences', 'valences', 'hyb_types']:
+	for key in tqdm(['distances','angle', 'bond_orders', 'top_bonds', 'bond_ids', 'long_symbols','sublabel_atom',
+				'charges', 'spins', 'heavyvalences', 'heterovalences', 'valences', 'hyb_types'], desc='Enhancing atoms'):
 		newkey = key if key[-1]!='s' else key[:-1]
 		atoms_dataframe[newkey] = atoms_dataframe.apply(lambda x:
 														structure_dict[x['molecule_name']][key][x['atom_index']],
@@ -320,141 +331,7 @@ def make_triplets(molecule_list,structure_dict):
 	assert int(ans.groupby("molecule_name").count().max()[0]) <= MAX_TRIPLET_COUNT
 	return ans
 
-
-def make_quadruplets(molecule_list,structure_dict):
-	"""Make the quadruplet dataframe.
-
-	Args:
-		molecule_list: List of molecules to generate.
-		structure_dict: Output of :func:`make_structure_dict`, after running :func:`enhance_structure_dict`.
-
-	Returns:
-		pandas.DataFrame: New dataframe, with quadruplets and related information. Make quadruplets. Convention is that they are connected 2-0-1-3, where 0,1 are the central atoms and 0-2 is a bond.
-
-	"""
-	new_data = collections.defaultdict(list)
-	icount = 0  # for debugging
-	for molecule_name in molecule_list:
-		molecule = structure_dict[molecule_name]
-		bond_orders = molecule['bond_orders']
-		short = molecule['symbols']
-		long = molecule['long_symbols']
-		pos = molecule['positions']
-		for i,j in zip(*bond_orders.nonzero()):
-			if i > j:
-				continue  # we will get it the other way
-			for i_nei,j_nei in itertools.product(
-					bond_orders[i].nonzero()[0],bond_orders[j].nonzero()[0]):
-				if j_nei==i or i_nei==j:
-					continue  # no self
-				# But we could have i_nei==j_nei, which is a triangle
-				# Atomic structure looks like i_nei-i-j-j_nei
-				# There's an easy way and a quick way.
-				mode = 'fast'
-				assert ['test','fast','slow'].count(mode),'Mode must be one of: test, fast, slow'
-				if ['test','slow'].count(mode):
-					plane_1 = np.cross( pos[i_nei]-pos[i], pos[j]-pos[i])
-					plane_2 = np.cross( pos[i]-pos[j],pos[j_nei]-pos[j])
-					if np.allclose(plane_1,0.) or np.allclose(plane_2,0.):
-						# Planar; not really a dihedral
-						continue
-					# Compute the dihedral in radians
-					costheta = np.dot(plane_1,plane_2) / (
-						np.linalg.norm(plane_1)*np.linalg.norm(plane_2))
-					costheta1 = costheta
-				if ['test','fast'].count(mode):  # this way is much faster
-					# Uses some clever algebra
-					ijpos = np.array([
-							pos[i_nei] - pos[i],
-							pos[j] - pos[i],
-							pos[j_nei] - pos[j],
-							])
-					# For simplicity, call these a,b,c
-					dots = np.dot(ijpos,ijpos.T)
-					# numerator = (a x b).(-b x c)
-					# denominator = |a x b| |b x c|
-					# So:
-					# -(axb).(bxc) = (b.b)(a.c) - (a.b)(b.c)
-					numerator = dots[1,1]*dots[0,2] - dots[0,1]*dots[1,2]
-					# |axb|^2=|a|^2|b|^2-(a.b)^2
-					denominator = np.sqrt( (
-							dots[0,0]*dots[1,1]-dots[0,1]**2) * (
-							dots[2,2]*dots[1,1]-dots[2,1]**2 ))
-					if abs(denominator) < 1e-7:
-						# Planar, not really a dihedral
-						continue
-					costheta = numerator / denominator
-				if mode=='test':
-					assert abs(costheta-costheta1)<1e-4,"Fancy algebra failed"
-					icount += 1
-					if icount > 50000:
-						raise Exception("50K counts confirmed.")
-				#assert abs(costheta)<1.0001,'Cos theta too large'
-				dihedral = np.arccos( np.clip(costheta,-1.0,1.0) )
-				# Start labeling
-				label = '_'.join(sorted([
-					'_'.join([short[i],short[i_nei]]),
-					'_'.join([short[j],short[j_nei]]),
-					]))
-
-				# This definition finds several unique labels in the test set, e.g. 'C3_C4_C4_N4'
-				#sublabel = '_'.join(sorted([
-				#    '_'.join([short[i]+long[i].split('_')[1],short[i_nei]+long[i_nei].split('_')[1]]),
-				#    '_'.join([short[j]+long[j].split('_')[1],short[j_nei]+long[j_nei].split('_')[1]]),
-				#    ])).replace('.0','')
-
-				# This definition finds several unique labels in the test set, e.g. C_3_3_1_1_C_C_4_4_1_1_N
-				#sublabel2 = '_'.join(sorted([
-				#    '_'.join([long[i],short[i_nei]]),
-				#    '_'.join([long[j],short[j_nei]]),
-				#    ])).replace('.0','')
-
-				# This definition finds several unique labels in the test set, {'C_O_1_N_C_2_2',
-				# 'N_C_1_N_O_1_2', 'N_N_2_O_C_1_1'}
-				sublabel4 = '_'.join(sorted([
-					'_'.join([short[i],short[i_nei],str(bond_orders[i,i_nei].round(1))]),
-					'_'.join([short[j],short[j_nei],str(bond_orders[j,j_nei].round(1))]),
-					]) + [str(bond_orders[i,j].round(1))]
-					).replace('.0','')
-
-				# This definition finds several unique labels in the test set, e.g. C3_C4_1_C4_N4_1_1'
-				#sublabel4 = '_'.join(sorted([
-				#    '_'.join([short[i]+long[i].split('_')[1],short[i_nei]+long[i_nei].split('_')[1],
-				#        str(bond_orders[i,i_nei].round(1))]),
-				#    '_'.join([short[j]+long[j].split('_')[1],short[j_nei]+long[j_nei].split('_')[1],
-				#        str(bond_orders[j,j_nei].round(1))]),
-				#    ]) + [str(bond_orders[i,j].round(1))]
-				#    ).replace('.0','')
-
-				sublabel = '_'.join(sorted([
-					'_'.join([short[i],short[i_nei]]),
-					'_'.join([short[j],short[j_nei]]),
-					]) + [str(bond_orders[i,j].round(1))]
-					).replace('.0','')
-
-				sublabel2 = '_'.join(sorted([
-					'_'.join([short[i]+long[i].split('_')[1],short[i_nei]]),
-					'_'.join([short[j]+long[j].split('_')[1],short[j_nei]]),
-					]) + [str(bond_orders[i,j].round(1))]
-					).replace('.0','')
-
-				sublabel3 = '_'.join(sorted([
-					'_'.join([short[i]+long[i].split('_')[1],short[i_nei]]),
-					'_'.join([short[j]+long[j].split('_')[1],short[j_nei]]),
-					])).replace('.0','')
-				row = {'molecule_name':molecule_name,
-					   'atom_index_0':i,'atom_index_1':j,'atom_index_2':i_nei,'atom_index_3':j_nei,
-					  'label':label,'sublabel':sublabel,'sublabel2':sublabel2,'sublabel3':sublabel3,
-					   'sublabel4':sublabel4,'angle':dihedral}
-				for k,v in row.items():
-					new_data[k].append(v)
-	ans = pd.DataFrame(new_data)
-	ans.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2','atom_index_3'])
-	assert int(ans.groupby("molecule_name").count().max()[0]) <= MAX_QUAD_COUNT
-	return ans
-
-
-def write_csv(directory,label,atoms,bonds,triplets,quadruplets):
+def write_csv(directory,label,atoms,bonds,triplets):
 	"""Write the relevant dataframes to a CSV file.
 
 	Args:
@@ -463,7 +340,6 @@ def write_csv(directory,label,atoms,bonds,triplets,quadruplets):
 		atoms: Pandas dataframe read from structures.csv, after running :func:`enhance_atoms`.
 		bonds: Pandas dataframe read from train.csv or test.csv, after running :func:`enhance_bonds`.
 		triplets: Pandas dataframe created by :func:`make_triplets`.
-		quadruplets: Pandas dataframe created by :func:`make_quadruplets`.
 
 	Returns:
 		None
@@ -493,12 +369,6 @@ def write_csv(directory,label,atoms,bonds,triplets,quadruplets):
 		triplets = triplets.sort_values(["molecule_name",'atom_index_0','atom_index_1','atom_index_2'])
 		triplets.to_csv(filename.format(label+'_triplets'),index=False,columns=
 			'molecule_name,atom_index_0,atom_index_1,atom_index_2,label,sublabel,angle'.split(','))
-	if quadruplets is not None and len(quadruplets):
-		quadruplets = quadruplets.sort_values(["molecule_name",'atom_index_0','atom_index_1',
-											   'atom_index_2','atom_index_3'])
-		quadruplets.to_csv(filename.format(label+'_quadruplets'),index=False,columns=
-			'molecule_name,atom_index_0,atom_index_1,atom_index_2,atom_index_3,label,sublabel,sublabel2,sublabel3,sublabel4,angle'.split(','))
-
 
 def _create_embedding(series):
 	"""Create a one-hot encoding embedding.
@@ -516,14 +386,13 @@ def _create_embedding(series):
 	return emb_index
 
 
-def add_embedding(atoms,bonds,triplets,quadruplets,embeddings=None):
+def add_embedding(atoms,bonds,triplets,embeddings=None):
 	"""Add embedding indices to the dataframes.
 
 	Args:
 		atoms: Pandas dataframe read from structures.csv, after running :func:`enhance_atoms`.
 		bonds: Pandas dataframe read from train.csv or test.csv, after running :func:`enhance_bonds`.
 		triplets: Pandas dataframe created by :func:`make_triplets`.
-		quadruplets: Pandas dataframe created by :func:`make_quadruplets`.
 		embeddings (dict or None): If None, we create a new embedding (e.g. train data), otherwise we use the given embeddigns thar are output by :func:`add_embedding` (e.g. test data).
 
 	Returns:
@@ -539,22 +408,19 @@ def add_embedding(atoms,bonds,triplets,quadruplets,embeddings=None):
 	bonds["type_2"] = bonds["sublabel_type"]
 	triplets["type_0"] = triplets["label"].apply(lambda x : x[0] + x[5] + x[10])
 	triplets["type_1"] = triplets["label"]
-	quadruplets["type_0"] = quadruplets["label"]
 	if embeddings is None:
 		embeddings = {}
 		embeddings.update({('atom',t):_create_embedding(atoms["type_" + str(t)]) for t in range(3)})
 		embeddings.update({('bond',t):_create_embedding(bonds["type_" + str(t)]) for t in range(3)})
 		embeddings.update({('triplet',t):_create_embedding(triplets["type_" + str(t)]) for t in range(2)})
-		embeddings.update({('quadruplet',t):_create_embedding(quadruplets["type_" + str(t)]) for t in range(1)})
 	for t in range(3):
 		atoms["type_index_" + str(t)] = atoms["type_" + str(t)].apply(lambda x : embeddings[('atom',t)][x])
 	for t in range(3):
 		bonds["type_index_" + str(t)] = bonds["type_" + str(t)].apply(lambda x : embeddings[('bond',t)][x])
 	for t in range(2):
 		triplets["type_index_" + str(t)] = triplets["type_" + str(t)].apply(lambda x : embeddings[('triplet',t)][x])
-	for t in range(1):
-		quadruplets["type_index_" + str(t)] = quadruplets["type_" + str(t)].apply(lambda x : embeddings[('quadruplet',t)][x])
-	return embeddings
+
+	return embeddings, atoms, bonds, triplets
 
 
 def get_scaling(bonds_train):
@@ -570,6 +436,12 @@ def get_scaling(bonds_train):
 	# Get the mean/std scaling factors
 	means = bonds_train.groupby("labeled_type").mean()["scalar_coupling_constant"].to_dict()
 	stds = bonds_train.groupby("labeled_type").std()["scalar_coupling_constant"].to_dict()
+	# stds of 0 were causing NaNs in training, assuming this workflow originally assumed at least one of
+	# every coupling type would be present
+	for key in stds:
+		if np.isnan(stds[key]) or stds[key] == 0:
+			stds[key] = 1
+
 	return means,stds
 
 
@@ -593,14 +465,13 @@ def add_scaling(bonds,means,stds):
 	return bonds
 
 
-def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10**10, mol_order=[]):
+def create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=[]):
 	"""Create the python loaders, which we can pkl to a file for batching.
 
 	Args:
 		atoms: Pandas dataframe read from structures.csv, after running :func:`enhance_atoms`.
 		bonds: Pandas dataframe read from train.csv or test.csv, after running :func:`enhance_bonds`.
 		triplets: Pandas dataframe created by :func:`make_triplets`.
-		quads: Pandas dataframe created by :func:`make_quadruplets`.
 		labeled (bool): Whether this is train data, labeled with the y value.
 		max_count (int): Maximum number of entries; useful for testing.
 
@@ -614,8 +485,6 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 			* x_bond_dist: (M,B) Distance of the bond.
 			* x_triplet: (N,P,7): Triplet type (2), Atom index (3), Bond index (2) corresponding to the triplet.
 			* x_triplet_angle: (N,P) Triplet angle.
-			* x_quad: (N,Q,10) Quadruplet type (1), Atom index (4), Bond index (3), and triplet index (2) corresponding to the quadruplet.
-			* x_quad_angle: (N,Q) Quadruplet dihedral angle.
 			* y_bond_scalar_coupling: (N,M,4) of the scalar coupling constant, type mean, type std, and whether it should be predicted.
 
 	"""
@@ -627,8 +496,6 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 	atoms = atoms.set_index("molecule_name")
 	bonds = bonds.set_index("molecule_name")
 	triplets = triplets.set_index("molecule_name")
-	quads = quads.set_index("molecule_name")
-	quad_mols = set(quads.index)
 
 	max_count = M = min(max_count, len(index))
 
@@ -639,13 +506,12 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 	x_bond_dist = torch.zeros(M, MAX_BOND_COUNT)
 	x_triplet = torch.zeros(M, MAX_TRIPLET_COUNT, 7, dtype=torch.long)
 	x_triplet_angle = torch.zeros(M, MAX_TRIPLET_COUNT)
-	x_quad = torch.zeros(M, MAX_QUAD_COUNT, 10, dtype=torch.long)
-	x_quad_angle = torch.zeros(M, MAX_QUAD_COUNT)
 
 	y_bond_scalar_coupling = torch.zeros(M, MAX_BOND_COUNT, 4)
 
-	#for k,i in tqdm(index.items()):
-	for i, k in enumerate(mol_order):
+	i = -1
+	for k in tqdm(mol_order, desc='Constructing training dataset'):
+		i += 1
 		if i >= M:
 			break
 		mol_atoms = atoms.loc[[k]]
@@ -714,49 +580,6 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 		x_triplet[i,:p,5] = torch.tensor(b_idx1.values)
 		x_triplet[i,:p,5] = torch.tensor(b_idx2.values)
 
-		# STEP 5: Quadruplets
-		if k in quad_mols:
-			mol_quads = quads.loc[[k]]
-			q = mol_quads.shape[0]
-
-			x_quad[i,:q,0] = torch.tensor(mol_quads["type_index_0"].values)
-			x_quad[i,:q,1] = torch.tensor(mol_quads["atom_index_0"].values)
-			x_quad[i,:q,2] = torch.tensor(mol_quads["atom_index_1"].values)
-			x_quad[i,:q,3] = torch.tensor(mol_quads["atom_index_2"].values)
-			x_quad[i,:q,4] = torch.tensor(mol_quads["atom_index_3"].values)
-
-			x_quad_angle[i,:q] = torch.tensor(mol_quads["angle"].values)
-			# Triplet convention is 1-0-2, so only 1/2 are exchangeable
-			# Quadruplet convention is 2-0-1-3
-			lookup3 = dict(zip(mol_triplets["atom_index_0"].apply(str) + "_" +
-							   mol_triplets["atom_index_1"].apply(str) + "_" +
-							   mol_triplets["atom_index_2"].apply(str),
-							  range(mol_triplets.shape[0])))
-			lookup3.update(dict(zip(mol_triplets["atom_index_0"].apply(str) + "_" +
-							   mol_triplets["atom_index_2"].apply(str) + "_" +
-							   mol_triplets["atom_index_1"].apply(str),
-							  range(mol_triplets.shape[0]))))
-			b_idx1 = (mol_quads["atom_index_0"].apply(str) + "_" +
-					  mol_quads["atom_index_1"].apply(str)).apply(lambda x : lookup[x])
-			b_idx2 = (mol_quads["atom_index_0"].apply(str) + "_" +
-					  mol_quads["atom_index_2"].apply(str)).apply(lambda x : lookup[x])
-			b_idx3 = (mol_quads["atom_index_1"].apply(str) + "_" +
-					  mol_quads["atom_index_3"].apply(str)).apply(lambda x : lookup[x])
-			t_idx1 = (mol_quads["atom_index_0"].apply(str) + "_" +
-					  mol_quads["atom_index_1"].apply(str) + "_" +
-					  mol_quads["atom_index_2"].apply(str)).apply(lambda x : lookup3[x])
-			t_idx2 = (mol_quads["atom_index_1"].apply(str) + "_" +
-					  mol_quads["atom_index_0"].apply(str) + "_" +
-					  mol_quads["atom_index_3"].apply(str)).apply(lambda x : lookup3[x])
-
-			x_quad[i,:q,5] = torch.tensor(b_idx1.values)
-			x_quad[i,:q,6] = torch.tensor(b_idx2.values)
-			x_quad[i,:q,7] = torch.tensor(b_idx3.values)
-			x_quad[i,:q,8] = torch.tensor(t_idx1.values)
-			x_quad[i,:q,9] = torch.tensor(t_idx2.values)
-
-			x_quad_angle[i,:q] = torch.tensor(mol_quads["angle"].values)
-
 		if labeled:
 			y_bond_scalar_coupling[i,:mr, 0] = torch.tensor(mol_real_bonds["scalar_coupling_constant"].values)
 		else:
@@ -765,4 +588,4 @@ def create_dataset(atoms, bonds, triplets, quads, labeled = True, max_count = 10
 		y_bond_scalar_coupling[i,:mr, 2] = torch.tensor(mol_real_bonds["sc_std"].values)
 		y_bond_scalar_coupling[i,:mr, 3] = torch.tensor(mol_real_bonds["predict"].values).float()  # binary tensor (1s to be predicted)
 
-	return x_index, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle, y_bond_scalar_coupling
+	return x_index, x_atom, x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, y_bond_scalar_coupling
