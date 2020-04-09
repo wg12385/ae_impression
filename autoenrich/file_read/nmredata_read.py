@@ -18,7 +18,7 @@
 import numpy as np
 
 # Read NMR data from nmredata file
-def read_nmr(file, atoms):
+def read_nmr(file):
 	# Input:
 	#	file: filename
 	#	atoms: number of atoms in molecule (read sdf part first)
@@ -29,6 +29,11 @@ def read_nmr(file, atoms):
 	#	coupling_array, array of coupling constants (2D numpy array)
 	#	coupling_len, array of bond distance between atoms (2D numpy array)
 	#	coupling_var, array of coupling constant variances (used in machine learning) (2D numpy array)
+
+	with open(file, 'r') as f:
+		for line in f:
+			if 'V2000' in line or len(line.split()) == 12:
+				atoms = int(line.split()[0])
 
 	# Define empty arrays
 	shift_array = np.zeros(atoms, dtype=np.float64)
@@ -72,7 +77,9 @@ def read_nmr(file, atoms):
 					continue
 				length = int(items[6].strip()[0])
 				coupling_array[int(items[0])][int(items[2])] = float(items[4])
+				coupling_array[int(items[2])][int(items[0])] = float(items[4])
 				coupling_var[int(items[0])][int(items[2])] = float(items[8])
+				coupling_var[int(items[2])][int(items[0])] = float(items[8])
 				coupling_len[int(items[0])][int(items[2])] = length
 				coupling_len[int(items[2])][int(items[0])] = length
 

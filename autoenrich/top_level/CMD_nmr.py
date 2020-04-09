@@ -16,7 +16,11 @@
 
 from autoenrich.file_creation import HPC_submission as HPCsub
 import autoenrich.file_read.orca_read as orcaread
+import autoenrich.file_read.g09_read as g09read
+import autoenrich.file_read.g16_read as g16read
 import autoenrich.file_creation.orca_submission as orcasub
+import autoenrich.file_creation.g09_submission as g09sub
+import autoenrich.file_creation.g16_submission as g16sub
 import autoenrich.file_creation.structure_formats.nmredata as nmredata
 import sys
 import os.path
@@ -26,8 +30,16 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 	nmr_files = []
 	for conformer in molecule.conformers:
 		if (conformer.nmr_status == 'None' or conformer.nmr_status == 'pre-submission') and conformer.opt_status == 'successful':
-			conformer.nmr_in = orcasub.make_nmrin(prefs, conformer.molid, conformer.xyz, conformer.types,
-														path + 'NMR/')
+			if prefs['NMR']['software'] == 'orca':
+				conformer.nmr_in = orcasub.make_nmrin(prefs, conformer.molid, conformer.xyz, conformer.types,
+															path + 'NMR/')
+			elif prefs['NMR']['software'] == 'g09':
+				conformer.nmr_in = g09sub.make_nmrcom(prefs, conformer.molid, conformer.xyz, conformer.types,
+															path + 'NMR/')
+			elif prefs['NMR']['software'] == 'g16':
+				conformer.nmr_in = g16sub.make_nmrcom(prefs, conformer.molid, conformer.xyz, conformer.types,
+															path + 'NMR/')
+
 			conformer.nmr_log = conformer.nmr_in.split('.')[0] + '.log'
 			conformer.nmr_status = 'pre-submission'
 			nmr_files.append('NMR/' + conformer.nmr_in.split('/')[-1])
@@ -45,6 +57,7 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 	memory = prefs['NMR']['memory']
 	processors = prefs['NMR']['processors']
 	walltime = prefs['NMR']['walltime']
+	software = prefs['NMR']['software']
 
 	files = len(nmr_files)
 	chunks = HPCsub.get_chunks(files)
@@ -58,12 +71,12 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 
 		#header = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 		jobname = 'aE_' + molecule.molid + '_' + str(ck) + '_NMR'
-		strings = HPCsub.make_HPC_orca_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end,
+		strings = HPCsub.make_HPC_batch_submission(prefs, molecule.molid, IN_ARRAY, start, end, software=software,
 									jobname=jobname, nodes=1, ppn=processors, walltime=walltime, mem=memory)
 
-		if prefs['comp']['system'] == 'BC3':
+		if prefs['comp']['system'] == 'PBS':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.qsub'
-		elif prefs['comp']['system'] == 'BC4':
+		elif prefs['comp']['system'] == 'slurm':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.slurm'
 		elif prefs['comp']['system'] == 'local':
 			filename = path + 'NMR_' + molecule.molid + '_' + str(ck) + '.sh'
@@ -73,7 +86,7 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 		qsub_names.append(filename)
 
 	print('Created ', chunks, ' submission files. . .')
-	if prefs['comp']['system'] == 'BC3':
+	if prefs['comp']['system'] == 'PBS':
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('qsub ', file)
@@ -81,7 +94,7 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('bash ', file)
-	elif prefs['comp']['system'] == 'BC4':
+	elif prefs['comp']['system'] == 'slurm':
 		print('Havent finished this yet, good luck pal. . . .')
 
 
@@ -93,7 +106,13 @@ def process_nmr(molecule, prefs, path=''):
 
 	for conformer in molecule.conformers:
 		if os.path.isfile(conformer.nmr_log):
-			status = orcaread.get_nmr_status(conformer.nmr_log)
+			if prefs['NMR']['software'] == 'orca':
+				status = orcaread.get_nmr_status(conformer.nmr_log)
+			elif prefs['NMR']['software'] == 'g09':
+				status = g09read.get_nmr_status(conformer.nmr_log)
+			elif prefs['NMR']['software'] == 'g16':
+				status = g16read.get_nmr_status(conformer.nmr_log)
+
 			if status == 'successful':
 				good +=1
 				conformer.read_nmr(conformer.nmr_log, type='orca')

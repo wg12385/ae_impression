@@ -16,7 +16,7 @@
 
 import numpy as np
 import sys
-from autoenrich.file_read import orca_read, g09_read, nmredata_read, structure_read
+from autoenrich.file_read import orca_read, g09_read, g16_read, nmredata_read, structure_read
 from autoenrich.reference.periodic_table import Get_periodic_table
 import pickle
 
@@ -57,8 +57,11 @@ class nmrmol(object):
 
 	def read_opt(self, file, type):
 		if type == 'orca':
-			#self.xyz, self.types, self.conn, self.coupling_len = orca_read.read_structure(file)
 			self.energy = orca_read.read_opt(file)
+		elif type == 'g09':
+			self.energy = g09_read.read_opt(file)
+		elif type == 'g16':
+			self.energy = g16_read.read_opt(file)
 
 
 	def read_nmr(self, file, type):
@@ -68,14 +71,23 @@ class nmrmol(object):
 			atoms = len(self.types)
 			self.shift_var = np.zeros((atoms), dtype=np.float64)
 			self.coupling_var = np.zeros((atoms, atoms), dtype=np.float64)
+
 		elif type == 'g09':
 			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, 'g09')
 			self.shift, self.coupling = g09_read.read_nmr(file, len(self.types))
 			self.shift_var = np.zeros((len(self.types)), dtype=np.float64)
 			self.coupling_var = np.zeros((len(self.types), len(self.types)), dtype=np.float64)
+
+		elif type == 'g16':
+			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, 'g09')
+			self.shift, self.coupling = g16_read.read_nmr(file, len(self.types))
+			self.shift_var = np.zeros((len(self.types)), dtype=np.float64)
+			self.coupling_var = np.zeros((len(self.types), len(self.types)), dtype=np.float64)
+
 		elif type == 'nmredata':
 			self.xyz, self.types, self.conn, _ = structure_read.fast_generic_pybel_read(file, 'sdf')
-			self.shift, self.shift_var, self.coupling, self.coupling_var, self.coupling_len = nmredata_read.read_nmr(file, len(self.types))
+			self.shift, self.shift_var, self.coupling, self.coupling_var, self.coupling_len = nmredata_read.read_nmr(file)
+
 		else:
 			self.xyz, self.types, self.conn, self.coupling_len = structure_read.generic_pybel_read(file, type)
 			atoms = len(self.types)
@@ -95,7 +107,7 @@ class nmrmol(object):
 				if periodic_table[self.types[i]] == nucleus:
 					self.shift[i] = (self.shift[i] - factor[1]) / float(factor[0])
 
-	def save_pickle(file):
+	def save_pickle(self, file):
 		pickle.dump(self, open(file, "wb"))
 
 

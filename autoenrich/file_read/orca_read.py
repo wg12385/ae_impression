@@ -15,6 +15,7 @@
 #along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+import os
 
 # Get status of ORCA optimisation
 def get_opt_status(file):
@@ -23,18 +24,23 @@ def get_opt_status(file):
 
 	# Returns: status
 
-	status = 'unknown'
-	try:
+	if not os.path.isfile(file):
+		return 'not_submitted'
+	else:
+		status = 'unknown'
+		finished = False
 		with open(file, 'r') as f:
 			for line in f:
 				if 'SUCCESS' in line:
 					status = 'successful'
 				if 'ERROR' in line:
 					status = 'failed'
-	except Exception as e:
-		status = 'not submitted'
-
-	return status
+				if '****ORCA TERMINATED NORMALLY****' in line:
+					finished = True
+		if finished:
+			return status
+		else:
+			return 'unknown'
 
 # Get status of ORCA NMR calculation
 def get_nmr_status(file):
@@ -42,20 +48,24 @@ def get_nmr_status(file):
 		#	file: filename
 
 		# Returns: status
-	status = 'unknown'
-	finished = False
-	with open(file, 'r') as f:
-		for line in f:
-			if 'SUCCESS' in line:
-				status = 'successful'
-			if 'ERROR' in line:
-				status = 'failed'
-			if '****ORCA TERMINATED NORMALLY****' in line:
-				finished = True
-	if finished:
-		return status
+
+	if not os.path.isfile(file):
+		return 'not submitted'
 	else:
-		return 'unknown'
+		status = 'unknown'
+		finished = False
+		with open(file, 'r') as f:
+			for line in f:
+				if 'SUCCESS' in line:
+					status = 'successful'
+				if 'ERROR' in line:
+					status = 'failed'
+				if '****ORCA TERMINATED NORMALLY****' in line:
+					finished = True
+		if finished or status == 'failed':
+			return status
+		else:
+			return 'unknown'
 
 # Read Optimisation energy from ORCA optimisation file
 def read_opt(file):
@@ -68,11 +78,25 @@ def read_opt(file):
 	energy = 0.0
 	with open(file ,'r') as f:
 		for line in f:
-			if 'SCF Energy:' in line:
+			if 'FINAL SINGLE POINT ENERGY' in line:
 				items=line.split()
 				energy = float(items[-1])
 
 	return energy
+
+def read_functional(file):
+
+	functional = ''
+	basisset = ''
+
+	with open(file, 'r') as f:
+		for line in f:
+			if '|  1> !' in line:
+				functional = line.split()[3]
+				basisset = line.split()[4]
+
+	return functional, basisset
+
 
 # Read NMR information from ORCA NMR log files
 def read_nmr(file):
