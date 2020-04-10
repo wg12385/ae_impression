@@ -35,6 +35,9 @@ install:
 
   # Create and activate the test environment
   - conda create -q -y -n test-environment python=$TRAVIS_PYTHON_VERSION autoenrich --file dev-requirements.txt
+
+  - pip install pytest
+
   - source activate test-environment
 
 script:
@@ -42,6 +45,7 @@ script:
   - autoenrich -h
   - impression -h
   - ae_utils -h
+  - pytest
 
 after_success:
   # Install the command line API for CONDA uploads

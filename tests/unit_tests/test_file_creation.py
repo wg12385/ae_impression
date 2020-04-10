@@ -5,6 +5,7 @@ sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
 
 from autoenrich.file_creation.structure_formats.nmredata import nmrmol_to_nmredata
 from autoenrich.file_creation.structure_formats.xyz import nmrmol_to_xyz
+from autoenrich.file_creation.data_formats.csv import print_mol_csv
 from autoenrich.file_creation.confsearch import make_confsearch_script
 from autoenrich.file_creation.HPC_submission import get_chunks, make_HPC_header, make_HPC_batch_submission
 
@@ -16,6 +17,11 @@ from tests.test_generators.dummy_dataset import get_dummy_dataset
 from tests.test_generators.dummy_prefs import get_dummy_prefs
 from tests.test_generators.dummy_mol import get_random_mol
 
+
+def test_csv():
+
+    # Not written yet, weird test case, function not used much
+    print('Not written yet, weird test case, function not used much')
 
 def test_nmredata():
 

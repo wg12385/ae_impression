@@ -5,6 +5,8 @@ from autoenrich.util.argparse_wizard import get_minimal_args
 import glob
 import os
 
+
+'''
 def get_test_cases():
 
 	test_cases = []
@@ -74,3 +76,4 @@ if __name__ == "__main__":
 		os.remove(file)
 
 	print(status1, status2)
+'''

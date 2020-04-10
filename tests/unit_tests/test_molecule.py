@@ -99,7 +99,7 @@ def test_nmrmol_read_structure():
 
     mol = nmrmol(molid='ethane')
 
-    mol.read_structure('../test_store/ethane.xyz', 'xyz')
+    mol.read_structure('tests/test_store/ethane.xyz', 'xyz')
 
     assert is_ethane(mol.xyz, mol.types, mol.conn, mol.coupling_len)
 
@@ -107,20 +107,20 @@ def test_nmrmol_read_opt():
 
     mol = nmrmol(molid='ethane')
 
-    mol.read_opt('../test_store/TST_pass_orca_opt.log', 'orca')
+    mol.read_opt('tests/test_store/TST_pass_orca_opt.log', 'orca')
     assert mol.energy == -1072.556525704736
 
-    mol.read_opt('../test_store/TST_pass_g09_opt.log', 'g09')
+    mol.read_opt('tests/test_store/TST_pass_g09_opt.log', 'g09')
     assert mol.energy == -1419.091348
 
-    #mol.read_opt('../test_store/TST_pass_g16_opt.log', 'orca')
+    #mol.read_opt('tests/test_store/TST_pass_g16_opt.log', 'orca')
     #assert mol.energy == 2342.2
 
 def test_nmrmol_read_nmr():
 
     mol = nmrmol(molid='ethane')
 
-    mol.read_nmr('../test_store/ethane_orca_nmr.log', 'orca')
+    mol.read_nmr('tests/test_store/ethane_orca_nmr.log', 'orca')
 
     assert np.array_equal(mol.shift, [223.81,  223.81,   32.002,  32.002,  32.005,  32.002, 32.005,  32.002])
     assert np.array_equal(mol.coupling, [[ 0.0000,  38.796, 114.462, 115.871, 113.801, -4.644 ,  -4.576,  -4.558],
@@ -133,7 +133,7 @@ def test_nmrmol_read_nmr():
                                          [ -4.558, 114.462,  12.579,   3.182,   3.167, -13.971, -13.658,   0.000]])
 
     '''
-    mol.read_nmr('../test_store/ethane_g09_nmr.log', 'g09')
+    mol.read_nmr('tests/test_store/ethane_g09_nmr.log', 'g09')
 
     assert is_ethane(mol.xyz, mol.types, mol.conn, mol.coupling_len)
     assert np.array_equal(mol.shift, [223.81,  223.81,   32.002,  32.002,  32.005,  32.002, 32.005,  32.002])
@@ -146,7 +146,7 @@ def test_nmrmol_read_nmr():
                                          [ -4.576, 113.801,   3.161,   3.181,  12.524, -13.906,   0.000, -13.658],
                                          [ -4.558, 114.462,  12.579,   3.182,   3.167, -13.971, -13.658,   0.000]])
 
-    mol.read_nmr('../test_store/ethane_g16_nmr.log', 'g09')
+    mol.read_nmr('tests/test_store/ethane_g16_nmr.log', 'g09')
 
     assert is_ethane(mol.xyz, mol.types, mol.conn, mol.coupling_len)
     assert np.array_equal(mol.shift, [223.81,  223.81,   32.002,  32.002,  32.005,  32.002, 32.005,  32.002])
@@ -160,7 +160,7 @@ def test_nmrmol_read_nmr():
                                          [ -4.558, 114.462,  12.579,   3.182,   3.167, -13.971, -13.658,   0.000]])
     '''
 
-    mol.read_nmr('../test_store/ethane.nmredata.sdf', 'nmredata')
+    mol.read_nmr('tests/test_store/ethane.nmredata.sdf', 'nmredata')
 
     assert np.allclose(mol.shift, [223.849, 223.849, 32.006, 32.003,  32.012, 32.006, 32.004,  32.011], 0.001)
     assert np.allclose(mol.coupling, [[  0.000,  38.849, 114.872, 115.641, 114.354,  -4.636,  -4.627,  -4.609],
@@ -176,8 +176,8 @@ def test_scale_shifts():
 
     mol = nmrmol(molid='ethane')
 
-    mol.read_structure('../test_store/ethane.xyz', 'xyz')
-    mol.read_nmr('../test_store/ethane_orca_nmr.log', 'orca')
+    mol.read_structure('tests/test_store/ethane.xyz', 'xyz')
+    mol.read_nmr('tests/test_store/ethane_orca_nmr.log', 'orca')
 
     mol.scale_shifts(scaling_factors={'H': [-1.1, 30.0], 'C': [-1.2, 30.2]})
 
