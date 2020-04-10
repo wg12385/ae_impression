@@ -36,7 +36,7 @@ install:
   # Create and activate the test environment
   - conda create -q -y -n test-environment python=$TRAVIS_PYTHON_VERSION autoenrich --file dev-requirements.txt
 
-  - pip install pytest
+  - pip install -U pytest
 
   - source activate test-environment
 
