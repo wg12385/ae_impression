@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'tests/test_store/')
 
 from autoenrich.file_read import g09_read as g09read
 from autoenrich.file_read import g16_read as g16read
@@ -13,33 +14,35 @@ import numpy as np
 
 def test_g09get_opt_status():
 
-    file = '../test_store/TST_pass_g09_opt.log'
+    print(sys.path)
+
+    file = 'tests/test_store/TST_pass_g09_opt.log'
     status = g09read.get_opt_status(file)
     assert status == 'successful'
 
-    file = '../test_store/TST_fail_g09_opt.log'
+    file = 'tests/test_store/TST_fail_g09_opt.log'
     status = g09read.get_opt_status(file)
     assert status == 'failed'
 
 def test_g09get_nmr_status():
 
-    file = '../test_store/TST_pass_g09_nmr.log'
+    file = 'tests/test_store/TST_pass_g09_nmr.log'
     status = g09read.get_nmr_status(file)
     assert status == 'successful'
 
-    file = '../test_store/TST_fail_g09_nmr.log'
+    file = 'tests/test_store/TST_fail_g09_nmr.log'
     status = g09read.get_nmr_status(file)
     assert status == 'unknown'
 
 def test_g09read_opt():
 
-    file = '../test_store/TST_pass_g09_opt.log'
+    file = 'tests/test_store/TST_pass_g09_opt.log'
     energy = g09read.read_opt(file)
     assert energy == -1419.091348
 
 def test_g09read_functional():
 
-    file = '../test_store/TST_pass_g09_nmr.log'
+    file = 'tests/test_store/TST_pass_g09_nmr.log'
     functional, basisset = g09read.read_functional(file)
 
     assert functional == '(giao,spinspin,mixed)wb97xd'
@@ -47,7 +50,7 @@ def test_g09read_functional():
 
 def test_g09read_nmr():
 
-    file = '../test_store/TST_pass_g09_nmr.log'
+    file = 'tests/test_store/TST_pass_g09_nmr.log'
 
     shift, coupling = g09read.read_nmr(file)
 
@@ -71,33 +74,33 @@ def test_g09read_nmr():
 '''
 def test_g16get_opt_status():
 
-    file = '../test_store/TST_pass_g16_opt.log'
+    file = 'tests/test_store/TST_pass_g16_opt.log'
     status = g16read.get_opt_status(file)
     assert status == 'successful'
 
-    file = '../test_store/TST_fail_g16_opt.log'
+    file = 'tests/test_store/TST_fail_g16_opt.log'
     status = g16read.get_opt_status(file)
     assert status == 'failed'
 
 def test_g16get_nmr_status():
 
-    file = '../test_store/TST_pass_g16_nmr.log'
+    file = 'tests/test_store/TST_pass_g16_nmr.log'
     status = g16read.get_nmr_status(file)
     assert status == 'successful'
 
-    file = '../test_store/TST_fail_g16_nmr.log'
+    file = 'tests/test_store/TST_fail_g16_nmr.log'
     status = g16read.get_nmr_status(file)
     assert status == 'unknown'
 
 def test_g16read_opt():
 
-    file = '../test_store/TST_pass_g16_opt.log'
+    file = 'tests/test_store/TST_pass_g16_opt.log'
     energy = g16read.read_opt(file)
     assert energy == -1419.091348
 
 def test_g16read_functional():
 
-    file = '../test_store/TST_pass_g16_nmr.log'
+    file = 'tests/test_store/TST_pass_g16_nmr.log'
     functional, basisset = g16read.read_functional(file)
 
     assert functional == '(giao,spinspin,mixed)wb97xd'
@@ -105,7 +108,7 @@ def test_g16read_functional():
 
 def test_g16read_nmr():
 
-    file = '../test_store/TST_pass_g16_nmr.log'
+    file = 'tests/test_store/TST_pass_g16_nmr.log'
 
     shift, coupling = g16read.read_nmr(file)
 
@@ -130,7 +133,7 @@ def test_g16read_nmr():
 
 def test_nmreread_nmr():
 
-    file = '../test_store/TST.nmredata.sdf'
+    file = 'tests/test_store/TST.nmredata.sdf'
 
     shift_array, shift_var, coupling_array, coupling_var, coupling_len = nmreread.read_nmr(file)
 
@@ -173,37 +176,37 @@ def test_nmreread_nmr():
 
 def test_orcaget_opt_status():
 
-    file = '../test_store/TST_pass_orca_opt.log'
+    file = 'tests/test_store/TST_pass_orca_opt.log'
     status = orcaread.get_opt_status(file)
     assert status == 'successful'
 
     # Dont actually have a failed one yet
     '''
-    file = '../test_store/TST_fail_orca_opt.log'
+    file = 'tests/test_store/TST_fail_orca_opt.log'
     status = orcaread.get_opt_status(file)
     assert status == 'failed'
     '''
 
 def test_orcaget_nmr_status():
 
-    file = '../test_store/TST_pass_orca_nmr.log'
+    file = 'tests/test_store/TST_pass_orca_nmr.log'
     status = orcaread.get_nmr_status(file)
     assert status == 'successful'
 
 
-    file = '../test_store/TST_fail_orca_nmr.log'
+    file = 'tests/test_store/TST_fail_orca_nmr.log'
     status = orcaread.get_nmr_status(file)
     assert status == 'failed'
 
 def test_orcaread_opt():
 
-    file = '../test_store/TST_pass_orca_opt.log'
+    file = 'tests/test_store/TST_pass_orca_opt.log'
     energy = orcaread.read_opt(file)
     assert energy == -1072.556525704736
 
 def test_orcaread_functional():
 
-    file = '../test_store/TST_pass_orca_nmr.log'
+    file = 'tests/test_store/TST_pass_orca_nmr.log'
     functional, basisset = orcaread.read_functional(file)
 
     assert functional == 'wB97X-D3'
@@ -211,7 +214,7 @@ def test_orcaread_functional():
 
 def test_orcaread_nmr():
 
-    file = '../test_store/TST_pass_orca_nmr.log'
+    file = 'tests/test_store/TST_pass_orca_nmr.log'
 
     shift, coupling = orcaread.read_nmr(file)
 
@@ -232,8 +235,8 @@ def test_orcaread_nmr():
     assert coupling[4][34] == -0.01
 
 def test_generic_pybel_read():
-    files = ['../test_store/ethane.xyz', '../test_store/ethane.mol', # '../test_store/ethane_nmr.log',
-            '../test_store/ethane.mol2', '../test_store/ethane.sdf']
+    files = ['tests/test_store/ethane.xyz', 'tests/test_store/ethane.mol', # 'tests/test_store/ethane_nmr.log',
+            'tests/test_store/ethane.mol2', 'tests/test_store/ethane.sdf']
     intypes = ['xyz', 'mol',#'g09',
                 'mol2', 'sdf']
 
@@ -276,8 +279,8 @@ def test_generic_pybel_read():
         assert np.array_equal(coupling_len, _coupling_len)
 
 def test_fast_generic_pybel_read():
-    files = ['../test_store/ethane.xyz', '../test_store/ethane.mol', # '../test_store/ethane_nmr.log',
-            '../test_store/ethane.mol2', '../test_store/ethane.sdf']
+    files = ['tests/test_store/ethane.xyz', 'tests/test_store/ethane.mol', # 'tests/test_store/ethane_nmr.log',
+            'tests/test_store/ethane.mol2', 'tests/test_store/ethane.sdf']
     intypes = ['xyz', 'mol',#'g09',
                 'mol2', 'sdf']
 
