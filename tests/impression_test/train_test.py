@@ -1,7 +1,7 @@
 
 
 # Test setup_train and train commands
-
+'''
 from autoenrich.top_level import CMD_trainmodel
 from autoenrich.util.argparse_wizard import get_minimal_args, run_wizard
 from autoenrich.util.flag_handler import hdl_targetflag, flag_combos
@@ -95,3 +95,4 @@ if __name__ == "__main__":
 	for file in files_to_remove:
 		os.remove(file)
 	print(status1, status2)
+'''

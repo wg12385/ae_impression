@@ -22,14 +22,20 @@ def get_unique_part(files):
 		parts.append(file.split('/')[-1].split('.')[0].split('_'))
 
 	label_part = 0
+	success = False
+	while not success:
+		ids = []
+		for file in files:
+			try:
+				ids.append(file.split('/')[-1].split('.')[0].split('_')[label_part])
+			except:
+				label_part = -1
+				success = True
 
-	for p1, part1 in enumerate(parts):
-		for p2, part2 in enumerate(parts):
-			if p1 == p2:
-				continue
-			for i in range(len(part1)):
-				if part1[i] != part2[i]:
-					label_part = i
-
+		if not success:
+			if len(ids) == len(set(ids)):
+				success = True
+			else:
+				label_part += 1
 
 	return label_part

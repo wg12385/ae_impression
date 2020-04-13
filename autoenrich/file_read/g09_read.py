@@ -15,6 +15,7 @@
 #along with autoenrich.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+import os
 
 # Get status of gaussian optimisation file
 def get_opt_status(file):
@@ -24,16 +25,20 @@ def get_opt_status(file):
 	# Returns: status (string), successful, failed, or not submitted
 
 	status = 'unknown'
-	try:
-		# Read through file looking for SUCCESS or ERROR
-		with open(filename, 'r') as f:
-			for line in f:
-				if 'SUCCESS' in line:
-					status = 'successful'
-				if 'ERROR' in line:
-					status = 'failed'
-	except:
+	if not os.path.isfile(file):
 		status = 'not submitted'
+	else:
+		try:
+			# Read through file looking for SUCCESS or ERROR
+			with open(file, 'r') as f:
+				for line in f:
+					if 'Stationary point found' in line:
+						status = 'successful'
+					if 'Error termination' in line:
+						status = 'failed'
+		except Exception as e:
+			print(e)
+			status = 'unknown'
 
 	return status
 
@@ -44,23 +49,29 @@ def get_nmr_status(file):
 
 		# Returns: status (string), successful, failed, or not submitted
 	status = 'unknown'
-	with open(filename, 'r') as f:
-		# Read through file looking for SUCCESS or ERROR
-		for line in f:
-			if 'SUCCESS' in line:
-				status = 'successful'
-			if 'ERROR' in line:
-				status = 'failed'
+	if not os.path.isfile(file):
+		status = 'not submitted'
+	else:
+		with open(file, 'r') as f:
+			# Read through file looking for SUCCESS or ERROR
+			for line in f:
+				if 'Normal termination' in line:
+					status = 'successful'
+				if 'Proceeding to internal job step number' in line:
+					status = 'unknown'
+				if 'Error termination' in line:
+					status = 'failed'
 	return status
 
 # Get energy from optimisation file
 def read_opt(file):
-	# Input:
-	#	file: filename
+	energy = -404
 
-	# Returns: energy
-
-	# NEEDS TO BE WRITTEN
+	with open(file, 'r') as f:
+		for line in f:
+			if 'Sum of electronic and thermal Free Energies' in line:
+				items = line.split()
+				energy = float(items[7])
 
 	return energy
 
@@ -80,8 +91,11 @@ def read_functional(file):
 			if '#T nmr' in line:
 				try:
 					items = line.split()
-					nmrcommand = items[2]
+					nmrcommand = items[1]
 					functional = nmrcommand.split('/')[0]
+					if 'nmr' in functional:
+						functional = functional[3:]
+
 					basisset = nmrcommand.split('/')[1]
 
 					break
@@ -92,7 +106,7 @@ def read_functional(file):
 	return functional, basisset
 
 # Get NMR parameters from gaussian log file
-def read_nmr(file, atomnumber):
+def read_nmr(file):
 	# Input:
 	#	file: filename
 	#	atomnumber: number of atoms in molecule
@@ -100,6 +114,13 @@ def read_nmr(file, atomnumber):
 	# Returns: shift_array (1D numpy array), couplings (2D numpy array)
 
 	# Define empty array for shifts
+
+	with open(file, 'r') as f:
+		for line in f:
+			if 'NAtoms=' in line:
+				items = line.split()
+				atomnumber = int(items[1])
+
 	shift_array = np.zeros(atomnumber, dtype=np.float64)
 	switch = False
 	# Go through file to find magnetic shielding tensors

@@ -364,53 +364,59 @@ def run_wizard(args, default=False):
 		# Model(s) ##############################################################################
 		check = False
 		while not check:
-			try:
-				models = input("Specify models to make predictions from: \n")
-				args['models'] = models.split()
-				if type(args['models']) != list:
-					print('not a list')
-					continue
-				for model in args['models']:
-					a = open(model, 'r')
-					check = True
-			except Exception as e:
-				print(e)
-
-		# var model(s) ##############################################################################
-		check = False
-		while not check:
-			var = input("How many models are used for pre-prediction variance ? Default=0\n variance models need to be of the format <model_file_name>_n.pkl\n")
-			if len(var) == 0:
-				args['var'] = 0
-				check = True
-			else:
+			print(args['models'], '')
+			if args['models'] != '':
 				try:
-					args['var'] = int(var)
+					if type(args['models']) != list:
+						args['models'] = args['models'].split()
+					for model in args['models']:
+						a = open(model, 'r')
 					check = True
 				except Exception as e:
 					print(e)
+					check = False
+
+			if check == False:
+				models = input("Specify models to make predictions from: \n")
+				args['models'] = models.split()
+
+		# var model(s) ##############################################################################
+		check = False
+		if not default:
+			while not check:
+				var = input("How many models are used for pre-prediction variance ? Default=0\n variance models need to be of the format <model_file_name>_n.pkl\n")
+				if len(var) == 0:
+					args['var'] = 0
+					check = True
+				else:
+					try:
+						args['var'] = int(var)
+						check = True
+					except Exception as e:
+						print(e)
 
 		# input_datasets ##############################################################################
 		check = False
 		while not check:
-			testsets = input("Specify set(s) of molecules to predict\n")
-			args['test_sets'] = testsets.split()
-			check = True
-			for tset in args['test_sets']:
-				if '*' in tset:
-					try:
+			try:
+				if type(args['test_sets']) != list:
+					args['test_sets'] = args['test_sets'].split()
+					
+				for tset in args['test_sets']:
+					if '*' in tset:
 						files = glob.glob(tset)
 						a = open(files[0], 'r')
-					except Exception as e:
-						check = False
-						print(e)
-
-				else:
-					try:
+					else:
 						a = open(tset, 'r')
-					except Exception as e:
-						check = False
-						print(e)
+
+				check = True
+			except Exception as e:
+				print(e)
+				check = False
+
+			if not check:
+				testsets = input("Specify set(s) of molecules to predict\n")
+				args['test_sets'] = testsets.split()
 
 	# output directory ###################################################################
 	if not default:

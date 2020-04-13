@@ -9,11 +9,15 @@ import pickle
 
 
 def test_init():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'init'
 	args['Molecule'] = 'testmol'
-	args['xyz_file'] = 'test_files/testmol.xyz'
-	args['path'] = 'test_files/testmol/'
+	args['xyz_file'] = path + '/../test_store/ethane.xyz'
+	args['path'] = path + '/../test_tmp/'
 	write_default_prefs(args['path']+'ENRICH.json')
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
@@ -31,10 +35,14 @@ def test_init():
 	return status
 
 def test_confsearch():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'conf_search'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/../test_tmp/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -54,10 +62,14 @@ def test_confsearch():
 	return status
 
 def test_setupopt():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'setup_opt'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/../test_tmp/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -76,10 +88,14 @@ def test_setupopt():
 	return status
 
 def test_processopt():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'process_opt'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/../test_tmp/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -97,10 +113,14 @@ def test_processopt():
 	return status
 
 def test_setupnmr():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'setup_nmr'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/test_files/testmol/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -119,10 +139,14 @@ def test_setupnmr():
 	return status
 
 def test_processnmr():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'process_nmr'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/test_files/testmol/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -141,10 +165,14 @@ def test_processnmr():
 	return status
 
 def test_update():
+
+	path = '/'.join(__file__.split('/')[:-1])
+
 	status = 'Pass'
+	args = {}
 	args['Command'] = 'update'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/test_files/testmol/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -161,13 +189,19 @@ def test_update():
 		status = 'Fail'
 	return status
 
+def test_resubfailed():
+	print('Not Done Yet')
+	return 'Pass'
 
 def test_undo():
-	status = 'Pass'
 
+	path = '/'.join(__file__.split('/')[:-1])
+
+	status = 'Pass'
+	args = {}
 	args['Command'] = 'undo'
 	args['Molecule'] = 'testmol'
-	args['path'] = 'test_files/testmol/'
+	args['path'] = path + '/test_files/testmol/'
 	args['prefs'] = args['path'] + 'ENRICH.json'
 
 	# Load xyz coords and types from xyz file, create molecule object
@@ -199,7 +233,7 @@ if __name__ == "__main__":
 	print('process_nmr', status)
 	status = test_update()
 	print('update', status)
-	status = test_resubfailes()
+	status = test_resubfailed()
 	print('resub_failed', status)
 	status = test_undo()
 	print('undo', status)

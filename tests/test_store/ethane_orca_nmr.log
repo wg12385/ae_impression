@@ -1,0 +1,2219 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+                  #######################################################
+                  #                        -***-                        #
+                  #          Department of theory and spectroscopy      #
+                  #               Directorship: Frank Neese             #
+                  #        Max Planck Institute fuer Kohlenforschung    #
+                  #                Kaiser Wilhelm Platz 1               #
+                  #                 D-45470 Muelheim/Ruhr               #
+                  #                      Germany                        #
+                  #                                                     #
+                  #                  All rights reserved                #
+                  #                        -***-                        #
+                  #######################################################
+
+
+                         Program Version 4.2.1 -  RELEASE  -
+
+
+ With contributions from (in alphabetic order):
+   Daniel Aravena         : Magnetic Suceptibility
+   Michael Atanasov       : Ab Initio Ligand Field Theory (pilot matlab implementation)
+   Alexander A. Auer      : GIAO ZORA, VPT2
+   Ute Becker             : Parallelization
+   Giovanni Bistoni       : ED, misc. LED, open-shell LED, HFLD
+   Martin Brehm           : Molecular dynamics
+   Dmytro Bykov           : SCF Hessian
+   Vijay G. Chilkuri      : MRCI spin determinant printing, contributions to CSF-ICE
+   Dipayan Datta          : RHF DLPNO-CCSD density
+   Achintya Kumar Dutta   : EOM-CC, STEOM-CC
+   Dmitry Ganyushin       : Spin-Orbit,Spin-Spin,Magnetic field MRCI
+   Miquel Garcia          : C-PCM Hessian, Gaussian charge scheme
+   Yang Guo               : DLPNO-NEVPT2, CIM, IAO-localization
+   Andreas Hansen         : Spin unrestricted coupled pair/coupled cluster methods
+   Benjamin Helmich-Paris : CASSCF linear response (MC-RPA)
+   Lee Huntington         : MR-EOM, pCC
+   Robert Izsak           : Overlap fitted RIJCOSX, COSX-SCS-MP3, EOM
+   Christian Kollmar      : KDIIS, OOCD, Brueckner-CCSD(T), CCSD density
+   Simone Kossmann        : Meta GGA functionals, TD-DFT gradient, OOMP2, MP2 Hessian
+   Martin Krupicka        : AUTO-CI
+   Lucas Lang             : DCDCAS
+   Dagmar Lenk            : GEPOL surface, SMD
+   Dimitrios Liakos       : Extrapolation schemes; Compound Job, initial MDCI parallelization
+   Dimitrios Manganas     : Further ROCIS development; embedding schemes
+   Dimitrios Pantazis     : SARC Basis sets
+   Taras Petrenko         : DFT Hessian,TD-DFT gradient, ASA, ECA, R-Raman, ABS, FL, XAS/XES, NRVS
+   Peter Pinski           : DLPNO-MP2, DLPNO-MP2 Gradient
+   Christoph Reimann      : Effective Core Potentials
+   Marius Retegan         : Local ZFS, SOC
+   Christoph Riplinger    : Optimizer, TS searches, QM/MM, DLPNO-CCSD(T), (RO)-DLPNO pert. Triples
+   Tobias Risthaus        : Range-separated hybrids, TD-DFT gradient, RPA, STAB
+   Michael Roemelt        : Original ROCIS implementation
+   Masaaki Saitow         : Open-shell DLPNO-CCSD energy and density
+   Barbara Sandhoefer     : DKH picture change effects
+   Avijit Sen             : IP-ROCIS
+   Kantharuban Sivalingam : CASSCF convergence, NEVPT2, FIC-MRCI
+   Bernardo de Souza      : ESD, SOC TD-DFT
+   Georgi Stoychev        : AutoAux, RI-MP2 NMR
+   Willem Van den Heuvel  : Paramagnetic NMR
+   Boris Wezisla          : Elementary symmetry handling
+   Frank Wennmohs         : Technical directorship
+
+
+ We gratefully acknowledge several colleagues who have allowed us to
+ interface, adapt or use parts of their codes:
+   Stefan Grimme, W. Hujo, H. Kruse,             : VdW corrections, initial TS optimization,
+                  C. Bannwarth                     DFT functionals, gCP, sTDA/sTD-DF
+   Ed Valeev, F. Pavosevic, A. Kumar             : LibInt (2-el integral package), F12 methods
+   Garnet Chan, S. Sharma, J. Yang, R. Olivares  : DMRG
+   Ulf Ekstrom                                   : XCFun DFT Library
+   Mihaly Kallay                                 : mrcc  (arbitrary order and MRCC methods)
+   Andreas Klamt, Michael Diedenhofen            : otool_cosmo (COSMO solvation model)
+   Jiri Pittner, Ondrej Demel                    : Mk-CCSD
+   Frank Weinhold                                : gennbo (NPA and NBO analysis)
+   Christopher J. Cramer and Donald G. Truhlar   : smd solvation model
+   Lars Goerigk                                  : TD-DFT with DH, B97 family of functionals
+   V. Asgeirsson, H. Jonsson                     : NEB implementation
+   FAccTs GmbH                                   : IRC, NEB, NEB-TS, Multilevel, MM, QM/MM, CI optimization
+   S Lehtola, MJT Oliveira, MAL Marques          : LibXC Library
+
+
+ Your calculation uses the libint2 library for the computation of 2-el integrals
+ For citations please refer to: http://libint.valeyev.net
+
+ Your ORCA version has been built with support for libXC version: 4.2.3
+ For citations please refer to: https://tddft.org/programs/libxc/
+
+ This ORCA versions uses:
+   CBLAS   interface :  Fast vector & matrix operations
+   LAPACKE interface :  Fast linear algebra routines
+   SCALAPACK package :  Parallel linear algebra routines
+
+
+Your calculation utilizes the atom-pairwise dispersion correction
+with the zero-damping scheme (D30)
+Cite in your paper:
+S.Grimme, J.Antony, S.Ehrlich and H.Krieg, J.Chem.Phys., 132, (2010), 154104 
+   
+
+XCFun DFT library Copyright 2009-2010 Ulf Ekstrom and contributors.
+See http://admol.org/xcfun for more information. This is free soft-
+ware; see the source code for copying conditions. There is ABSOLUTELY
+NO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. For details see the documentation. Scientific users of this 
+library should cite U. Ekstrom, L. Visscher, R. Bast, A. J. Thorvald-
+sen and K. Ruud; J.Chem.Theor.Comp. 2010, DOI: 10.1021/ct100117s
+XCFun Version 0.99 
+
+Warning: The global flag for chemical shieldings has been found
+         but shieldings for certain elements have also been explicitly requested in the EPRNMR block
+         ==>> only the requested shieldings will be calculated
+
+----- Orbital basis set information -----
+Your calculation utilizes the basis: 6-311G
+   H, Li - Ne  : R. Krishnan, J. S. Binkley, R. Seeger and J. A. Pople, J. Chem. Phys. 72, 650 (1980).
+   Na - Ar     : A. D. McLean and G. S. Chandler J. Chem. Phys. 72, 5639, (1980).
+   K  - Ca     : J.-P. Blaudeau, M. P. McGrath, L. A. Curtiss and L. Radom, J. Chem. Phys. 107, 5016 (1997).
+   Ga - Kr     : L. A. Curtiss, M. P. McGrath, J.-P. Blandeau, N. E. Davis, R. C. Binning and L. Radom, J. Chem. Phys. 103, 6104 (1995).
+
+----- AuxJ basis set information -----
+Your calculation utilizes the auxiliary basis: def2/J
+   F. Weigend, Phys. Chem. Chem. Phys. 8, 1057 (2006).
+
+================================================================================
+                                        WARNINGS
+                       Please study these warnings very carefully!
+================================================================================
+
+
+Warning: GIAO-COSX with a grid smaller than GRIDX6 NOFINALGRIDX may be inaccurate and is not recommended!
+
+INFO   : the flag for use of LIBINT has been found!
+
+================================================================================
+                                       INPUT FILE
+================================================================================
+NAME = NMR/0_NMR.in
+|  1> ! wB97X-D3 6-311g def2/J  TightSCF miniprint NMR 
+|  2> 
+|  3> * xyz 0 1
+|  4>  C          -0.761880          0.010749          0.030632
+|  5>  C           0.761880         -0.010744         -0.030634
+|  6>  H          -1.192862         -0.849892         -0.483239
+|  7>  H          -1.118695         -0.009904          1.061341
+|  8>  H          -1.166191          0.909084         -0.438579
+|  9>  H           1.118695          0.009907         -1.061344
+| 10>  H           1.166191         -0.909078          0.438577
+| 11>  H           1.192861          0.849898          0.483235
+| 12> *
+| 13> %eprnmr
+| 14>        GIAO_2el = GIAO_2el_RIJCOSX
+| 15>        Nuclei = all H   { shift }
+| 16>        Nuclei = all C   { shift }
+| 17>        Nuclei = all N   { shift }
+| 18>        Nuclei = all O   { shift }
+| 19>        Nuclei = all F   { shift }
+| 20>        Nuclei = all H   { ssall }
+| 21>        Nuclei = all C   { ssall }
+| 22> SpinSpinRThresh 20.000000
+| 23> end
+| 24> 
+| 25>                          ****END OF INPUT****
+================================================================================
+
+                       ****************************
+                       * Single Point Calculation *
+                       ****************************
+
+---------------------------------
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  C     -0.761880    0.010749    0.030632
+  C      0.761880   -0.010744   -0.030634
+  H     -1.192862   -0.849892   -0.483239
+  H     -1.118695   -0.009904    1.061341
+  H     -1.166191    0.909084   -0.438579
+  H      1.118695    0.009907   -1.061344
+  H      1.166191   -0.909078    0.438577
+  H      1.192861    0.849898    0.483235
+
+----------------------------
+CARTESIAN COORDINATES (A.U.)
+----------------------------
+  NO LB      ZA    FRAG     MASS         X           Y           Z
+   0 C     6.0000    0    12.011   -1.439745    0.020313    0.057886
+   1 C     6.0000    0    12.011    1.439745   -0.020303   -0.057890
+   2 H     1.0000    0     1.008   -2.254182   -1.606063   -0.913189
+   3 H     1.0000    0     1.008   -2.114027   -0.018716    2.005644
+   4 H     1.0000    0     1.008   -2.203782    1.717920   -0.828794
+   5 H     1.0000    0     1.008    2.114027    0.018722   -2.005649
+   6 H     1.0000    0     1.008    2.203782   -1.717908    0.828790
+   7 H     1.0000    0     1.008    2.254181    1.606074    0.913182
+
+
+Diagonalization of the overlap matrix:
+Smallest eigenvalue                        ... 5.482e-03
+Time for diagonalization                   ...    0.002 sec
+Threshold for overlap eigenvalues          ... 1.000e-08
+Number of eigenvalues below threshold      ... 0
+Time for construction of square roots      ...    0.003 sec
+Total time needed                          ...    0.005 sec
+
+-------------------
+DFT GRID GENERATION
+-------------------
+
+General Integration Accuracy     IntAcc      ...  4.340
+Radial Grid Type                 RadialGrid  ... Gauss-Chebyshev
+Angular Grid (max. acc.)         AngularGrid ... Lebedev-110
+Angular grid pruning method      GridPruning ... 3 (G Style)
+Weight generation scheme         WeightScheme... Becke
+Basis function cutoff            BFCut       ...    1.0000e-11
+Integration weight cutoff        WCut        ...    1.0000e-14
+Grids for H and He will be reduced by one unit
+
+# of grid points (after initial pruning)     ...   8076 (   0.0 sec)
+# of grid points (after weights+screening)   ...   7748 (   0.0 sec)
+nearest neighbour list constructed           ...    0.0 sec
+Grid point re-assignment to atoms done       ...    0.0 sec
+Grid point division into batches done        ...    0.0 sec
+Reduced shell lists constructed in    0.0 sec
+
+Total number of grid points                  ...     7748
+Total number of batches                      ...      122
+Average number of points per batch           ...       63
+Average number of grid points per atom       ...      968
+Average number of shells per batch           ...    28.28 (88.39%)
+Average number of basis functions per batch  ...    39.31 (89.34%)
+Average number of large shells per batch     ...    24.83 (87.78%)
+Average number of large basis fcns per batch ...    34.89 (88.77%)
+Maximum spatial batch extension              ...  20.22, 25.64, 20.17 au
+Average spatial batch extension              ...   4.80,  4.47,  4.45 au
+
+Time for grid setup =    0.043 sec
+
+Loading Hartree-Fock densities                     ... done
+Calculating cut-offs                               ... done
+Setting up the integral package                    ... done
+Initializing the effective Hamiltonian             ... done
+Starting the Coulomb interaction                   ... done (   0.0 sec)
+Reading the grid                                   ... done
+Mapping shells                                     ... done
+Starting the XC term evaluation                    ... done (   0.0 sec)
+  promolecular density results
+     # of electrons  =     17.985647400
+     EX              =    -11.974551876
+     EC              =     -0.554929781
+     EX+EC           =    -12.529481656
+Transforming the Hamiltonian                       ... done (   0.0 sec)
+Diagonalizing the Hamiltonian                      ... done (   0.0 sec)
+Back transforming the eigenvectors                 ... done (   0.0 sec)
+Now organizing SCF variables                       ... done
+--------------
+SCF ITERATIONS
+--------------
+ITER       Energy         Delta-E        Max-DP      RMS-DP      [F,P]     Damp
+               ***  Starting incremental Fock matrix formation  ***
+  0    -79.6982892678   0.000000000000 0.05558566  0.00309789  0.1994361 0.7000
+  1    -79.7406163108  -0.042327042951 0.03671329  0.00227424  0.1153418 0.7000
+                               ***Turning on DIIS***
+  2    -79.7620452271  -0.021428916308 0.06223937  0.00434694  0.0565946 0.0000
+  3    -79.7946051028  -0.032559875723 0.02677990  0.00154342  0.0461476 0.0000
+  4    -79.8004448578  -0.005839754923 0.00453056  0.00032108  0.0071440 0.0000
+                      *** Initiating the SOSCF procedure ***
+                           *** Shutting down DIIS ***
+                      *** Re-Reading the Fockian *** 
+                      *** Removing any level shift *** 
+ITER      Energy       Delta-E        Grad      Rot      Max-DP    RMS-DP
+  5    -79.80061808  -0.0001732230  0.000726  0.000726  0.000873  0.000099
+               *** Restarting incremental Fock matrix formation ***
+  6    -79.80062384  -0.0000057574  0.000104  0.000174  0.000156  0.000016
+  7    -79.80062393  -0.0000000925  0.000041  0.000069  0.000069  0.000008
+  8    -79.80062395  -0.0000000169  0.000010  0.000011  0.000011  0.000001
+                 **** Energy Check signals convergence ****
+              ***Rediagonalizing the Fockian in SOSCF/NRSCF***
+
+               *****************************************************
+               *                     SUCCESS                       *
+               *           SCF CONVERGED AFTER   9 CYCLES          *
+               *****************************************************
+
+Setting up the final grid:
+
+General Integration Accuracy     IntAcc      ...  4.670
+Radial Grid Type                 RadialGrid  ... Gauss-Chebyshev
+Angular Grid (max. acc.)         AngularGrid ... Lebedev-302
+Angular grid pruning method      GridPruning ... 3 (G Style)
+Weight generation scheme         WeightScheme... Becke
+Basis function cutoff            BFCut       ...    1.0000e-11
+Integration weight cutoff        WCut        ...    1.0000e-14
+Grids for H and He will be reduced by one unit
+
+# of grid points (after initial pruning)     ...  32788 (   0.0 sec)
+# of grid points (after weights+screening)   ...  31212 (   0.0 sec)
+nearest neighbour list constructed           ...    0.0 sec
+Grid point re-assignment to atoms done       ...    0.0 sec
+Grid point division into batches done        ...    0.1 sec
+Reduced shell lists constructed in    0.2 sec
+
+Total number of grid points                  ...    31212
+Total number of batches                      ...      492
+Average number of points per batch           ...       63
+Average number of grid points per atom       ...     3902
+Average number of shells per batch           ...    26.17 (81.80%)
+Average number of basis functions per batch  ...    36.41 (82.74%)
+Average number of large shells per batch     ...    22.56 (86.20%)
+Average number of large basis fcns per batch ...    31.69 (87.05%)
+Maximum spatial batch extension              ...  18.86, 18.35, 17.58 au
+Average spatial batch extension              ...   2.94,  2.82,  2.96 au
+
+Final grid set up in    0.2 sec
+Final integration                            ... done (   0.2 sec)
+Change in XC energy                          ...     0.000084244
+Integrated number of electrons               ...    18.000050809
+Previous integrated no of electrons          ...    17.993995275
+Total Energy       :          -79.80053970 Eh           -2171.48308 eV
+  Last Energy change         ...   -6.1237e-10  Tolerance :   1.0000e-08
+  Last MAX-Density change    ...    8.3928e-07  Tolerance :   1.0000e-07
+             **** THE GBW FILE WAS UPDATED (NMR/0_NMR.gbw) ****
+             **** DENSITY FILE WAS UPDATED (NMR/0_NMR.scfp) ****
+             **** ENERGY FILE WAS UPDATED (NMR/0_NMR.en.tmp) ****
+             **** THE GBW FILE WAS UPDATED (NMR/0_NMR.gbw) ****
+             **** DENSITY FILE WAS UPDATED (NMR/0_NMR.scfp) ****
+----------------
+ORBITAL ENERGIES
+----------------
+
+  NO   OCC          E(Eh)            E(eV) 
+   0   2.0000     -10.257978      -279.1338 
+   1   2.0000     -10.257791      -279.1287 
+   2   2.0000      -0.872762       -23.7491 
+   3   2.0000      -0.730484       -19.8775 
+   4   2.0000      -0.537046       -14.6138 
+   5   2.0000      -0.536805       -14.6072 
+   6   2.0000      -0.465073       -12.6553 
+   7   2.0000      -0.436370       -11.8742 
+   8   2.0000      -0.436092       -11.8667 
+   9   0.0000       0.134251         3.6532 
+  10   0.0000       0.176241         4.7957 
+  11   0.0000       0.191915         5.2223 
+  12   0.0000       0.191971         5.2238 
+  13   0.0000       0.227994         6.2040 
+  14   0.0000       0.228250         6.2110 
+  15   0.0000       0.317417         8.6374 
+  16   0.0000       0.392667        10.6850 
+  17   0.0000       0.393426        10.7057 
+  18   0.0000       0.427986        11.6461 
+  19   0.0000       0.437223        11.8974 
+  20   0.0000       0.437688        11.9101 
+  21   0.0000       0.643039        17.4980 
+  22   0.0000       0.673945        18.3390 
+  23   0.0000       0.690848        18.7989 
+  24   0.0000       0.691122        18.8064 
+  25   0.0000       0.700932        19.0733 
+  26   0.0000       0.701002        19.0752 
+  27   0.0000       0.732421        19.9302 
+  28   0.0000       0.892595        24.2887 
+  29   0.0000       1.011466        27.5234 
+  30   0.0000       2.353779        64.0496 
+  31   0.0000       2.354713        64.0750 
+  32   0.0000       2.355128        64.0863 
+  33   0.0000       2.366647        64.3997 
+  34   0.0000       2.367082        64.4116 
+  35   0.0000       2.393176        65.1216 
+  36   0.0000       2.955214        80.4155 
+  37   0.0000       2.955419        80.4210 
+  38   0.0000       2.979669        81.0809 
+  39   0.0000       2.982540        81.1590 
+  40   0.0000       3.143124        85.5288 
+  41   0.0000       3.143321        85.5341 
+  42   0.0000      23.481451       638.9628 
+  43   0.0000      23.647119       643.4708 
+Total SCF time: 0 days 0 hours 0 min 4 sec 
+
+
+-------------------------------------------------------------------------------
+                          DFT DISPERSION CORRECTION                            
+                                                                               
+                              DFTD3 V3.1  Rev 1                                
+                              USING zero damping                               
+-------------------------------------------------------------------------------
+-------------------------   ----------------
+Dispersion correction           -0.000569887
+-------------------------   ----------------
+
+
+-------------------------   --------------------
+FINAL SINGLE POINT ENERGY       -79.801109591138
+-------------------------   --------------------
+
+
+                            ***************************************
+                            *     ORCA property calculations      *
+                            ***************************************
+
+                                    ---------------------
+                                    Active property flags
+                                    ---------------------
+   (+) Dipole Moment
+   (+) Chemical Shifts
+   (+) Nuclear properties (Hyperfine,Quadrupole)
+
+
+------------------------------------------------------------------------------
+                       ORCA ELECTRIC PROPERTIES CALCULATION
+------------------------------------------------------------------------------
+
+Dipole Moment Calculation                       ... on
+Quadrupole Moment Calculation                   ... off
+Polarizability Calculation                      ... off
+GBWName                                         ... NMR/0_NMR.gbw
+Electron density file                           ... NMR/0_NMR.scfp
+The origin for moment calculation is the CENTER OF MASS  = (-0.000000,  0.000005 -0.000002)
+
+-------------
+DIPOLE MOMENT
+-------------
+                                X             Y             Z
+Electronic contribution:      0.00000      -0.00000       0.00000
+Nuclear contribution   :     -0.00000       0.00000      -0.00000
+                        -----------------------------------------
+Total Dipole Moment    :      0.00000      -0.00000       0.00000
+                        -----------------------------------------
+Magnitude (a.u.)       :      0.00000
+Magnitude (Debye)      :      0.00000
+
+
+
+--------------------
+Rotational spectrum 
+--------------------
+ 
+Rotational constants in cm-1:     2.700281     0.668084     0.668076 
+Rotational constants in MHz : 80952.374557 20028.642529 20028.405647 
+
+ Dipole components along the rotational axes: 
+x,y,z [a.u.] :    -0.000000    -0.000000    -0.000000 
+x,y,z [Debye]:    -0.000000    -0.000000    -0.000001 
+
+ 
+------------------------------------------------------------------------------
+                                ORCA EPR/NMR CALCULATION
+------------------------------------------------------------------------------
+
+GBWName                      ... NMR/0_NMR.gbw
+Electron density file        ... NMR/0_NMR.scfp
+Spin density file            ... NMR/0_NMR.scfr
+Treatment of gauge           ... GIAO (approximations 1/2el = 0,2)
+Details of the CP(SCF) procedure:
+       Solver   = POPLE   
+       MaxIter  =    64   
+       Tolerance=    1.000e-06
+       Op-0     =   0-  8 =>   9- 43
+Multiplicity                 ... 1
+g-tensor                     ... 0
+NMR chemical shifts          ... 1
+Number of nuclei for epr/nmr ... 16
+   Nucleus:   2H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   3H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   4H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   5H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   6H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   7H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   0C 
+       Hyperfine : Isotope=   13 I=   0.500 P= 134.190
+       Quadrupole: Isotope=   13 I=   0.500 Q=   0.000
+       Spin-Orbit: Zeff=   3.600
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   1C 
+       Hyperfine : Isotope=   13 I=   0.500 P= 134.190
+       Quadrupole: Isotope=   13 I=   0.500 Q=   0.000
+       Spin-Orbit: Zeff=   3.600
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=Y spin-spin(nmr)=all-N,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   2H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   3H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   4H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   5H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   6H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   7H 
+       Hyperfine : Isotope=    1 I=   0.500 P= 533.551
+       Quadrupole: Isotope=    2 I=   1.000 Q=   0.003
+       Spin-Orbit: Zeff=   1.000
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   0C 
+       Hyperfine : Isotope=   13 I=   0.500 P= 134.190
+       Quadrupole: Isotope=   13 I=   0.500 Q=   0.000
+       Spin-Orbit: Zeff=   3.600
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+   Nucleus:   1C 
+       Hyperfine : Isotope=   13 I=   0.500 P= 134.190
+       Quadrupole: Isotope=   13 I=   0.500 Q=   0.000
+       Spin-Orbit: Zeff=   3.600
+       Ncuelar Spin-Spin: Gn=   0.000
+       rho(0)=N f(grad)=N a(iso)=N a(dip)=N a(orb)=N sigma(nmr)=N spin-spin(nmr)=all-Y,DSO-N,PSO-N,FC-N,SD-N
+Forming RHS of the CP-SCF equations         ... 
+Calculating right hand sides for GIAO treatment        ... 
+  Entering RightHandSide GIAO. ScalHFX=    0.1957 NeedHFX=1
+     -> 1-electron GIAO integrals will be done analytically
+     -> SCF done analytically but RIJCOSX chosen for GIAO calculation.
+     Making grid for GIAO integrations   ... 
+General Integration Accuracy     IntAcc      ...  4.340
+Radial Grid Type                 RadialGrid  ... Gauss-Chebyshev
+Angular Grid (max. acc.)         AngularGrid ... Lebedev-110
+Angular grid pruning method      GridPruning ... 3 (G Style)
+Weight generation scheme         WeightScheme... Becke
+Basis function cutoff            BFCut       ...    1.0000e-11
+Integration weight cutoff        WCut        ...    1.0000e-14
+Grids for H and He will be reduced by one unit
+
+# of grid points (after initial pruning)     ...   8076 (   0.0 sec)
+# of grid points (after weights+screening)   ...   7748 (   0.0 sec)
+nearest neighbour list constructed           ...    0.0 sec
+Grid point re-assignment to atoms done       ...    0.0 sec
+Grid point division into batches done        ...    0.0 sec
+Reduced shell lists constructed in    0.0 sec
+
+Total number of grid points                  ...     7748
+Total number of batches                      ...      122
+Average number of points per batch           ...       63
+Average number of grid points per atom       ...      968
+Average number of shells per batch           ...    28.28 (88.39%)
+Average number of basis functions per batch  ...    39.31 (89.34%)
+Average number of large shells per batch     ...    24.83 (87.78%)
+Average number of large basis fcns per batch ...    34.89 (88.77%)
+Maximum spatial batch extension              ...  20.22, 25.64, 20.17 au
+Average spatial batch extension              ...   4.80,  4.47,  4.45 au
+
+done
+  One-electron GIAO integrals             ... done
+  Calculating G(B)[P]                     ... (RI-J: P(aux)-ok J-RI-ok) (COSX-ok) (add-J+K:ok) => dG/dB done
+  DFT XC-terms                            ... done
+  Extracting occupied and virtual blocks  ... 
+  Operator  0  NO=   9 NV=  35 
+  Transforming and RHS contribution       ... done
+  Adding eps_i * S(B)_ai terms            ... done
+  Projecting overlap derivatives          ... done
+  Building G[dS/dB_ij] (Direct)           ... done
+  Transforming to MO basis                ... done
+  Summing G[dS/dB_ij] into RHS contribs.  ... done
+
+  GIAO profiling information: 
+    Total GIAO time               ...       2.1 sec
+       GIAO 1-electron integrals  ...       0.0 sec (  0.9%)
+       GIAO G(dS/dB) terms        ...       0.4 sec ( 17.8%)
+       GIAO RI-J                  ...       0.3 sec ( 14.8%)
+       GIAO COSX                  ...       0.7 sec ( 32.2%)
+       GIAO XC-terms              ...       0.1 sec (  6.8%)
+       Right hand side assembly   ...       0.0 sec (  0.1%)
+
+  GIAO right hand side done
+
+
+------------------------------------------------------------------------------
+                           ORCA CP-SCF CALCULATION
+------------------------------------------------------------------------------
+
+Input orbitals are from        ... NMR/0_NMR.gbw
+Input Perturbation             ... NMR/0_NMR.pin.tmp
+Wavefunction output            ... NMR/0_NMR.pout.tmp
+Perturbation mode              ... Imaginary perturbation
+Solver                         ... POPLE
+Max. number of iterations      ... 64
+Convergence tolerance          ... 1.000e-06
+Integral handling              ... Direct
+Number of perturbations        ... 3
+Number of operators            ... 1
+Orbital ranges used for CP-SCF:
+ Operator 0:  Orbitals   0...  8  to   9... 43
+DFT calculation                         ... on
+Variables per vector in CP-SCF ... 315
+Number of vectors sought       ... 3
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000142134
+
+Forming final perturbed densities           ... done
+Transforming perturbed density to AO basis  ... done
+
+Magnetic field perturbation calculated in  2.480 sec
+
+---------------
+CHEMICAL SHIFTS
+---------------
+
+Note: using conversion factor for au to ppm alpha^2/2 =   26.625677252 
+GIAO: Doing para- and diamagnetic shielding integrals analytically     ...done
+ --------------
+ Nucleus   2H :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+            30.065          5.293         3.053
+             4.658         32.066         4.815
+             2.653          4.780        26.824
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+             2.854         -0.529        -0.306
+             0.407          1.799        -0.630
+             0.280         -0.557         2.396
+
+Total shielding tensor (ppm): 
+            32.919          4.764         2.746
+             5.065         33.865         4.185
+             2.933          4.223        29.221
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO            23.976           26.303           38.675  iso=      29.652
+ sPSO             2.763            2.401            1.885  iso=       2.350
+        ---------------  ---------------  ---------------
+ Total           26.739           28.705           40.561  iso=      32.002
+
+ --------------
+ Nucleus   3H :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+            29.272          0.064        -5.703
+             0.045         24.005        -0.211
+            -4.937         -0.223        35.718
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+             2.820         -0.020         0.526
+             0.013          2.736         0.025
+            -0.605          0.041         1.455
+
+Total shielding tensor (ppm): 
+            32.093          0.043        -5.178
+             0.058         26.741        -0.186
+            -5.542         -0.182        37.173
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO            24.001           26.312           38.683  iso=      29.665
+ sPSO             2.737            2.391            1.884  iso=       2.337
+        ---------------  ---------------  ---------------
+ Total           26.737           28.703           40.566  iso=      32.002
+
+ --------------
+ Nucleus   4H :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+            29.767         -5.359         2.637
+            -4.708         32.849        -4.604
+             2.275         -4.560        26.353
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+             2.860          0.514        -0.269
+            -0.453          1.733         0.606
+             0.273          0.517         2.451
+
+Total shielding tensor (ppm): 
+            32.627         -4.845         2.369
+            -5.162         34.582        -3.997
+             2.548         -4.043        28.805
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO            23.980           26.309           38.681  iso=      29.656
+ sPSO             2.760            2.405            1.880  iso=       2.348
+        ---------------  ---------------  ---------------
+ Total           26.740           28.714           40.560  iso=      32.005
+
+ --------------
+ Nucleus   5H :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+            29.272          0.064        -5.703
+             0.045         24.005        -0.211
+            -4.937         -0.223        35.718
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+             2.820         -0.020         0.526
+             0.014          2.736         0.025
+            -0.605          0.041         1.455
+
+Total shielding tensor (ppm): 
+            32.093          0.043        -5.178
+             0.058         26.741        -0.186
+            -5.542         -0.182        37.173
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO            24.001           26.312           38.683  iso=      29.665
+ sPSO             2.737            2.391            1.884  iso=       2.337
+        ---------------  ---------------  ---------------
+ Total           26.737           28.703           40.566  iso=      32.002
+
+ --------------
+ Nucleus   6H :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+            29.767         -5.359         2.637
+            -4.708         32.849        -4.604
+             2.275         -4.560        26.353
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+             2.860          0.514        -0.269
+            -0.454          1.733         0.606
+             0.273          0.517         2.451
+
+Total shielding tensor (ppm): 
+            32.627         -4.845         2.369
+            -5.162         34.582        -3.997
+             2.548         -4.043        28.805
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO            23.980           26.309           38.681  iso=      29.656
+ sPSO             2.760            2.405            1.880  iso=       2.348
+        ---------------  ---------------  ---------------
+ Total           26.740           28.714           40.560  iso=      32.005
+
+ --------------
+ Nucleus   7H :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+            30.065          5.293         3.053
+             4.658         32.066         4.815
+             2.653          4.780        26.824
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+             2.854         -0.529        -0.306
+             0.407          1.799        -0.630
+             0.280         -0.557         2.396
+
+Total shielding tensor (ppm): 
+            32.919          4.764         2.746
+             5.065         33.865         4.185
+             2.933          4.223        29.221
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO            23.976           26.303           38.675  iso=      29.652
+ sPSO             2.763            2.401            1.885  iso=       2.350
+        ---------------  ---------------  ---------------
+ Total           26.739           28.705           40.561  iso=      32.002
+
+ --------------
+ Nucleus   0C :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+           257.182         -0.252        -0.730
+            -0.251        239.386         0.008
+            -0.733          0.002       239.350
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+           -26.653          0.137         0.339
+             0.134        -19.105        -0.004
+             0.424          0.003       -18.730
+
+Total shielding tensor (ppm): 
+           230.530         -0.115        -0.392
+            -0.117        220.281         0.004
+            -0.309          0.006       220.619
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO           239.383          239.320          257.215  iso=     245.306
+ sPSO           -19.103          -18.713          -26.672  iso=     -21.496
+        ---------------  ---------------  ---------------
+ Total          220.280          220.607          230.543  iso=     223.810
+
+ --------------
+ Nucleus   1C :
+ --------------
+
+Diamagnetic contribution to the shielding tensor (ppm) : 
+           257.182         -0.252        -0.730
+            -0.251        239.386         0.008
+            -0.733          0.002       239.350
+
+Paramagnetic contribution to the shielding tensor (ppm): 
+           -26.653          0.137         0.339
+             0.134        -19.108        -0.004
+             0.423          0.003       -18.729
+
+Total shielding tensor (ppm): 
+           230.529         -0.115        -0.392
+            -0.117        220.278         0.005
+            -0.310          0.006       220.621
+
+
+ Diagonalized sT*s matrix:
+ 
+ sDSO           239.383          239.320          257.215  iso=     245.306
+ sPSO           -19.106          -18.712          -26.672  iso=     -21.497
+        ---------------  ---------------  ---------------
+ Total          220.277          220.609          230.543  iso=     223.810
+
+
+
+--------------------------------
+CHEMICAL SHIELDING SUMMARY (ppm)
+--------------------------------
+
+
+  Nucleus  Element    Isotropic     Anisotropy
+  -------  -------  ------------   ------------
+      2       H           32.002         12.839 
+      3       H           32.002         12.846 
+      4       H           32.005         12.834 
+      5       H           32.002         12.846 
+      6       H           32.005         12.834 
+      7       H           32.002         12.839 
+      0       C          223.810         10.100 
+      1       C          223.810         10.100 
+
+
+
+
+-----------------------------------------------------------------------
+                     NMR SPIN-SPIN COUPLING CONSTANTS
+                     ================================
+
+    Number of nuclei pairs to calculate something:      28
+                                                      ----
+    Number of nuclei pairs to calculate DSO   terms:    28
+    Number of nuclei pairs to calculate PSO   terms:    28
+    Number of nuclei pairs to calculate FC    terms:    28
+    Number of nuclei pairs to calculate SD    terms:    28
+    Number of nuclei pairs to calculate SD/FC terms:    28
+-----------------------------------------------------------------------
+
+Performing DSO numerical integration for 28 tensors ... done (      3.2 sec)
+
+================================
+Nucleus = H    2 interacts with: 
+ C 0 C 1 H 3 H 4 H 5 H 6 H 7
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000019992
+Returned from CP-SCF (   0.3 sec)
+Processing PSO nuclei : C 0  C 1  H 3  H 4  H 5  H 6  H 7  done (   0.1 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.002054102778
+     CP-SCF ITERATION   2:      0.000034825450
+     CP-SCF ITERATION   3:      0.000002272535
+     CP-SCF ITERATION   4:      0.000000925858
+Returned from CP-SCF (   3.6 sec)
+Processing FC/SD nuclei : C 0  C 1  H 3  H 4  H 5  H 6  H 7  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = C    0 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     1.0911
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -3.1230         6.0699        3.6318
+        6.2117         6.4465        7.3820
+        3.7211         7.3913       -1.5098
+Paramagnetic contribution (Hz):
+        3.0580         3.1927        1.9190
+        3.2790        -2.1060        3.7559
+        1.9726         3.7606        1.9471
+Fermi-contact contribution (Hz):
+      113.1371         0.0000        0.0000
+        0.0000       113.1371        0.0000
+        0.0000         0.0000      113.1371
+Spin-dipolar contribution (Hz):
+       -0.1512        -0.2325       -0.1400
+       -0.1883        -0.4632       -0.3142
+       -0.1060        -0.2972       -0.1316
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -2.2599         5.7348        3.3997
+        5.7348         4.3938        6.0211
+        3.3997         6.0211       -2.1274
+
+Total spin-spin coupling tensor  (Hz):
+      110.6611        14.7650        8.8105
+       15.0373       121.4083       16.8447
+        8.9874        16.8757      111.3153
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.741           -6.048           13.603  iso=       0.605
+ ssPSO           -3.791            0.699            5.990  iso=       0.966
+ ssFC           113.137          113.137          113.137  iso=     113.137
+ ssSD             0.022           -0.034           -0.734  iso=      -0.249
+ ssSD/FC         -5.582           -5.570           11.159  iso=       0.002
+        ---------------  ---------------  ---------------  ----------------
+ Total           98.044          102.185          143.156  iso=     114.462
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = C    1 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     2.1749
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.3663         2.0990        1.1952
+        1.0152        -0.9918        0.2943
+        0.5309         0.2601       -1.3818
+Paramagnetic contribution (Hz):
+       -0.4072         0.7515        0.4286
+        0.3732         0.5045        0.0557
+        0.1960         0.0434        0.5935
+Fermi-contact contribution (Hz):
+       -4.5007         0.0000        0.0000
+        0.0000        -4.5007        0.0000
+        0.0000         0.0000       -4.5007
+Spin-dipolar contribution (Hz):
+        0.0744        -0.1501       -0.0886
+        0.2012        -0.0328       -0.1437
+        0.1270        -0.1318        0.1053
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.0920         0.3219        0.1832
+        0.3219        -1.0572       -1.0263
+        0.1832        -1.0263       -0.0378
+
+Total spin-spin coupling tensor  (Hz):
+       -2.3752         3.0223        1.7184
+        1.9116        -6.0780       -0.8200
+        1.0371        -0.8546       -5.2214
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.301           -1.524           -1.784  iso=      -0.336
+ ssPSO            0.191            0.528           -0.027  iso=       0.230
+ ssFC            -4.501           -4.501           -4.501  iso=      -4.501
+ ssSD             0.069            0.190           -0.112  iso=       0.049
+ ssSD/FC          0.947            0.596           -1.546  iso=      -0.001
+        ---------------  ---------------  ---------------  ----------------
+ Total           -0.994           -4.711           -7.970  iso=      -4.558
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    3 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7598
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -7.5886         0.5940        4.1783
+       -2.2895        -4.2179       10.2913
+       -1.8286         2.3089        3.8099
+Paramagnetic contribution (Hz):
+        2.7799        -1.7626       -0.4526
+       -0.5140         1.8938        0.4394
+        2.1497         3.9090       -0.7810
+Fermi-contact contribution (Hz):
+      -13.0254         0.0000        0.0000
+        0.0000       -13.0254        0.0000
+        0.0000         0.0000      -13.0254
+Spin-dipolar contribution (Hz):
+        0.1779         0.4070       -0.7238
+        0.8017         0.5079       -0.5765
+        0.1120         0.6512        0.6219
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.6054        -2.6024        1.2842
+       -2.6024        -0.3394       -0.4563
+        1.2842        -0.4563       -1.2756
+
+Total spin-spin coupling tensor  (Hz):
+      -16.0508        -3.3640        4.2862
+       -4.6042       -15.1811        9.6980
+        1.7173         6.4128      -10.6501
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            6.668           -6.349           -8.316  iso=      -2.666
+ ssPSO            2.473            3.018           -1.599  iso=       1.298
+ ssFC           -13.025          -13.025          -13.025  iso=     -13.025
+ ssSD             0.626           -0.325            1.007  iso=       0.436
+ ssSD/FC         -1.399            3.649           -2.260  iso=      -0.003
+        ---------------  ---------------  ---------------  ----------------
+ Total           -4.657          -13.032          -24.193  iso=     -13.961
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    4 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7597
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -7.7298         3.7691       -1.2686
+       -3.2475         7.2794       -3.4380
+       -1.3304         4.2307       -7.5385
+Paramagnetic contribution (Hz):
+        2.9159        -1.4100       -1.4255
+        1.6309        -1.9981        1.8148
+       -1.3990        -1.5195        2.9707
+Fermi-contact contribution (Hz):
+      -12.7119         0.0000        0.0000
+        0.0000       -12.7119        0.0000
+        0.0000         0.0000      -12.7119
+Spin-dipolar contribution (Hz):
+        0.2416        -0.5006        0.6849
+        0.4768         0.6286        0.5845
+        0.6918        -0.5951        0.4390
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.3235         0.0739       -2.9516
+        0.0739        -1.4176        0.0483
+       -2.9516         0.0483        0.0887
+
+Total spin-spin coupling tensor  (Hz):
+      -15.9606         1.9325       -4.9608
+       -1.0658        -8.2196       -0.9904
+       -4.9892         2.1643      -16.7520
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            7.131           -6.343           -8.776  iso=      -2.663
+ ssPSO           -1.888            4.344            1.433  iso=       1.296
+ ssFC           -12.712          -12.712          -12.712  iso=     -12.712
+ ssSD             0.632           -0.354            1.031  iso=       0.436
+ ssSD/FC         -1.410            3.697           -2.292  iso=      -0.002
+        ---------------  ---------------  ---------------  ----------------
+ Total           -8.248          -11.368          -21.317  iso=     -13.644
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    5 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5331
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.7843         0.7732       -3.9038
+        3.3896        -1.5732       -2.4328
+        1.1305         0.0941       -2.8376
+Paramagnetic contribution (Hz):
+       -0.5891         1.3173        0.7292
+        0.0657         0.4428        0.0083
+       -1.6758        -1.1576        1.1035
+Fermi-contact contribution (Hz):
+        3.6342         0.0000        0.0000
+        0.0000         3.6342        0.0000
+        0.0000         0.0000        3.6342
+Spin-dipolar contribution (Hz):
+        0.1795         0.0485       -0.0111
+        0.0407        -0.0019        0.1712
+       -0.0402        -0.0076        0.1094
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.2738         0.1307       -0.0802
+        0.1307         0.2110       -0.1632
+       -0.0802        -0.1632        0.0642
+
+Total spin-spin coupling tensor  (Hz):
+        4.7350         2.2697       -3.2660
+        3.6267         2.7129       -2.4165
+       -0.6658        -1.2343        2.0736
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -3.141           -2.222            2.736  iso=      -0.876
+ ssPSO           -0.011           -0.216            1.185  iso=       0.319
+ ssFC             3.634            3.634            3.634  iso=       3.634
+ ssSD             0.093            0.062            0.132  iso=       0.096
+ ssSD/FC          0.002           -0.143            0.143  iso=       0.000
+        ---------------  ---------------  ---------------  ----------------
+ Total            0.577            1.115            7.830  iso=       3.174
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    6 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5335
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        2.0173        -3.0346        2.2981
+        2.7465        -3.5351        1.0335
+        2.4108        -1.2283       -1.1092
+Paramagnetic contribution (Hz):
+       -0.6678         1.3280        0.8240
+       -1.4322         1.4365       -0.5631
+        0.7697         0.4756        0.1889
+Fermi-contact contribution (Hz):
+        3.6220         0.0000        0.0000
+        0.0000         3.6220        0.0000
+        0.0000         0.0000        3.6220
+Spin-dipolar contribution (Hz):
+        0.1832         0.0172        0.0399
+       -0.0203         0.1512       -0.0838
+        0.0412         0.0930       -0.0497
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.2531        -0.0164        0.1801
+       -0.0164        -0.0421       -0.0303
+        0.1801        -0.0303        0.2955
+
+Total spin-spin coupling tensor  (Hz):
+        4.9016        -1.7057        3.3421
+        1.2776         1.6325        0.3563
+        3.4018        -0.6900        2.9475
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -2.361           -3.221            2.955  iso=      -0.876
+ ssPSO           -0.736            1.230            0.463  iso=       0.319
+ ssFC             3.622            3.622            3.622  iso=       3.622
+ ssSD            -0.007            0.151            0.140  iso=       0.095
+ ssSD/FC         -0.048           -0.068            0.117  iso=       0.000
+        ---------------  ---------------  ---------------  ----------------
+ Total            0.470            1.714            7.297  iso=       3.161
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    7 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     3.0846
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -2.1149         3.1621        1.8439
+        3.1621        -2.6548        1.3907
+        1.8439         1.3907       -4.2924
+Paramagnetic contribution (Hz):
+        1.2247         1.4191        0.8401
+        1.4191         1.1858        0.5536
+        0.8402         0.5537        1.8498
+Fermi-contact contribution (Hz):
+       14.1586         0.0000        0.0000
+        0.0000        14.1586        0.0000
+        0.0000         0.0000       14.1586
+Spin-dipolar contribution (Hz):
+       -0.0194        -0.0458       -0.0267
+       -0.0458         0.0500        0.0193
+       -0.0265         0.0199        0.0332
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.9353        -0.0968       -0.0251
+       -0.0968         0.5946        0.2562
+       -0.0251         0.2562        0.3415
+
+Total spin-spin coupling tensor  (Hz):
+       12.3137         4.4387        2.6323
+        4.4386        13.3341        2.2198
+        2.6325         2.2204       12.0906
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.561           -5.068            1.566  iso=      -3.021
+ ssPSO           -0.212            1.226            3.246  iso=       1.420
+ ssFC            14.159           14.159           14.159  iso=      14.159
+ ssSD             0.062            0.021           -0.019  iso=       0.021
+ ssSD/FC         -0.186            0.156            0.031  iso=       0.000
+        ---------------  ---------------  ---------------  ----------------
+ Total            8.263           10.493           18.983  iso=      12.579
+
+================================
+Nucleus = H    3 interacts with: 
+ C 0 C 1 H 4 H 5 H 6 H 7
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000020830
+Returned from CP-SCF (   0.3 sec)
+Processing PSO nuclei : C 0  C 1  H 4  H 5  H 6  H 7  done (   0.1 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.002121035038
+     CP-SCF ITERATION   2:      0.000035180187
+     CP-SCF ITERATION   3:      0.000002292823
+     CP-SCF ITERATION   4:      0.000000797484
+Returned from CP-SCF (   3.5 sec)
+Processing FC/SD nuclei : C 0  C 1  H 4  H 5  H 6  H 7  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = C    0 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     1.0909
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -4.0777         0.1235       -5.9838
+        0.1279        -5.9085       -0.3582
+       -6.1489        -0.3551       11.8277
+Paramagnetic contribution (Hz):
+        3.5677         0.0709       -3.1481
+        0.0728         4.1863       -0.1800
+       -3.2470        -0.1797       -4.8566
+Fermi-contact contribution (Hz):
+      114.4958         0.0000        0.0000
+        0.0000       114.4958        0.0000
+        0.0000         0.0000      114.4958
+Spin-dipolar contribution (Hz):
+       -0.1115        -0.0023        0.2345
+       -0.0018         0.0631        0.0154
+        0.1805         0.0161       -0.6733
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -3.1593         0.0994       -5.8704
+        0.0994        -5.7436       -0.2681
+       -5.8704        -0.2681        9.0105
+
+Total spin-spin coupling tensor  (Hz):
+      110.7149         0.2915      -14.7678
+        0.2982       107.0930       -0.7910
+      -15.0858        -0.7869      129.8040
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.515           -5.916           13.272  iso=       0.614
+ ssPSO           -1.080            4.178           -0.200  iso=       0.966
+ ssFC           114.496          114.496          114.496  iso=     114.496
+ ssSD            -0.066            0.063           -0.719  iso=      -0.241
+ ssSD/FC         -5.296           -5.747           11.150  iso=       0.036
+        ---------------  ---------------  ---------------  ----------------
+ Total          102.539          107.074          137.999  iso=     115.871
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = C    1 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     2.1746
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.0981         0.0250       -2.5579
+       -0.0071        -1.5252        0.0148
+       -1.2868        -0.0044       -0.5805
+Paramagnetic contribution (Hz):
+       -0.3096         0.0093       -0.9229
+       -0.0017         0.6144        0.0081
+       -0.4793         0.0015        0.3860
+Fermi-contact contribution (Hz):
+       -4.5724         0.0000        0.0000
+        0.0000        -4.5724        0.0000
+        0.0000         0.0000       -4.5724
+Spin-dipolar contribution (Hz):
+        0.0661        -0.0013        0.1577
+        0.0076         0.1878        0.0051
+       -0.2504         0.0110       -0.1127
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.0265         0.0096       -0.5702
+        0.0096         0.5978        0.0611
+       -0.5702         0.0611       -1.6648
+
+Total spin-spin coupling tensor  (Hz):
+       -2.6914         0.0426       -3.8933
+        0.0084        -4.6976        0.0891
+       -2.5867         0.0692       -6.5443
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.283           -1.525           -1.766  iso=      -0.336
+ ssPSO            0.367            0.614           -0.290  iso=       0.230
+ ssFC            -4.572           -4.572           -4.572  iso=      -4.572
+ ssSD             0.069            0.188           -0.116  iso=       0.047
+ ssSD/FC          0.968            0.599           -1.608  iso=      -0.013
+        ---------------  ---------------  ---------------  ----------------
+ Total           -0.885           -4.696           -8.352  iso=      -4.644
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H    4 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7597
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -7.5345         2.4916       -1.7820
+       -0.6859        -3.6101       -2.6291
+        3.8259       -10.7885        3.1504
+Paramagnetic contribution (Hz):
+        2.7102         0.4357        2.0518
+        1.8121         1.7340       -4.0991
+       -0.3768        -0.5521       -0.5525
+Fermi-contact contribution (Hz):
+      -12.9625         0.0000        0.0000
+        0.0000       -12.9625        0.0000
+        0.0000         0.0000      -12.9625
+Spin-dipolar contribution (Hz):
+        0.1438        -0.7971        0.0512
+       -0.3599         0.5536       -0.6584
+       -0.7290         0.5978        0.6283
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.7506         2.4586        1.3647
+        2.4586        -0.6121        0.4897
+        1.3647         0.4897       -1.1929
+
+Total spin-spin coupling tensor  (Hz):
+      -15.8925         4.5888        1.6858
+        3.2248       -14.8972       -6.8969
+        4.0849       -10.2531      -10.9292
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            7.085           -6.262           -8.817  iso=      -2.665
+ ssPSO            2.429            2.820           -1.357  iso=       1.297
+ ssFC           -12.963          -12.963          -12.963  iso=     -12.963
+ ssSD             0.620           -0.321            1.026  iso=       0.442
+ ssSD/FC         -1.395            3.582           -2.242  iso=      -0.018
+        ---------------  ---------------  ---------------  ----------------
+ Total           -4.224          -13.143          -24.352  iso=     -13.906
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H    5 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     3.0842
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -2.6443         0.0542       -3.6048
+        0.0542        -5.0884       -0.0404
+       -3.6048        -0.0404       -1.3324
+Paramagnetic contribution (Hz):
+        1.4626         0.0301       -1.6070
+        0.0301         2.1635       -0.0143
+       -1.6065        -0.0143        0.6355
+Fermi-contact contribution (Hz):
+       14.2436         0.0000        0.0000
+        0.0000        14.2436        0.0000
+        0.0000         0.0000       14.2436
+Spin-dipolar contribution (Hz):
+       -0.0118        -0.0009        0.0589
+       -0.0010         0.0197       -0.0014
+        0.0549        -0.0021        0.0612
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.9198         0.0103        0.2198
+        0.0103         0.1828       -0.0161
+        0.2198        -0.0161        0.7602
+
+Total spin-spin coupling tensor  (Hz):
+       12.1302         0.0936       -4.9332
+        0.0936        11.5213       -0.0722
+       -4.9366        -0.0729       14.3681
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.649           -5.088            1.673  iso=      -3.022
+ ssPSO           -0.426            2.162            2.526  iso=       1.421
+ ssFC            14.244           14.244           14.244  iso=      14.244
+ ssSD             0.072            0.020           -0.023  iso=       0.023
+ ssSD/FC         -0.051            0.182           -0.108  iso=       0.008
+        ---------------  ---------------  ---------------  ----------------
+ Total            8.189           11.520           18.311  iso=      12.673
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H    6 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5332
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.6567        -3.5422        0.9519
+       -0.6765        -1.5702       -0.0645
+       -3.8640         2.6118       -2.7139
+Paramagnetic contribution (Hz):
+       -0.5468        -0.0127       -1.6413
+       -1.3837         0.4615        1.2394
+        0.6602         0.0022        1.0424
+Fermi-contact contribution (Hz):
+        3.6342         0.0000        0.0000
+        0.0000         3.6342        0.0000
+        0.0000         0.0000        3.6342
+Spin-dipolar contribution (Hz):
+        0.1758        -0.0431       -0.0432
+       -0.0531         0.0082        0.0039
+       -0.0168        -0.1798        0.0989
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.2798        -0.1138       -0.0572
+       -0.1138         0.2381        0.1512
+       -0.0572         0.1512        0.0682
+
+Total spin-spin coupling tensor  (Hz):
+        4.6401        -3.7119       -0.7897
+       -2.2271         2.7718        1.3300
+       -3.2777         2.5854        2.1297
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -2.443           -3.182            2.997  iso=      -0.876
+ ssPSO           -0.611            0.540            1.028  iso=       0.319
+ ssFC             3.634            3.634            3.634  iso=       3.634
+ ssSD             0.058            0.096            0.129  iso=       0.094
+ ssSD/FC         -0.094           -0.012            0.133  iso=       0.009
+        ---------------  ---------------  ---------------  ----------------
+ Total            0.545            1.076            7.921  iso=       3.181
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H    7 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5331
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.7843         3.3896        1.1304
+        0.7733        -1.5732        0.0941
+       -3.9038        -2.4328       -2.8376
+Paramagnetic contribution (Hz):
+       -0.5891         0.0657       -1.6756
+        1.3175         0.4429       -1.1576
+        0.7289         0.0083        1.1030
+Fermi-contact contribution (Hz):
+        3.6343         0.0000        0.0000
+        0.0000         3.6343        0.0000
+        0.0000         0.0000        3.6343
+Spin-dipolar contribution (Hz):
+        0.1788         0.0399       -0.0415
+        0.0490        -0.0024       -0.0077
+       -0.0085         0.1759        0.1085
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.2720         0.1320       -0.0526
+        0.1320         0.2458       -0.1374
+       -0.0526        -0.1374        0.0531
+
+Total spin-spin coupling tensor  (Hz):
+        4.7362         3.6273       -0.6392
+        2.2718         2.7473       -1.2086
+       -3.2360        -2.3860        2.0612
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -2.353           -3.282            3.008  iso=      -0.876
+ ssPSO           -0.629            0.676            0.910  iso=       0.319
+ ssFC             3.634            3.634            3.634  iso=       3.634
+ ssSD             0.044            0.112            0.129  iso=       0.095
+ ssSD/FC         -0.094           -0.011            0.131  iso=       0.009
+        ---------------  ---------------  ---------------  ----------------
+ Total            0.603            1.129            7.813  iso=       3.182
+
+================================
+Nucleus = H    4 interacts with: 
+ C 0 C 1 H 5 H 6 H 7
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000020299
+Returned from CP-SCF (   0.3 sec)
+Processing PSO nuclei : C 0  C 1  H 5  H 6  H 7  done (   0.1 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.002038813489
+     CP-SCF ITERATION   2:      0.000034833022
+     CP-SCF ITERATION   3:      0.000002272438
+     CP-SCF ITERATION   4:      0.000000893396
+Returned from CP-SCF (   3.4 sec)
+Processing FC/SD nuclei : C 0  C 1  H 5  H 6  H 7  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = C    0 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     1.0912
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -3.4901        -5.9274        3.1074
+       -6.0731         7.5486       -7.0318
+        3.1891        -7.0442       -2.2424
+Paramagnetic contribution (Hz):
+        3.2518        -3.1143        1.6477
+       -3.2042        -2.6749       -3.5802
+        1.6969        -3.5855        2.3195
+Fermi-contact contribution (Hz):
+      112.4519         0.0000        0.0000
+        0.0000       112.4519        0.0000
+        0.0000         0.0000      112.4519
+Spin-dipolar contribution (Hz):
+       -0.1388         0.2277       -0.1191
+        0.1874        -0.5031        0.3040
+       -0.0867         0.2782       -0.1039
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -2.6197        -5.6719        2.9280
+       -5.6719         5.4389       -5.7331
+        2.9280        -5.7331       -2.7386
+
+Total spin-spin coupling tensor  (Hz):
+      109.4550       -14.4859        7.5641
+      -14.7619       122.2615      -16.0411
+        7.7273       -16.0846      109.6866
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.661           -6.047           13.524  iso=       0.605
+ ssPSO           -3.518            1.204            5.210  iso=       0.965
+ ssFC           112.452          112.452          112.452  iso=     112.452
+ ssSD             0.017           -0.031           -0.731  iso=      -0.249
+ ssSD/FC         -5.480           -5.586           11.147  iso=       0.027
+        ---------------  ---------------  ---------------  ----------------
+ Total           97.809          101.992          141.602  iso=     113.801
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = C    1 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     2.1748
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.2687        -2.2248        1.0762
+       -1.1087        -0.8657       -0.3050
+        0.4692        -0.2516       -1.4100
+Paramagnetic contribution (Hz):
+       -0.3721        -0.7989        0.3874
+       -0.4088         0.4638       -0.0622
+        0.1749        -0.0433        0.5983
+Fermi-contact contribution (Hz):
+       -4.5090         0.0000        0.0000
+        0.0000        -4.5090        0.0000
+        0.0000         0.0000       -4.5090
+Spin-dipolar contribution (Hz):
+        0.0728         0.1509       -0.0763
+       -0.2107        -0.0453        0.1385
+        0.1206         0.1204        0.1192
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.0732        -0.3986        0.1949
+       -0.3986        -1.1665        0.9640
+        0.1949         0.9640        0.0633
+
+Total spin-spin coupling tensor  (Hz):
+       -2.4664        -3.2714        1.5822
+       -2.1268        -6.1227        0.7352
+        0.9595         0.7895       -5.1381
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.295           -1.524           -1.778  iso=      -0.336
+ ssPSO            0.264            0.529           -0.103  iso=       0.230
+ ssFC            -4.509           -4.509           -4.509  iso=      -4.509
+ ssSD             0.069            0.190           -0.113  iso=       0.049
+ ssSD/FC          0.954            0.588           -1.572  iso=      -0.010
+        ---------------  ---------------  ---------------  ----------------
+ Total           -0.926           -4.727           -8.074  iso=      -4.576
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H    5 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5332
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.6567        -0.6765       -3.8639
+       -3.5422        -1.5702        2.6118
+        0.9519        -0.0645       -2.7139
+Paramagnetic contribution (Hz):
+       -0.5468        -1.3835        0.6604
+       -0.0127         0.4613        0.0022
+       -1.6414         1.2394        1.0428
+Fermi-contact contribution (Hz):
+        3.6338         0.0000        0.0000
+        0.0000         3.6338        0.0000
+        0.0000         0.0000        3.6338
+Spin-dipolar contribution (Hz):
+        0.1766        -0.0529       -0.0188
+       -0.0439         0.0069       -0.1757
+       -0.0423         0.0037        0.1007
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.2806        -0.1113       -0.0832
+       -0.1113         0.2165        0.1730
+       -0.0832         0.1730        0.0815
+
+Total spin-spin coupling tensor  (Hz):
+        4.6397        -2.2242       -3.3056
+       -3.7101         2.7484        2.6113
+       -0.8150         1.3517        2.1449
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -3.221           -2.173            2.767  iso=      -0.876
+ ssPSO            0.000           -0.303            1.260  iso=       0.319
+ ssFC             3.634            3.634            3.634  iso=       3.634
+ ssSD             0.110            0.042            0.132  iso=       0.095
+ ssSD/FC          0.006           -0.135            0.147  iso=       0.006
+        ---------------  ---------------  ---------------  ----------------
+ Total            0.528            1.065            7.940  iso=       3.178
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H    6 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     3.0847
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -2.3097        -3.2588        1.6392
+       -3.2588        -2.3206       -1.3482
+        1.6392        -1.3482       -4.4316
+Paramagnetic contribution (Hz):
+        1.3118        -1.4548        0.7505
+       -1.4547         1.0429       -0.5389
+        0.7506        -0.5390        1.9053
+Fermi-contact contribution (Hz):
+       14.0974         0.0000        0.0000
+        0.0000        14.0974        0.0000
+        0.0000         0.0000       14.0974
+Spin-dipolar contribution (Hz):
+       -0.0164         0.0491       -0.0248
+        0.0468         0.0518       -0.0202
+       -0.0246        -0.0182        0.0312
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.9255         0.1439       -0.0272
+        0.1439         0.6260       -0.2409
+       -0.0272        -0.2409        0.3148
+
+Total spin-spin coupling tensor  (Hz):
+       12.1576        -4.5206        2.3377
+       -4.5228        13.4975       -2.1483
+        2.3379        -2.1464       11.9172
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.583           -5.062            1.583  iso=      -3.021
+ ssPSO           -0.233            1.326            3.167  iso=       1.420
+ ssFC            14.097           14.097           14.097  iso=      14.097
+ ssSD             0.064            0.020           -0.018  iso=       0.022
+ ssSD/FC         -0.140            0.147            0.008  iso=       0.005
+        ---------------  ---------------  ---------------  ----------------
+ Total            8.205           10.529           18.838  iso=      12.524
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H    7 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5335
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        2.0174         2.7465        2.4108
+       -3.0346        -3.5351       -1.2283
+        2.2981         1.0335       -1.1092
+Paramagnetic contribution (Hz):
+       -0.6678        -1.4323        0.7696
+        1.3279         1.4365        0.4756
+        0.8241        -0.5632        0.1889
+Fermi-contact contribution (Hz):
+        3.6219         0.0000        0.0000
+        0.0000         3.6219        0.0000
+        0.0000         0.0000        3.6219
+Spin-dipolar contribution (Hz):
+        0.1832        -0.0203        0.0415
+        0.0193         0.1537        0.0956
+        0.0397        -0.0837       -0.0496
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -0.2522         0.0175        0.1815
+        0.0175        -0.0282        0.0081
+        0.1815         0.0081        0.2982
+
+Total spin-spin coupling tensor  (Hz):
+        4.9024         1.3114        3.4035
+       -1.6699         1.6487       -0.6490
+        3.3434         0.3948        2.9501
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -2.343           -3.307            3.023  iso=      -0.876
+ ssPSO           -0.751            1.314            0.394  iso=       0.319
+ ssFC             3.622            3.622            3.622  iso=       3.622
+ ssSD            -0.007            0.153            0.141  iso=       0.096
+ ssSD/FC         -0.051           -0.049            0.117  iso=       0.006
+        ---------------  ---------------  ---------------  ----------------
+ Total            0.471            1.733            7.297  iso=       3.167
+
+================================
+Nucleus = H    5 interacts with: 
+ C 0 C 1 H 6 H 7
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000020829
+Returned from CP-SCF (   0.3 sec)
+Processing PSO nuclei : C 0  C 1  H 6  H 7  done (   0.1 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.002121048090
+     CP-SCF ITERATION   2:      0.000035180180
+     CP-SCF ITERATION   3:      0.000002292821
+     CP-SCF ITERATION   4:      0.000000797479
+Returned from CP-SCF (   3.4 sec)
+Processing FC/SD nuclei : C 0  C 1  H 6  H 7  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    5 NUCLEUS B = C    0 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     2.1746
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.0981         0.0250       -2.5579
+       -0.0071        -1.5252        0.0148
+       -1.2868        -0.0044       -0.5805
+Paramagnetic contribution (Hz):
+       -0.3096         0.0093       -0.9229
+       -0.0017         0.6144        0.0081
+       -0.4793         0.0015        0.3860
+Fermi-contact contribution (Hz):
+       -4.5724         0.0000        0.0000
+        0.0000        -4.5724        0.0000
+        0.0000         0.0000       -4.5724
+Spin-dipolar contribution (Hz):
+        0.0661        -0.0013        0.1577
+        0.0076         0.1878        0.0051
+       -0.2504         0.0110       -0.1127
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.0265         0.0096       -0.5702
+        0.0096         0.5978        0.0611
+       -0.5702         0.0611       -1.6648
+
+Total spin-spin coupling tensor  (Hz):
+       -2.6914         0.0426       -3.8933
+        0.0084        -4.6977        0.0891
+       -2.5867         0.0692       -6.5444
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.283           -1.525           -1.766  iso=      -0.336
+ ssPSO            0.367            0.614           -0.290  iso=       0.230
+ ssFC            -4.572           -4.572           -4.572  iso=      -4.572
+ ssSD             0.069            0.188           -0.116  iso=       0.047
+ ssSD/FC          0.968            0.599           -1.608  iso=      -0.013
+        ---------------  ---------------  ---------------  ----------------
+ Total           -0.885           -4.696           -8.352  iso=      -4.644
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    5 NUCLEUS B = C    1 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     1.0909
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -4.0777         0.1235       -5.9838
+        0.1278        -5.9085       -0.3582
+       -6.1489        -0.3551       11.8277
+Paramagnetic contribution (Hz):
+        3.5677         0.0709       -3.1481
+        0.0728         4.1863       -0.1800
+       -3.2470        -0.1797       -4.8566
+Fermi-contact contribution (Hz):
+      114.4956         0.0000        0.0000
+        0.0000       114.4956        0.0000
+        0.0000         0.0000      114.4956
+Spin-dipolar contribution (Hz):
+       -0.1115        -0.0023        0.2345
+       -0.0018         0.0631        0.0153
+        0.1805         0.0161       -0.6733
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -3.1593         0.0993       -5.8704
+        0.0993        -5.7436       -0.2681
+       -5.8704        -0.2681        9.0105
+
+Total spin-spin coupling tensor  (Hz):
+      110.7147         0.2915      -14.7677
+        0.2982       107.0929       -0.7909
+      -15.0857        -0.7868      129.8038
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.515           -5.916           13.272  iso=       0.614
+ ssPSO           -1.080            4.178           -0.200  iso=       0.966
+ ssFC           114.496          114.496          114.496  iso=     114.496
+ ssSD            -0.066            0.063           -0.719  iso=      -0.241
+ ssSD/FC         -5.296           -5.747           11.150  iso=       0.036
+        ---------------  ---------------  ---------------  ----------------
+ Total          102.539          107.074          137.999  iso=     115.870
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    5 NUCLEUS B = H    6 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7597
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -7.5345         2.4916       -1.7820
+       -0.6859        -3.6102       -2.6291
+        3.8259       -10.7885        3.1505
+Paramagnetic contribution (Hz):
+        2.7102         0.4357        2.0518
+        1.8121         1.7340       -4.0991
+       -0.3768        -0.5521       -0.5525
+Fermi-contact contribution (Hz):
+      -12.9626         0.0000        0.0000
+        0.0000       -12.9626        0.0000
+        0.0000         0.0000      -12.9626
+Spin-dipolar contribution (Hz):
+        0.1438        -0.7971        0.0512
+       -0.3599         0.5536       -0.6584
+       -0.7290         0.5978        0.6283
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.7506         2.4586        1.3647
+        2.4586        -0.6121        0.4896
+        1.3647         0.4896       -1.1929
+
+Total spin-spin coupling tensor  (Hz):
+      -15.8925         4.5888        1.6858
+        3.2248       -14.8973       -6.8969
+        4.0849       -10.2531      -10.9292
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            7.085           -6.262           -8.817  iso=      -2.665
+ ssPSO            2.429            2.820           -1.357  iso=       1.297
+ ssFC           -12.963          -12.963          -12.963  iso=     -12.963
+ ssSD             0.620           -0.321            1.026  iso=       0.442
+ ssSD/FC         -1.395            3.582           -2.242  iso=      -0.018
+        ---------------  ---------------  ---------------  ----------------
+ Total           -4.224          -13.143          -24.352  iso=     -13.906
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    5 NUCLEUS B = H    7 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7598
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -7.5886        -2.2895       -1.8286
+        0.5940        -4.2179        2.3090
+        4.1783        10.2914        3.8098
+Paramagnetic contribution (Hz):
+        2.7799        -0.5141        2.1494
+       -1.7628         1.8941        3.9093
+       -0.4522         0.4394       -0.7803
+Fermi-contact contribution (Hz):
+      -13.0258         0.0000        0.0000
+        0.0000       -13.0258        0.0000
+        0.0000         0.0000      -13.0258
+Spin-dipolar contribution (Hz):
+        0.1826         0.8064        0.1149
+        0.4055         0.5137        0.6539
+       -0.7304        -0.5835        0.6284
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.6021        -2.5764        1.2292
+       -2.5764        -0.4002       -0.5107
+        1.2292        -0.5107       -1.2578
+
+Total spin-spin coupling tensor  (Hz):
+      -16.0498        -4.5736        1.6649
+       -3.3397       -15.2362        6.3614
+        4.2250         9.6365      -10.6258
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            7.027           -6.212           -8.812  iso=      -2.666
+ ssPSO            2.073            2.912           -1.091  iso=       1.298
+ ssFC           -13.026          -13.026          -13.026  iso=     -13.026
+ ssSD             0.614           -0.316            1.027  iso=       0.442
+ ssSD/FC         -1.402            3.569           -2.223  iso=      -0.019
+        ---------------  ---------------  ---------------  ----------------
+ Total           -4.714          -13.073          -24.124  iso=     -13.971
+
+================================
+Nucleus = H    6 interacts with: 
+ C 0 C 1 H 7
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000020299
+Returned from CP-SCF (   0.3 sec)
+Processing PSO nuclei : C 0  C 1  H 7  done (   0.0 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.002038802958
+     CP-SCF ITERATION   2:      0.000034832974
+     CP-SCF ITERATION   3:      0.000002272435
+     CP-SCF ITERATION   4:      0.000000893398
+Returned from CP-SCF (   3.4 sec)
+Processing FC/SD nuclei : C 0  C 1  H 7  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    6 NUCLEUS B = C    0 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     2.1748
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.2687        -2.2248        1.0762
+       -1.1087        -0.8657       -0.3050
+        0.4692        -0.2516       -1.4100
+Paramagnetic contribution (Hz):
+       -0.3721        -0.7989        0.3874
+       -0.4088         0.4638       -0.0622
+        0.1749        -0.0433        0.5983
+Fermi-contact contribution (Hz):
+       -4.5090         0.0000        0.0000
+        0.0000        -4.5090        0.0000
+        0.0000         0.0000       -4.5090
+Spin-dipolar contribution (Hz):
+        0.0728         0.1509       -0.0763
+       -0.2107        -0.0453        0.1385
+        0.1206         0.1204        0.1192
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.0732        -0.3986        0.1949
+       -0.3986        -1.1665        0.9640
+        0.1949         0.9640        0.0633
+
+Total spin-spin coupling tensor  (Hz):
+       -2.4664        -3.2714        1.5822
+       -2.1268        -6.1227        0.7352
+        0.9595         0.7895       -5.1381
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.295           -1.524           -1.778  iso=      -0.336
+ ssPSO            0.264            0.529           -0.103  iso=       0.230
+ ssFC            -4.509           -4.509           -4.509  iso=      -4.509
+ ssSD             0.069            0.190           -0.113  iso=       0.049
+ ssSD/FC          0.954            0.588           -1.572  iso=      -0.010
+        ---------------  ---------------  ---------------  ----------------
+ Total           -0.926           -4.727           -8.074  iso=      -4.576
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    6 NUCLEUS B = C    1 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     1.0912
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -3.4901        -5.9275        3.1074
+       -6.0732         7.5486       -7.0318
+        3.1891        -7.0442       -2.2424
+Paramagnetic contribution (Hz):
+        3.2518        -3.1143        1.6477
+       -3.2042        -2.6749       -3.5802
+        1.6969        -3.5855        2.3195
+Fermi-contact contribution (Hz):
+      112.4520         0.0000        0.0000
+        0.0000       112.4520        0.0000
+        0.0000         0.0000      112.4520
+Spin-dipolar contribution (Hz):
+       -0.1388         0.2277       -0.1191
+        0.1874        -0.5031        0.3040
+       -0.0867         0.2782       -0.1039
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -2.6197        -5.6720        2.9280
+       -5.6720         5.4389       -5.7332
+        2.9280        -5.7332       -2.7386
+
+Total spin-spin coupling tensor  (Hz):
+      109.4551       -14.4860        7.5641
+      -14.7619       122.2616      -16.0411
+        7.7273       -16.0846      109.6866
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.661           -6.047           13.524  iso=       0.605
+ ssPSO           -3.518            1.204            5.210  iso=       0.965
+ ssFC           112.452          112.452          112.452  iso=     112.452
+ ssSD             0.017           -0.031           -0.731  iso=      -0.249
+ ssSD/FC         -5.480           -5.586           11.147  iso=       0.027
+        ---------------  ---------------  ---------------  ----------------
+ Total           97.809          101.992          141.602  iso=     113.801
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    6 NUCLEUS B = H    7 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7597
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -7.7298        -3.2475       -1.3304
+        3.7691         7.2794        4.2306
+       -1.2686        -3.4380       -7.5385
+Paramagnetic contribution (Hz):
+        2.9160         1.6310       -1.3990
+       -1.4098        -1.9980       -1.5191
+       -1.4255         1.8152        2.9707
+Fermi-contact contribution (Hz):
+      -12.7116         0.0000        0.0000
+        0.0000       -12.7116        0.0000
+        0.0000         0.0000      -12.7116
+Spin-dipolar contribution (Hz):
+        0.2415         0.4776        0.6919
+       -0.5041         0.6276       -0.6002
+        0.6846         0.5843        0.4386
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.3217         0.0102       -2.9532
+        0.0102        -1.4528       -0.0168
+       -2.9532        -0.0168        0.0848
+
+Total spin-spin coupling tensor  (Hz):
+      -15.9623        -1.1286       -4.9907
+        1.8653        -8.2556        2.0945
+       -4.9627        -1.0554      -16.7560
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            7.239           -6.340           -8.889  iso=      -2.663
+ ssPSO           -1.999            4.343            1.545  iso=       1.296
+ ssFC           -12.712          -12.712          -12.712  iso=     -12.712
+ ssSD             0.628           -0.353            1.033  iso=       0.436
+ ssSD/FC         -1.449            3.693           -2.290  iso=      -0.015
+        ---------------  ---------------  ---------------  ----------------
+ Total           -8.293          -11.369          -21.312  iso=     -13.658
+
+================================
+Nucleus = H    7 interacts with: 
+ C 0 C 1
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000000019992
+Returned from CP-SCF (   0.3 sec)
+Processing PSO nuclei : C 0  C 1  done (   0.0 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.002054093185
+     CP-SCF ITERATION   2:      0.000034825393
+     CP-SCF ITERATION   3:      0.000002272532
+     CP-SCF ITERATION   4:      0.000000925866
+Returned from CP-SCF (   3.4 sec)
+Processing FC/SD nuclei : C 0  C 1  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    7 NUCLEUS B = C    0 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     2.1749
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        1.3663         2.0990        1.1952
+        1.0152        -0.9918        0.2943
+        0.5309         0.2601       -1.3818
+Paramagnetic contribution (Hz):
+       -0.4072         0.7515        0.4286
+        0.3732         0.5045        0.0557
+        0.1960         0.0434        0.5935
+Fermi-contact contribution (Hz):
+       -4.5007         0.0000        0.0000
+        0.0000        -4.5007        0.0000
+        0.0000         0.0000       -4.5007
+Spin-dipolar contribution (Hz):
+        0.0744        -0.1501       -0.0886
+        0.2012        -0.0328       -0.1437
+        0.1270        -0.1318        0.1053
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+        1.0920         0.3219        0.1832
+        0.3219        -1.0572       -1.0263
+        0.1832        -1.0263       -0.0378
+
+Total spin-spin coupling tensor  (Hz):
+       -2.3752         3.0223        1.7184
+        1.9116        -6.0780       -0.8200
+        1.0371        -0.8546       -5.2214
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.301           -1.524           -1.784  iso=      -0.336
+ ssPSO            0.191            0.528           -0.027  iso=       0.230
+ ssFC            -4.501           -4.501           -4.501  iso=      -4.501
+ ssSD             0.069            0.190           -0.112  iso=       0.049
+ ssSD/FC          0.947            0.596           -1.546  iso=      -0.001
+        ---------------  ---------------  ---------------  ----------------
+ Total           -0.994           -4.711           -7.970  iso=      -4.558
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    7 NUCLEUS B = C    1 
+ (  1H  gnA =  5.586  13C  gnB =  1.405) r(AB) =     1.0911
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+       -3.1230         6.0700        3.6318
+        6.2117         6.4466        7.3819
+        3.7211         7.3913       -1.5099
+Paramagnetic contribution (Hz):
+        3.0580         3.1927        1.9190
+        3.2790        -2.1060        3.7559
+        1.9726         3.7606        1.9471
+Fermi-contact contribution (Hz):
+      113.1372         0.0000        0.0000
+        0.0000       113.1372        0.0000
+        0.0000         0.0000      113.1372
+Spin-dipolar contribution (Hz):
+       -0.1512        -0.2325       -0.1400
+       -0.1883        -0.4632       -0.3142
+       -0.1060        -0.2972       -0.1316
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -2.2600         5.7349        3.3997
+        5.7349         4.3939        6.0211
+        3.3997         6.0211       -2.1274
+
+Total spin-spin coupling tensor  (Hz):
+      110.6612        14.7650        8.8105
+       15.0373       121.4085       16.8448
+        8.9874        16.8757      111.3154
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO           -5.741           -6.048           13.603  iso=       0.605
+ ssPSO           -3.791            0.699            5.990  iso=       0.966
+ ssFC           113.137          113.137          113.137  iso=     113.137
+ ssSD             0.022           -0.034           -0.734  iso=      -0.249
+ ssSD/FC         -5.582           -5.570           11.159  iso=       0.002
+        ---------------  ---------------  ---------------  ----------------
+ Total           98.044          102.185          143.156  iso=     114.462
+
+================================
+Nucleus = C    0 interacts with: 
+ C 1
+================================
+
+(analytic-AO-ints)Solving PSO CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.000002618664
+     CP-SCF ITERATION   2:      0.000000000746
+Returned from CP-SCF (   0.5 sec)
+Processing PSO nuclei : C 1  done (   0.0 sec)
+Solving FC/SD CP-SCF equations                       ... 
+     CP-SCF ITERATION   0: 
+     CP-SCF ITERATION   1:      0.163118929715
+     CP-SCF ITERATION   2:      0.010190582596
+     CP-SCF ITERATION   3:      0.000201686550
+     CP-SCF ITERATION   4:      0.000008734670
+     CP-SCF ITERATION   5:      0.000000752618
+Returned from CP-SCF (   4.8 sec)
+Processing FC/SD nuclei : C 1  done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = C    0 NUCLEUS B = C    1 
+ ( 13C  gnA =  1.405  13C  gnB =  1.405) r(AB) =     1.5251
+-----------------------------------------------------------
+
+Diamagnetic contribution (Hz):
+        2.3572        -0.0474       -0.1353
+       -0.0474        -1.0057        0.0019
+       -0.1353         0.0019       -1.0011
+Paramagnetic contribution (Hz):
+       -1.0292        -0.0228       -0.0650
+       -0.0228         0.5830        0.0008
+       -0.0650         0.0008        0.5820
+Fermi-contact contribution (Hz):
+       37.6791         0.0000        0.0000
+        0.0000        37.6791        0.0000
+        0.0000         0.0000       37.6791
+Spin-dipolar contribution (Hz):
+        1.8713        -0.0196       -0.0559
+       -0.0196         0.4961        0.0013
+       -0.0561         0.0013        0.4984
+Spin-dipolar/Fermi contact cross term contribution (Hz):
+       -8.1292         0.1732        0.4960
+        0.1732         4.0687       -0.0027
+        0.4960        -0.0027        4.0587
+
+Total spin-spin coupling tensor  (Hz):
+       32.7492         0.0834        0.2398
+        0.0834        41.8212        0.0014
+        0.2397         0.0014       41.8172
+
+ Diagonalized sT*s matrix:
+ 
+ ssDSO            2.363           -1.006           -1.006  iso=       0.117
+ ssPSO           -1.024            0.581            0.579  iso=       0.045
+ ssFC            37.679           37.679           37.679  iso=      37.679
+ ssSD             1.873            0.496            0.497  iso=       0.955
+ ssSD/FC         -8.149            4.070            4.078  iso=      -0.001
+        ---------------  ---------------  ---------------  ----------------
+ Total           32.742           41.819           41.826  iso=      38.796
+
+================================
+Nucleus = C    1 interacts with: 
+ .... no other nucleus - hence skipping
+================================
+
+
+Timings for individual modules:
+
+Sum of individual times         ...       40.550 sec (=   0.676 min)
+GTO integral calculation        ...        0.403 sec (=   0.007 min)   1.0 %
+SCF iterations                  ...        4.923 sec (=   0.082 min)  12.1 %
+EPR/NMR calculation             ...       35.224 sec (=   0.587 min)  86.9 %
+                             ****ORCA TERMINATED NORMALLY****
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 40 seconds 997 msec

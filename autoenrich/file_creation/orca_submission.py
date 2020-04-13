@@ -35,6 +35,7 @@ def make_optin(prefs, molname, xyz, types, path=''):
 	basis_set = prefs['optimisation']['basisset']
 	solvent = prefs['optimisation']['solvent']
 	direct_cmd_line_opt = prefs['optimisation']['custom_cmd_line']
+	processors = prefs['optimisation']['processors']
 	# Get periodic table
 	Periodic_table = Get_periodic_table()
 	# Define instruction line for ORCA
@@ -122,6 +123,8 @@ def make_nmrin(prefs, molname, xyz, types, path=''):
 		strings.append(string)
 	strings.append('*')
 	strings.append('%eprnmr')
+	# Needed for the functional we commonly use, ORCA shouted at me
+	strings.append("       GIAO_2el = GIAO_2el_RIJCOSX")
 	for type in prefs['NMR']['shift_nuclei']:
 		strings.append("       Nuclei = all {type:<2s}".format(type=type) + '  { shift }')
 	for type in prefs['NMR']['spin_nuclei']:

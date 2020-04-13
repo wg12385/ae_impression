@@ -29,9 +29,14 @@ def conformational_search(molecule, prefs, pickle_file, path=''):
 	system = prefs['comp']['system']
 	python_env = prefs['comp']['python_env']
 	aE_dir = prefs['comp']['aE_directory']
-	memory = prefs['conf_search']['memory']
-	processors = prefs['conf_search']['processors']
-	walltime = prefs['conf_search']['walltime']
+	if system != 'local':
+		memory = prefs['conf_search']['memory']
+		processors = prefs['conf_search']['processors']
+		walltime = prefs['conf_search']['walltime']
+	else:
+		memory = 2
+		processors = 2
+		walltime = '100:00:00'
 
 	# Try reading pybel mol object from xyz named according to molname
 	try:
@@ -46,7 +51,7 @@ def conformational_search(molecule, prefs, pickle_file, path=''):
 	smiles = mol.write("smi").split()[0]
 
 	scriptname = 'conf_search/do_confsearch.py'
-	confsearch.make_confsearch_script(scriptname, pickle_file, molecule, smiles,
+	confsearch.make_confsearch_script(scriptname, pickle_file, smiles,
 									iterations=iterations, RMSthresh=RMSthresh,
 									maxconfs=maxconfs, Ethresh=Ethresh, path=path)
 
@@ -59,7 +64,7 @@ def conformational_search(molecule, prefs, pickle_file, path=''):
 		filename = path + 'confsearch_' + molecule.molid + '_' + '.qsub'
 	elif prefs['comp']['system'] == 'BC4':
 		filename = path + 'confsearch_' + molecule.molid + '_' + '.slurm'
-	elif prefs['comp']['system'] == 'localbox':
+	elif prefs['comp']['system'] == 'local':
 		filename = path + 'confsearch_'+ molecule.molid + '_' + '.sh'
 
 	with open(filename, 'w') as f:

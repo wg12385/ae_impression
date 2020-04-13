@@ -61,30 +61,56 @@ def trainmodel(args):
 		params.append(param)
 	args['param_list'] = params
 
-	if args['feature_optimisation'] == 'True':
+	args['BCAI_load'] = 'True'
+
+	if args['featureflag'] == 'BCAI':
+
 		if args['training_set'].split('.')[-1] == 'pkl':
 			dset = pickle.load(open(args['training_set'], 'rb'))
-		elif args['training_set'].split('.')[-1] == 'csv':
-			dset = load_dataset_from_csv(args['training_set'])
 		else:
 			files = glob.glob(args['training_set'])
 			dset = dataset()
 			dset.get_mols(files, type='nmredata')
-			assert len(dset.mols) > 0
 
-			if args['store_datasets'] == 'True':
-				pickle.dump(dset, open('training_set.pkl', 'wb'))
+		print('Number of molecules in training set: ', len(dset.mols))
+
+		if args['BCAI_load'] != 'True' or len(dset.x) == 0:
+			dset.get_features_frommols(args, params={}, training=True)
+
+		with open('training_data/BCAI_dataset.pkl', "wb") as f:
+			pickle.dump(dset, f)
 
 		dset, score = HPS(dset, args)
 
-		if args['store_datasets'] == 'True':
-			pickle.dump(dset, open('OPT_training_set.pkl', 'wb'))
-
+		print('Final Score: ', score)
 
 	else:
-		dset = pickle.load(open(args['feature_file'], "rb"))
-		assert len(dset.x) > 0
-		assert len(dset.y) > 0
+		if args['feature_optimisation'] == 'True':
+			if args['training_set'].split('.')[-1] == 'pkl':
+				dset = pickle.load(open(args['training_set'], 'rb'))
+			elif args['training_set'].split('.')[-1] == 'csv':
+				dset = load_dataset_from_csv(args['training_set'])
+			else:
+				args['load_dataset'] = 'false'
+				if args['load_dataset'] == 'true':
+					dset = pickle.load(open('training_data/empty_dataset.pkl', 'rb'))
+				else:
+					files = glob.glob(args['training_set'])
+					dset = dataset()
+					dset.get_mols(files, type='nmredata')
+					assert len(dset.mols) > 0
+
+
+			dset, score = HPS(dset, args)
+
+			if args['store_datasets'] == 'True':
+				pickle.dump(dset, open('OPT_training_set.pkl', 'wb'))
+
+
+		else:
+			dset = pickle.load(open(args['feature_file'], "rb"))
+			assert len(dset.x) > 0
+			assert len(dset.y) > 0
 
 		HPS(dset, args)
 

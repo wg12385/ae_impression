@@ -5,6 +5,7 @@
 ## LICENSE file in the root directory of this source tree.
 
 import torch
+torch.manual_seed(0)
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
@@ -13,6 +14,7 @@ from torch.nn.utils import weight_norm
 import pickle
 import sys
 from termcolor import colored
+from tqdm import tqdm
 
 from autoenrich.ml.models.BCAI.modules.hierarchical_embedding import HierarchicalEmbedding
 from autoenrich.ml.models.BCAI.modules.embeddings import LearnableEmbedding, SineEmbedding
@@ -43,7 +45,7 @@ class ResidualBlock(nn.Module):
 
 
 class GraphLayer(nn.Module):
-    def __init__(self, d_model, d_inner, n_head, d_head, dropout=0.0, attn_dropout=0.0, wnorm=False, use_quad=False, lev=0):
+    def __init__(self, d_model, d_inner, n_head, d_head, dropout=0.0, attn_dropout=0.0, wnorm=False, lev=0):
         super().__init__()
         self.d_model = d_model
         self.d_inner = d_inner
@@ -52,7 +54,6 @@ class GraphLayer(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.attn_dropout = nn.Dropout(attn_dropout)
         self.lev = lev
-        self.use_quad = use_quad
 
         # To produce the query-key-value for the self-attention computation
         self.qkv_net = nn.Linear(d_model, 3*d_model)
@@ -74,7 +75,7 @@ class GraphLayer(nn.Module):
         self.proj1 = weight_norm(self.proj1, name="weight")
         self.proj2 = weight_norm(self.proj2, name="weight")
 
-    def forward(self, Z, D, new_mask, mask, RA, RB, RT, RQ, store=False):
+    def forward(self, Z, D, new_mask, mask, RA, RB, RT, store=False):
         # RA = slice(0,N), RB = slice(N,N+M), RT = slice(N+M, N+M+P)
         bsz, n_elem, nhid = Z.size()
         n_head, d_head, d_model = self.n_head, self.d_head, self.d_model
@@ -82,7 +83,7 @@ class GraphLayer(nn.Module):
 
         # Create gamma mask
         gamma_mask = torch.ones_like(D)
-        all_slices = [RA, RB, RT, RQ] if self.use_quad else [RA, RB, RT]
+        all_slices = [RA, RB, RT]
         for i, slice_i in enumerate(all_slices):
             for j, slice_j in enumerate(all_slices):
                 gamma_mask[:, slice_i, slice_j] = self.gamma[i, j]
@@ -90,9 +91,9 @@ class GraphLayer(nn.Module):
         # Self-attention
         inp = Z
         Z = self.norm1(Z)
-        Z2, Z3, Z4 = self.qkv_net(Z).view(bsz, n_elem, n_head, 3*d_head).chunk(3, dim=3)     # "V, Q, K"
+        Z2, Z3, Z4 = self.qkv_net(Z).view(bsz, n_elem, n_head, 3*d_head).chunk(3, dim=3)
         W = -(gamma_mask*D)[:,None] + torch.einsum('bnij, bmij->binm', Z3, Z4).type(D.dtype) / self.sqrtd + new_mask[:,None]
-        W = self.attn_dropout(F.softmax(W, dim=3).type(mask.dtype) * mask[:,None])           # softmax(-gamma*D + Q^TK)
+        W = self.attn_dropout(F.softmax(W, dim=3).type(mask.dtype) * mask[:,None])
         if store:
             pickle.dump(W.cpu().detach().numpy(), open(f'analysis/layer_{self.lev}_W.pkl', 'wb'))
         attn_out = torch.einsum('binm,bmij->bnij', W, Z2.type(W.dtype)).contiguous().view(bsz, n_elem, d_model)
@@ -115,22 +116,18 @@ class GraphTransformer(nn.Module):
                  num_atom_types=[5,13,27],
                  num_bond_types=[28,53,69],
                  num_triplet_types=[29,118],
-                 num_quad_types=[62],
                  min_bond_dist=0.9586,
                  max_bond_dist=3.9244,
                  dist_embedding="sine",
                  atom_angle_embedding="learnable",
                  trip_angle_embedding="learnable",
-                 quad_angle_embedding="learnable",
-                 wnorm=False,
-                 use_quad=False
+                 wnorm=False
                  ):
         super().__init__()
         self.fdim = fdim
         num_atom_types = np.array(num_atom_types)
         num_bond_types = np.array(num_bond_types)
         num_triplet_types = np.array(num_triplet_types)
-        num_quad_types = np.array(num_quad_types)
         self.atom_embedding = LearnableEmbedding(len(num_atom_types), num_atom_types+1,
                                                  d_embeds=dim-self.fdim, d_feature=self.fdim, n_feature=2) \
             if atom_angle_embedding == "learnable" else SineEmbedding(len(num_atom_types), num_atom_types+1, dim, n_feature=2)
@@ -141,22 +138,15 @@ class GraphTransformer(nn.Module):
                                                  d_embeds=dim-self.fdim, d_feature=self.fdim, n_feature=1) \
             if trip_angle_embedding == "learnable" else SineEmbedding(len(num_triplet_types), num_triplet_types+1, dim)
 
-        if use_quad:
-            self.quad_embedding = LearnableEmbedding(len(num_quad_types), num_quad_types+1,
-                                                     d_embeds=dim-self.fdim, d_feature=self.fdim, n_feature=1) \
-                if quad_angle_embedding == "learnable" else SineEmbedding(len(num_quad_types), num_quad_types+1, dim)
-
         self.dim = dim
         self.min_bond_dist = min_bond_dist
         self.max_bond_dist = max_bond_dist
         self.wnorm = wnorm
-        self.use_quad = use_quad
-        print(f"{'' if use_quad else colored('Not ', 'cyan')}Using Quadruplet Features")
 
         self.n_head = n_head
         assert dim % n_head == 0, "dim must be a multiple of n_head"
         self.layers = nn.ModuleList([GraphLayer(d_model=dim, d_inner=d_inner, n_head=n_head, d_head=dim//n_head, dropout=dropout,
-                                                attn_dropout=dropatt, wnorm=wnorm, use_quad=use_quad, lev=i+1) for i in range(n_layers)])
+                                                attn_dropout=dropatt, wnorm=wnorm, lev=i+1) for i in range(n_layers)])
 
         self.final_norm = nn.LayerNorm(dim)
 
@@ -171,19 +161,17 @@ class GraphTransformer(nn.Module):
                          )
         self.apply(self.weights_init)
 
-    def forward(self,x_atom,x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle, x_quad, x_quad_angle):
+    def forward(self,x_atom,x_atom_pos, x_bond, x_bond_dist, x_triplet, x_triplet_angle):
         # PART I: Form the embeddings and the distance matrix
         bsz = x_atom.shape[0]
         N = x_atom.shape[1]
         M = x_bond.shape[1]
         P = x_triplet.shape[1]
-        Q = x_quad.shape[1] if self.use_quad else 0
 
-        D = torch.zeros(x_atom.shape[0], N+M+P+Q, N+M+P+Q, device=x_atom.device)
+        D = torch.zeros(x_atom.shape[0], N+M+P, N+M+P, device=x_atom.device)
         RA = slice(0,N)
         RB = slice(N,N+M)
         RT = slice(N+M, N+M+P)
-        RQ = slice(N+M+P, N+M+P+Q)
 
         D[:,RA,RA] = sqdist(x_atom_pos[:,:,:3], x_atom_pos[:,:,:3])    # Only the x,y,z information, not charge/angle
 
@@ -205,47 +193,21 @@ class GraphTransformer(nn.Module):
             D[i,RT,RT] = (D[i,b1,RT] + D[i,b2,RT]) / 2
             D[i,RT,RT] = (D[i,RT,RT] + D[i,RT,RT].transpose(0,1)) / 2
 
-            if self.use_quad:
-                # quad
-                a1,a2,a3,a4 = x_quad[i,:,1], x_quad[i,:,2], x_quad[i,:,3], x_quad[i,:,4]
-                b1,b2,b3 = x_quad[i,:,5], x_quad[i,:,6], x_quad[i,:,7]
-                t1,t2 = x_quad[i,:,8], x_quad[i,:,9]
-                D[i,RA,RQ] = torch.min(torch.min(torch.min(D[i,RA,a1], D[i,RA,a2]), D[i,RA, a3]), D[i,RA,a4]) + \
-                             torch.min(D[i,RA,a1], D[i,RA,a2])
-                D[i,RQ,RA] = D[i,RA,RQ].transpose(0,1)
-                D[i,RB,RQ] = torch.min(torch.min(D[i,RB,b1], D[i,RB,b2]), D[i,RB, b3]) + D[i,RB,b1]
-                D[i,RQ,RB] = D[i,RB,RQ].transpose(0,1)
-                D[i,RT,RQ] = torch.min(D[i,RT,t1], D[i,RT,t2])
-                D[i,RQ,RT] = D[i,RT,RQ].transpose(0,1)
-                D[i,RQ,RQ] = (D[i,t1,RQ] + D[i,t2,RQ]) / 2
-                D[i,RQ,RQ] = (D[i,RQ,RQ] + D[i,RQ,RQ].transpose(0,1))/2
-
         # No interaction (as in attention = 0) if query or key is the zero padding...
-        if self.use_quad:
-            mask = torch.cat([x_atom[:,:,0] > 0, x_bond[:,:,0] > 0, x_triplet[:,:,0] > 0, x_quad[:,:,0] > 0], dim=1).type(x_atom_pos.dtype)
-        else:
-            mask = torch.cat([x_atom[:,:,0] > 0, x_bond[:,:,0] > 0, x_triplet[:,:,0] > 0], dim=1).type(x_atom_pos.dtype)
+        mask = torch.cat([x_atom[:,:,0] > 0, x_bond[:,:,0] > 0, x_triplet[:,:,0] > 0], dim=1).type(x_atom_pos.dtype)
         mask = torch.einsum('bi, bj->bij', mask, mask)
         new_mask = -1e20 * torch.ones_like(mask).to(mask.device)
         new_mask[mask > 0] = 0
-        if self.use_quad:
-            Z = torch.cat([
-                self.atom_embedding(x_atom[:,:,:3], x_atom_pos[:,:,3:]),
-                self.bond_embedding(x_bond[:,:,:3], x_bond_dist),
-                self.triplet_embedding(x_triplet[:,:,:2], x_triplet_angle),
-                self.quad_embedding(x_quad[:,:,:1], x_quad_angle),
-                ], dim=1)
-        else:
-            Z = torch.cat([
-                self.atom_embedding(x_atom[:,:,:3], x_atom_pos[:,:,3:]),
-                self.bond_embedding(x_bond[:,:,:3], x_bond_dist),
-                self.triplet_embedding(x_triplet[:,:,:2], x_triplet_angle),
-                ], dim=1)
+        Z = torch.cat([
+            self.atom_embedding(x_atom[:,:,:3], x_atom_pos[:,:,3:]),
+            self.bond_embedding(x_bond[:,:,:3], x_bond_dist),
+            self.triplet_embedding(x_triplet[:,:,:2], x_triplet_angle),
+            ], dim=1)
 
         # PART II: Pass through a bunch of self-attention and position-wise feed-forward blocks
         seed = np.random.uniform(0,1)
         for i in range(len(self.layers)):
-            Z = self.layers[i](Z, D, new_mask, mask, RA, RB, RT, RQ, store=False)
+            Z = self.layers[i](Z, D, new_mask, mask, RA, RB, RT, store=False)
 
         # PART III: Coupling type based (grouped) transformations
         Z = self.final_norm(Z)

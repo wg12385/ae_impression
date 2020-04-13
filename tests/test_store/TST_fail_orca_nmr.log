@@ -1,0 +1,330 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+                  #######################################################
+                  #                        -***-                        #
+                  #          Department of theory and spectroscopy      #
+                  #               Directorship: Frank Neese             #
+                  #        Max Planck Institute fuer Kohlenforschung    #
+                  #                Kaiser Wilhelm Platz 1               #
+                  #                 D-45470 Muelheim/Ruhr               #
+                  #                      Germany                        #
+                  #                                                     #
+                  #                  All rights reserved                #
+                  #                        -***-                        #
+                  #######################################################
+
+
+                         Program Version 4.2.0 -  RELEASE  -
+
+
+ With contributions from (in alphabetic order):
+   Daniel Aravena         : Magnetic Suceptibility
+   Michael Atanasov       : Ab Initio Ligand Field Theory (pilot matlab implementation)
+   Alexander A. Auer      : GIAO ZORA, VPT2
+   Ute Becker             : Parallelization
+   Giovanni Bistoni       : ED, misc. LED, open-shell LED, HFLED
+   Martin Brehm           : Molecular dynamics
+   Dmytro Bykov           : SCF Hessian
+   Vijay G. Chilkuri      : MRCI spin determinant printing, contributions to CSF-ICE
+   Dipayan Datta          : RHF DLPNO-CCSD density
+   Achintya Kumar Dutta   : EOM-CC, STEOM-CC
+   Dmitry Ganyushin       : Spin-Orbit,Spin-Spin,Magnetic field MRCI
+   Miquel Garcia          : C-PCM Hessian, Gaussian charge scheme
+   Yang Guo               : DLPNO-NEVPT2, CIM, IAO-localization
+   Andreas Hansen         : Spin unrestricted coupled pair/coupled cluster methods
+   Benjamin Helmich-Paris : CASSCF linear response (MC-RPA)
+   Lee Huntington         : MR-EOM, pCC
+   Robert Izsak           : Overlap fitted RIJCOSX, COSX-SCS-MP3, EOM
+   Christian Kollmar      : KDIIS, OOCD, Brueckner-CCSD(T), CCSD density
+   Simone Kossmann        : Meta GGA functionals, TD-DFT gradient, OOMP2, MP2 Hessian
+   Martin Krupicka        : AUTO-CI
+   Lucas Lang             : DCDCAS
+   Dagmar Lenk            : GEPOL surface, SMD
+   Dimitrios Liakos       : Extrapolation schemes; Compound Job, initial MDCI parallelization
+   Dimitrios Manganas     : Further ROCIS development; embedding schemes
+   Dimitrios Pantazis     : SARC Basis sets
+   Taras Petrenko         : DFT Hessian,TD-DFT gradient, ASA, ECA, R-Raman, ABS, FL, XAS/XES, NRVS
+   Peter Pinski           : DLPNO-MP2, DLPNO-MP2 Gradient
+   Christoph Reimann      : Effective Core Potentials
+   Marius Retegan         : Local ZFS, SOC
+   Christoph Riplinger    : Optimizer, TS searches, QM/MM, DLPNO-CCSD(T), (RO)-DLPNO pert. Triples
+   Tobias Risthaus        : Range-separated hybrids, TD-DFT gradient, RPA, STAB
+   Michael Roemelt        : Original ROCIS implementation
+   Masaaki Saitow         : Open-shell DLPNO-CCSD energy and density
+   Barbara Sandhoefer     : DKH picture change effects
+   Avijit Sen             : IP-ROCIS
+   Kantharuban Sivalingam : CASSCF convergence, NEVPT2, FIC-MRCI
+   Bernardo de Souza      : ESD, SOC TD-DFT
+   Georgi Stoychev        : AutoAux, RI-MP2 NMR
+   Willem Van den Heuvel  : Paramagnetic NMR
+   Boris Wezisla          : Elementary symmetry handling
+   Frank Wennmohs         : Technical directorship
+
+
+ We gratefully acknowledge several colleagues who have allowed us to
+ interface, adapt or use parts of their codes:
+   Stefan Grimme, W. Hujo, H. Kruse,             : VdW corrections, initial TS optimization,
+                  C. Bannwarth                     DFT functionals, gCP, sTDA/sTD-DF
+   Ed Valeev, F. Pavosevic, A. Kumar             : LibInt (2-el integral package), F12 methods
+   Garnet Chan, S. Sharma, J. Yang, R. Olivares  : DMRG
+   Ulf Ekstrom                                   : XCFun DFT Library
+   Mihaly Kallay                                 : mrcc  (arbitrary order and MRCC methods)
+   Andreas Klamt, Michael Diedenhofen            : otool_cosmo (COSMO solvation model)
+   Jiri Pittner, Ondrej Demel                    : Mk-CCSD
+   Frank Weinhold                                : gennbo (NPA and NBO analysis)
+   Christopher J. Cramer and Donald G. Truhlar   : smd solvation model
+   Lars Goerigk                                  : TD-DFT with DH, B97 family of functionals
+   V. Asgeirsson, H. Jonsson                     : NEB implementation
+   FAccTs GmbH                                   : IRC, NEB, NEB-TS, Multilevel, MM, QM/MM, CI optimization
+   S Lehtola, MJT Oliveira, MAL Marques          : LibXC Library
+
+
+ Your calculation uses the libint2 library for the computation of 2-el integrals
+ For citations please refer to: http://libint.valeyev.net
+
+ Your ORCA version has been built with support for libXC version: 4.2.3
+ For citations please refer to: https://tddft.org/programs/libxc/
+
+ This ORCA versions uses:
+   CBLAS   interface :  Fast vector & matrix operations
+   LAPACKE interface :  Fast linear algebra routines
+   SCALAPACK package :  Parallel linear algebra routines
+
+
+Your calculation utilizes the atom-pairwise dispersion correction
+with the zero-damping scheme (D30)
+Cite in your paper:
+S.Grimme, J.Antony, S.Ehrlich and H.Krieg, J.Chem.Phys., 132, (2010), 154104 
+   
+
+XCFun DFT library Copyright 2009-2010 Ulf Ekstrom and contributors.
+See http://admol.org/xcfun for more information. This is free soft-
+ware; see the source code for copying conditions. There is ABSOLUTELY
+NO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. For details see the documentation. Scientific users of this 
+library should cite U. Ekstrom, L. Visscher, R. Bast, A. J. Thorvald-
+sen and K. Ruud; J.Chem.Theor.Comp. 2010, DOI: 10.1021/ct100117s
+XCFun Version 0.99 
+
+Warning: The global flag for chemical shieldings has been found
+         but shieldings for certain elements have also been explicitly requested in the EPRNMR block
+         ==>> only the requested shieldings will be calculated
+
+----- Orbital basis set information -----
+Your calculation utilizes the basis: 6-311G
+   H, Li - Ne  : R. Krishnan, J. S. Binkley, R. Seeger and J. A. Pople, J. Chem. Phys. 72, 650 (1980).
+   Na - Ar     : A. D. McLean and G. S. Chandler J. Chem. Phys. 72, 5639, (1980).
+   K  - Ca     : J.-P. Blaudeau, M. P. McGrath, L. A. Curtiss and L. Radom, J. Chem. Phys. 107, 5016 (1997).
+   Ga - Kr     : L. A. Curtiss, M. P. McGrath, J.-P. Blandeau, N. E. Davis, R. C. Binning and L. Radom, J. Chem. Phys. 103, 6104 (1995).
+
+----- AuxJ basis set information -----
+Your calculation utilizes the auxiliary basis: def2/J
+   F. Weigend, Phys. Chem. Chem. Phys. 8, 1057 (2006).
+
+================================================================================
+                                        WARNINGS
+                       Please study these warnings very carefully!
+================================================================================
+
+
+Warning: GIAO-COSX with a grid smaller than GRIDX6 NOFINALGRIDX may be inaccurate and is not recommended!
+
+INFO   : the flag for use of LIBINT has been found!
+
+================================================================================
+                                       INPUT FILE
+================================================================================
+NAME = NMR/6_NMR.in
+|  1> ! wB97X-D3 6-311g def2/J  TightSCF miniprint NMR  PAL4
+|  2> 
+|  3> * xyz 0 1
+|  4>  C          -1.925448          1.303525         -0.303240
+|  5>  C          -2.292679         -0.033103         -0.264232
+|  6>  C          -3.582610         -0.480188          0.207244
+|  7>  C          -4.530405          0.673380          0.245417
+|  8>  C          -4.007701          1.992242          0.485386
+|  9>  C          -2.753379          2.400489          0.132393
+| 10>  C          -1.170643         -0.925001         -0.737227
+| 11>  N          -0.137509          0.089694         -1.066976
+| 12>  C          -0.583272          1.312958         -0.816007
+| 13>  O           0.085764          2.437523         -1.024863
+| 14>  C          -1.851985          4.784476          0.306068
+| 15>  C           1.473998          2.426630         -1.541339
+| 16>  C           2.435162          2.065590         -0.456846
+| 17>  H           1.813999          1.285849          2.769792
+| 18>  C           1.760569          0.846589          3.764044
+| 19>  H           1.799153         -4.141294          1.171499
+| 20>  O           2.384116         -0.299289         -2.212524
+| 21>  C           3.614259          0.057400         -1.515623
+| 22>  C           3.342535          1.085632         -0.462587
+| 23>  C           0.915637         -3.534376          1.366802
+| 24>  C           0.537948         -2.693346          0.147823
+| 25>  C          -0.692746         -1.828559          0.422214
+| 26>  H           0.956832          0.113571          3.791185
+| 27>  H           0.349333         -3.356003         -0.700565
+| 28>  C          -1.556176         -1.706397         -1.997432
+| 29>  C          -3.973562         -1.686425          0.603314
+| 30>  C          -5.903773          1.048125          0.151739
+| 31>  C          -5.302787          2.070607          1.150140
+| 32>  N          -2.271357          3.682951          0.223600
+| 33>  H           0.782988         -0.137311         -1.448085
+| 34>  H           1.606095          3.459375         -1.849801
+| 35>  H           1.530197          1.772227         -2.405233
+| 36>  H           2.386995          2.708606          0.412968
+| 37>  H           1.557148          1.626161          4.493636
+| 38>  H           3.995865          1.010858          0.399903
+| 39>  H           2.552088         -0.872939         -2.972952
+| 40>  H           4.034410         -0.834685         -1.048289
+| 41>  H           4.343832          0.432671         -2.239935
+| 42>  H           0.102148         -4.207348          1.642309
+| 43>  H           1.128150         -2.903492          2.231889
+| 44>  H          -1.538097         -2.469316          0.692227
+| 45>  H           2.705409          0.363166          4.005479
+| 46>  H          -0.513805         -1.187082          1.287401
+| 47>  H          -0.718373         -2.289333         -2.377233
+| 48>  H           1.382901         -2.056807         -0.130667
+| 49>  H          -1.896259         -1.023422         -2.773835
+| 50>  H          -2.374975         -2.384600         -1.758988
+| 51> *
+| 52> %eprnmr
+| 53>        GIAO_2el = GIAO_2el_RIJCOSX
+| 54>        Nuclei = all H   { shift }
+| 55>        Nuclei = all C   { shift }
+| 56>        Nuclei = all N   { shift }
+| 57>        Nuclei = all O   { shift }
+| 58>        Nuclei = all F   { shift }
+| 59>        Nuclei = all H   { ssall }
+| 60>        Nuclei = all C   { ssall }
+| 61> SpinSpinRThresh 20.000000
+| 62> end
+| 63> 
+| 64>                          ****END OF INPUT****
+================================================================================
+
+                       ****************************
+                       * Single Point Calculation *
+                       ****************************
+
+---------------------------------
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  C     -1.925448    1.303525   -0.303240
+  C     -2.292679   -0.033103   -0.264232
+  C     -3.582610   -0.480188    0.207244
+  C     -4.530405    0.673380    0.245417
+  C     -4.007701    1.992242    0.485386
+  C     -2.753379    2.400489    0.132393
+  C     -1.170643   -0.925001   -0.737227
+  N     -0.137509    0.089694   -1.066976
+  C     -0.583272    1.312958   -0.816007
+  O      0.085764    2.437523   -1.024863
+  C     -1.851985    4.784476    0.306068
+  C      1.473998    2.426630   -1.541339
+  C      2.435162    2.065590   -0.456846
+  H      1.813999    1.285849    2.769792
+  C      1.760569    0.846589    3.764044
+  H      1.799153   -4.141294    1.171499
+  O      2.384116   -0.299289   -2.212524
+  C      3.614259    0.057400   -1.515623
+  C      3.342535    1.085632   -0.462587
+  C      0.915637   -3.534376    1.366802
+  C      0.537948   -2.693346    0.147823
+  C     -0.692746   -1.828559    0.422214
+  H      0.956832    0.113571    3.791185
+  H      0.349333   -3.356003   -0.700565
+  C     -1.556176   -1.706397   -1.997432
+  C     -3.973562   -1.686425    0.603314
+  C     -5.903773    1.048125    0.151739
+  C     -5.302787    2.070607    1.150140
+  N     -2.271357    3.682951    0.223600
+  H      0.782988   -0.137311   -1.448085
+  H      1.606095    3.459375   -1.849801
+  H      1.530197    1.772227   -2.405233
+  H      2.386995    2.708606    0.412968
+  H      1.557148    1.626161    4.493636
+  H      3.995865    1.010858    0.399903
+  H      2.552088   -0.872939   -2.972952
+  H      4.034410   -0.834685   -1.048289
+  H      4.343832    0.432671   -2.239935
+  H      0.102148   -4.207348    1.642309
+  H      1.128150   -2.903492    2.231889
+  H     -1.538097   -2.469316    0.692227
+  H      2.705409    0.363166    4.005479
+  H     -0.513805   -1.187082    1.287401
+  H     -0.718373   -2.289333   -2.377233
+  H      1.382901   -2.056807   -0.130667
+  H     -1.896259   -1.023422   -2.773835
+  H     -2.374975   -2.384600   -1.758988
+
+----------------------------
+CARTESIAN COORDINATES (A.U.)
+----------------------------
+  NO LB      ZA    FRAG     MASS         X           Y           Z
+   0 C     6.0000    0    12.011   -3.638569    2.463305   -0.573041
+   1 C     6.0000    0    12.011   -4.332535   -0.062556   -0.499326
+   2 C     6.0000    0    12.011   -6.770152   -0.907424    0.391634
+   3 C     6.0000    0    12.011   -8.561225    1.272504    0.463771
+   4 C     6.0000    0    12.011   -7.573457    3.764792    0.917247
+   5 C     6.0000    0    12.011   -5.203132    4.536267    0.250187
+   6 C     6.0000    0    12.011   -2.212195   -1.747999   -1.393157
+   7 N     7.0000    0    14.007   -0.259854    0.169497   -2.016292
+   8 C     6.0000    0    12.011   -1.102224    2.481131   -1.542030
+   9 O     8.0000    0    15.999    0.162070    4.606251   -1.936710
+  10 C     6.0000    0    12.011   -3.499744    9.041349    0.578385
+  11 C     6.0000    0    12.011    2.785453    4.585666   -2.912709
+  12 C     6.0000    0    12.011    4.601789    3.903399   -0.863314
+  13 H     1.0000    0     1.008    3.427961    2.429902    5.234148
+  14 C     6.0000    0    12.011    3.326993    1.599821    7.113012
+  15 H     1.0000    0     1.008    3.399906   -7.825912    2.213812
+  16 O     8.0000    0    15.999    4.505326   -0.565574   -4.181064
+  17 C     6.0000    0    12.011    6.829960    0.108470   -2.864112
+  18 C     6.0000    0    12.011    6.316476    2.051547   -0.874163
+  19 C     6.0000    0    12.011    1.730303   -6.679003    2.582881
+  20 C     6.0000    0    12.011    1.016574   -5.089686    0.279345
+  21 C     6.0000    0    12.011   -1.309100   -3.455476    0.797869
+  22 H     1.0000    0     1.008    1.808150    0.214618    7.164301
+  23 H     1.0000    0     1.008    0.660144   -6.341927   -1.323876
+  24 C     6.0000    0    12.011   -2.940746   -3.224623   -3.774599
+  25 C     6.0000    0    12.011   -7.508944   -3.186881    1.140098
+  26 C     6.0000    0    12.011  -11.156514    1.980669    0.286745
+  27 C     6.0000    0    12.011  -10.020815    3.912880    2.173450
+  28 N     7.0000    0    14.007   -4.292243    6.959769    0.422543
+  29 H     1.0000    0     1.008    1.479633   -0.259480   -2.736484
+  30 H     1.0000    0     1.008    3.035080    6.537271   -3.495617
+  31 H     1.0000    0     1.008    2.891653    3.349024   -4.545232
+  32 H     1.0000    0     1.008    4.510767    5.118524    0.780396
+  33 H     1.0000    0     1.008    2.942583    3.072999    8.491741
+  34 H     1.0000    0     1.008    7.551091    1.910245    0.755707
+  35 H     1.0000    0     1.008    4.822747   -1.649616   -5.618065
+  36 H     1.0000    0     1.008    7.623930   -1.577326   -1.980979
+  37 H     1.0000    0     1.008    8.208653    0.817630   -4.232864
+  38 H     1.0000    0     1.008    0.193032   -7.950735    3.103514
+  39 H     1.0000    0     1.008    2.131895   -5.486805    4.217659
+  40 H     1.0000    0     1.008   -2.906582   -4.666331    1.308119
+  41 H     1.0000    0     1.008    5.112482    0.686284    7.569258
+  42 H     1.0000    0     1.008   -0.970951   -2.243260    2.432835
+  43 H     1.0000    0     1.008   -1.357528   -4.326212   -4.492319
+  44 H     1.0000    0     1.008    2.613304   -3.886802   -0.246925
+  45 H     1.0000    0     1.008   -3.583410   -1.933987   -5.241788
+  46 H     1.0000    0     1.008   -4.488052   -4.506241   -3.324006
+
+
+Checking for AutoStart:
+The File: NMR/6_NMR.gbw exists
+Trying to determine its content:
+     ... Fine, the file contains calculation information
+     ... Fine, the calculation information was read
+     ... Fine, the file contains a basis set
+     ... Fine, the basis set was read
+     ... Fine, the file contains a geometry
+     ... Fine, the geometry was read
+     ... The file does not contain orbitals - skipping AutoStart
+!!!     ERROR (ORCA_MAIN): For parallel runs                     !!!
+!!!     ORCA has to be called with full pathname                 !!!
+[file orca_tools/qcsys.cpp, line 41]: 
+

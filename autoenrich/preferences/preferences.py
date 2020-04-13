@@ -51,6 +51,7 @@ def write_default_prefs(file):
 	prefs['comp']['aE_directory'] = "../../aE/"
 
 	prefs['optimisation'] = {}
+	prefs['optimisation']['software'] = 'orca'
 	prefs['optimisation']['memory'] = 12
 	prefs['optimisation']['processors'] = 4
 	prefs['optimisation']['opt'] = 'tight'
@@ -64,6 +65,7 @@ def write_default_prefs(file):
 	prefs['optimisation']['walltime'] = '100:00:00'
 
 	prefs['NMR'] = {}
+	prefs['NMR']['software'] = 'orca'
 	prefs['NMR']['memory'] = 12
 	prefs['NMR']['processors'] = 4
 	prefs['NMR']['functional'] = 'wB97X-D3'

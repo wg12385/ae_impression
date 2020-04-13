@@ -95,7 +95,7 @@ def make_HPC_header(jobname='auto-ENRICH', system='PBS', nodes=1, ppn=1, walltim
 
 	return strings
 
-def make_HPC_orca_batch_submission(prefs, molname, in_array, start, end, jobname='auto-ENRICH', nodes=1, ppn=1, mem=3, walltime="100:00:00"):
+def make_HPC_batch_submission(prefs, molname, in_array, start, end, software='orca', jobname='auto-ENRICH', nodes=1, ppn=1, mem=3, walltime="100:00:00"):
 	# Input:
 	#	prefs: preferences dictionary
 	# 	molname: name of molecule
@@ -138,12 +138,13 @@ def make_HPC_orca_batch_submission(prefs, molname, in_array, start, end, jobname
 			strings.append("  fi")
 			strings.append("done")
 
-	elif prefs['comp']['system'] =='BC4':
+	elif prefs['comp']['system'] =='slurm':
 		print('not done yet . . .')
-	elif prefs['comp']['system'] == 'localbox':
+
+	elif prefs['comp']['system'] == 'local':
 		strings.append("NUMBERS=$(seq {0:>1d} {1:<1d})".format(start, end))
 		strings.append("for NUM in ${NUMBERS}; do")
-		strings.append("  NMRNAME=$(head -n${{NUM}}" + " {0:<5s} | tail -1)".format(in_array))
+		strings.append("  NMRNAME=$(head -n${NUM}" + " {0:<5s} | tail -1)".format(in_array))
 		strings.append("  OUTNAME=$( echo $NMRNAME | sed 's/.in/.log/')")
 		strings.append("  orca ${NMRNAME} > ${OUTNAME}")
 		strings.append("done")

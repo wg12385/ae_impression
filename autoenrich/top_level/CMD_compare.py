@@ -143,7 +143,12 @@ def compare_datasets(args):
 						values.append([val1, val2])
 						typerefs.append([typeref1, typeref2])
 
-		outname = 'Comparison_' + str(targetflag) + '.csv'
+		if 'output_path' in args:
+			assert len(args['output_path']) != 0
+			outname = args['output_path'] + '/Comparison_' + str(targetflag) + '.csv'
+		else:
+			outname = 'Comparison_' + str(targetflag) + '.csv'
+
 		print_mol_csv(outname, refs, typerefs, values, args['comp_labels'])
 
 		x = [row[0] for row in values]

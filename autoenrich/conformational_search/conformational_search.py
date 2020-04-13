@@ -57,7 +57,7 @@ def torsional_search(smiles, iterations=100000, RMSthresh=1):
 	for id in confIds:
 		xyz = []
 		# Loop over length of molecule (defined by size of mol type array)
-		for t in range(len(rdmol.getatoms())):
+		for t in range(len(rdmol.GetAtoms())):
 			# append atom coordinates
 			xyz.append([float(rdmol.GetConformer(id).GetAtomPosition(t)[0]),
 						float(rdmol.GetConformer(id).GetAtomPosition(t)[1]),
@@ -85,8 +85,8 @@ def select_conformers(xyzs, energies, maxconfs=100, Ethresh=100000):
 	# Remove marked conformers
 	print('Removing', len(remove), 'conformers because MMFF energy too high')
 	for id in sorted(remove, reverse=True):
-		del energies[remove]
-		del xyzs[remove]
+		del energies[id]
+		del xyzs[id]
 
 	# If still too many conformers
 	if len(xyzs) > maxconfs:
@@ -97,6 +97,7 @@ def select_conformers(xyzs, energies, maxconfs=100, Ethresh=100000):
 		for id in sorted(remove, reverse=True):
 			del energies[id]
 			del xyzs[id]
+
 	# Return xyz coords and energies of selected conformers
 	return xyzs, energies
 
