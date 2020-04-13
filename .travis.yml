@@ -53,7 +53,8 @@ after_success:
   # Install the command line API for CONDA uploads
   - conda install -y anaconda-client
   - export ANACONDA_API_TOKEN=$CONDA_UPLOAD_TOKEN
-  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --label stable
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --label stable --force
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --force
   # Build and upload docker image
   - cd dockerfiles/minibox
   - docker build . -t wg12385/autoenrich:stable
