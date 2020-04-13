@@ -1,0 +1,5 @@
+python=3.7.*
+numpy
+openbabel
+rdkit
+tqdm
