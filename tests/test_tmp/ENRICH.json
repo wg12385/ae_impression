@@ -1,0 +1,56 @@
+{
+    "conf_search": {
+        "iterations": 200,
+        "maxconfs": 100,
+        "RMSthresh": 0.1,
+        "Ethresh": 100000
+    },
+    "mol": {
+        "charge": 0,
+        "multiplicity": 1
+    },
+    "comp": {
+        "parallel": true,
+        "system": "BC3",
+        "python_env": "env_IMP",
+        "aE_directory": "../../aE/"
+    },
+    "optimisation": {
+        "software": "orca",
+        "memory": 12,
+        "processors": 4,
+        "opt": "tight",
+        "freq": false,
+        "functional": "mPW1PW",
+        "basisset": "6-311g(d,p)",
+        "solvent": "none",
+        "grid": "ultrafine",
+        "custom_cmd_line": false,
+        "nodes": 1,
+        "walltime": "100:00:00"
+    },
+    "NMR": {
+        "software": "orca",
+        "memory": 12,
+        "processors": 4,
+        "functional": "wB97X-D3",
+        "basisset": "6-311g(d,p)",
+        "aux_basis_set": "def2/JK",
+        "solvent": "none",
+        "custom_cmd_line": false,
+        "nodes": 1,
+        "walltime": "100:00:00",
+        "shift_nuclei": [
+            "H",
+            "C",
+            "N",
+            "O",
+            "F"
+        ],
+        "spin_nuclei": [
+            "H",
+            "C"
+        ],
+        "spin_thresh": 20.0
+    }
+}
