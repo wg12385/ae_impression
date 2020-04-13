@@ -79,6 +79,7 @@ def read_opt(file):
 	with open(file ,'r') as f:
 		for line in f:
 			if 'FINAL SINGLE POINT ENERGY' in line:
+				print('HERE')
 				items=line.split()
 				energy = float(items[-1])
 
