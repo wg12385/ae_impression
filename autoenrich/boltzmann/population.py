@@ -38,7 +38,6 @@ def get_pop_array(conformers, temp=298):
 
     kj_array = e_array * 2625.5
     min_val = np.amin(kj_array)
-    print(kj_array, min_val)
     rel_array = (kj_array - min_val) * exclude
     exp_array = -(rel_array*1000) / float(8.31*temp)
     exp_array = np.exp(exp_array) * exclude
