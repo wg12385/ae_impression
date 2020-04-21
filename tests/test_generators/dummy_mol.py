@@ -13,7 +13,8 @@ def get_ethane_mol():
     mol = nmrmol(molid='ethane')
 
     mol.types = np.asarray([6, 6, 1, 1, 1, 1, 1, 1])
-    mol.xyz = np.asarray([-0.4125,  0.0000,  0.0000],
+    size = len(mol.types)
+    mol.xyz = np.asarray([[-0.4125,  0.0000,  0.0000],
                      [ 0.4125,  0.0000,  0.0000],
                      [-0.9475,  0.9266,  0.0000],
                      [-0.9475, -0.9266,  0.0000],

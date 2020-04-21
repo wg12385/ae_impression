@@ -1,13 +1,12 @@
 import sys
 import os
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
-
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../')
 
 from autoenrich.analysis.compare_mols import mol_isequal
 from autoenrich.util.flag_handler.hdl_targetflag import target_to_flag
 from autoenrich.molecule.nmrmol import nmrmol
 
-from tests.test_generators.dummy_mol import get_random_mol
+from test_generators.dummy_mol import get_random_mol
 
 def test_mol_isequal():
 
