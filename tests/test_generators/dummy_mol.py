@@ -7,6 +7,38 @@ from autoenrich.molecule.molecule import molecule
 from autoenrich.molecule.conformer import conformer
 import numpy as np
 
+def mol_is_ethane(mol):
+    '''
+    assert np.array_equal(mol.xyz, [[-0.4125,  0.0000,  0.0000],
+                     [ 0.4125,  0.0000,  0.0000],
+                     [-0.9475,  0.9266,  0.0000],
+                     [-0.9475, -0.9266,  0.0000],
+                     [-1.4825, -0.0000,  0.0000],
+                     [ 0.9475, -0.9266,  0.0000],
+                     [ 0.9475,  0.9266,  0.0000],
+                     [ 1.4825,  0.0000,  0.0000]])
+    '''
+    assert np.array_equal(mol.types, [6, 6, 1, 1, 1, 1, 1, 1])
+
+    assert np.array_equal(mol.conn, [[0, 1, 1, 1, 1, 0, 0, 0],
+                                         [1, 0, 0, 0, 0, 1, 1, 1],
+                                         [1, 0, 0, 0, 0, 0, 0, 0],
+                                         [1, 0, 0, 0, 0, 0, 0, 0],
+                                         [1, 0, 0, 0, 0, 0, 0, 0],
+                                         [0, 1, 0, 0, 0, 0, 0, 0],
+                                         [0, 1, 0, 0, 0, 0, 0, 0],
+                                         [0, 1, 0, 0, 0, 0, 0, 0]])
+
+    assert np.array_equal(mol.coupling_len, [[0, 1, 1, 1, 1, 2, 2, 2],
+                                         [1, 0, 2, 2, 2, 1, 1, 1],
+                                         [1, 2, 0, 2, 2, 3, 3, 3],
+                                         [1, 2, 2, 0, 2, 3, 3, 3],
+                                         [1, 2, 2, 2, 0, 3, 3, 3],
+                                         [2, 1, 3, 3, 3, 0, 2, 2],
+                                         [2, 1, 3, 3, 3, 2, 0, 2],
+                                         [2, 1, 3, 3, 3, 2, 2, 0]])
+
+    return True
 
 def get_ethane_mol():
 
@@ -57,9 +89,23 @@ def get_ethane_mol():
 
 
 
+def get_random_ethane():
+    # Gets an ethane molecule with slightly varied xyz and NMR parameters
+    mol = get_ethane_mol()
+
+    size = len(mol.types)
+    mol.xyz = mol.xyz * (np.random.rand(size, 3)*0.02+0.99)
+    mol.shift = mol.shift * (np.random.rand(size)*0.02+0.99)
+    mol.shift_var = np.random.rand(size)
+    mol.coupling = mol.coupling * (np.random.rand(size, size)*0.02+0.99)
+    mol.coupling_var = np.random.rand(size, size)
+
+
+    return mol
+
 def get_random_mol(size=10):
 
-    mol = nmrmol(0)
+    mol = molecule(0)
 
     mol.types = np.random.choice([1, 6, 7, 8], size=size)
     mol.xyz = np.random.rand(size, 3)
@@ -75,11 +121,9 @@ def get_random_mol(size=10):
     mol.coupling = np.random.rand(size, size)
     mol.coupling_var = np.random.rand(size, size)
 
-    mol.coupling_len = mol.conn
-
+    mol.coupling_len = conn
 
     return mol
-
 
 def get_random_mol_with_confs(size=5):
 

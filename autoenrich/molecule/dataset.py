@@ -19,6 +19,7 @@ from .nmrmol import nmrmol
 from autoenrich.util.file_gettype import get_type
 from autoenrich.util.flag_handler.hdl_targetflag import flag_to_target
 from autoenrich.util.filename_utils import get_unique_part
+from autoenrich.ml.features import GNR_features
 
 from tqdm import tqdm
 import gzip
@@ -75,7 +76,6 @@ class dataset(object):
 					ftype = get_type(file)
 				else:
 					ftype = type
-
 				mol.read_nmr(file, ftype)
 				self.mols.append(mol)
 
@@ -89,12 +89,16 @@ class dataset(object):
 		except:
 			max = 200
 
+		for mol in self.mols:
+			if len(mol.types) > max:
+				max = len(mol.types)
+				print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
+
 		if 'cutoff' in params:
 			if params['cutoff'] < 0.1:
 				params['cutoff'] = 0.1
 		else:
 			params['cutoff'] = 5.0
-
 
 		x = []
 		y = []
@@ -104,89 +108,41 @@ class dataset(object):
 
 		target = flag_to_target(targetflag)
 		self.remove_mols(target)
-
 		if molcheck_run:
-			print('molcheck complete')
-			return
+			return 
 
 		if featureflag in ['aSLATM', 'CMAT', 'FCHL', 'ACSF']:
-			from autoenrich.ml.features import QML_features
+			import qml
 		elif featureflag in ['BCAI']:
 			from autoenrich.ml.features import TFM_features
-		elif featureflag in ['dummy']:
-			from autoenrich.ml.features import GNR_features
 
-		if featureflag == 'dummy':
-			for mol in self.mols:
-				_x, _y, _r = GNR_features.get_dummy_features([mol], targetflag)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
+		_, y, r = GNR_features.get_dummy_features(self.mols, targetflag)
 
-
-		elif featureflag == 'aSLATM':
-			mbtypes = QML_features.get_aSLATM_mbtypes(self.mols)
-			for mol in self.mols:
-				_x, _y, _r = QML_features.get_aSLATM_features([mol], targetflag, params['cutoff'], max=max, mbtypes=mbtypes)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
+		if featureflag == 'aSLATM':
+			mbtypes = [[1],[1,1], [1,1,1], [1,1,6], [1,1,7], [1,1,8], [1,1,9], [1,6], [1,6,1], [1,6,6], [1,6,7], [1,6,8], [1,6,9], [1,7], [1,7,1], [1,7,6], [1,7,7], [1,7,8], [1,7,9], [1,8], [1,8,1], [1,8,6], [1,8,7], [1,8,8], [1,8,9], [1,9], [1,9,1], [1,9,6], [1,9,7], [1,9,8], [1,9,9], [6], [6,1], [6,1,1], [6,1,6], [6,1,7], [6,1,8], [6,1,9], [6,6], [6,6,1], [6,6,6], [6,6,7], [6,6,8], [6,6,9], [6,7], [6,7,1], [6,7,6], [6,7,7], [6,7,8], [6,7,9], [6,8], [6,8,1], [6,8,6], [6,8,7], [6,8,8], [6,8,9], [6,9], [6,9,1], [6,9,6], [6,9,7], [6,9,8], [6,9,9], [7],[7,1], [7,1,1], [7,1,6], [7,1,7], [7,1,8], [7,1,9], [7,6], [7,6,1], [7,6,6], [7,6,7], [7,6,8], [7,6,9], [7,7], [7,7,1], [7,7,6], [7,7,7], [7,7,8], [7,7,9], [7,8], [7,8,1], [7,8,6], [7,8,7], [7,8,8], [7,8,9], [7,9], [7,9,1], [7,9,6], [7,9,7], [7,9,8], [7,9,9], [8], [8,1], [8,1,1], [8,1,6], [8,1,7], [8,1,8], [8,1,9], [8,6], [8,6,1], [8,6,6], [8,6,7], [8,6,8], [8,6,9], [8,7], [8,7,1], [8,7,6], [8,7,7], [8,7,8], [8,7,9], [8,8], [8,8,1], [8,8,6], [8,8,7], [8,8,8], [8,8,9], [8,9], [8,9,1], [8,9,6], [8,9,7], [8,9,8], [8,9,9], [9], [9,1], [9,1,1], [9,1,6], [9,1,7], [9,1,8], [9,1,9], [9,6], [9,6,1], [9,6,6], [9,6,7], [9,6,8], [9,6,9], [9,7], [9,7,1], [9,7,6], [9,7,7], [9,7,8], [9,7,9], [9,8], [9,8,1], [9,8,6], [9,8,7], [9,8,8], [9,8,9], [9,9], [9,9,1], [9,9,6], [9,9,7], [9,9,8], [9,9,9]]
+			'''
+			nuclear_charges = []
+			for tmp_mol in mols:
+				nuclear_charges.append(tmp_mol.types)
+			mbtypes = qml.representations.get_slatm_mbtypes(nuclear_charges)
+			'''
+			reps = qml.representations.generate_slatm(mol.xyz, mol.types, mbtypes, rcut=cutoff)
+			x = np.asarray(reps)
 
 		elif featureflag == 'CMAT':
-
-			# Set (not found) parameters to defaults
-			if not 'central_decay' in params:
-				params['central_decay'] = -1
-			if not 'interaction_cutoff' in params:
-				params['interaction_cutoff'] = 1000000.0
-			if not 'interaction_decay' in params:
-				params['interaction_decay'] = -1
-
-			for mol in self.mols:
-				if len(mol.types) >max:
-					args['max_size'] = len(mol.types)
-					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
-			for mol in self.mols:
-				_x, _y, _r = QML_features.get_CMAT_features([mol], targetflag, params['cutoff'], args['max_size'], central_decay=params['central_decay'],
-														interaction_cutoff=params['interaction_cutoff'], interaction_decay=params['interaction_decay'])
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-
+			reps = qml.representations.generate_atomic_coulomb_matrix(mol.types, mol.xyz, size = max, central_cutoff = cutoff)
+			x = np.asarray(reps)
 
 		elif featureflag == 'FCHL':
-			for mol in self.mols:
-				if len(mol.types) >max:
-					max = len(mol.types)
-					print('WARNING, SETTING MAXIMUM MOLECULE SIZE TO, ', max)
-
-				'''
-				for mol in self.mols:
-				_x, _y, _r = QML_features.get_FCHL_features([mol], targetflag, params['cutoff'], max)
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
-				'''
-			x, y, r = QML_features.get_FCHL_features(self.mols, targetflag, params['cutoff'], max)
-
+			reps = qml.fchl.generate_representation(mol.xyz, mol.types, max, cut_distance=cutoff)
+			x = np.asarray(reps)
 
 		elif featureflag == 'ACSF':
-			elements = set()
-			for tmp_mol in self.mols:
-				elements = elements.union(tmp_mol.types)
-			elements = sorted(list(elements))
-
-			# Set (not found) parameters to defaults
-
-
-			for mol in self.mols:
-				_x, _y, _r = QML_features.get_ACSF_features([mol], targetflag, params['cutoff'], elements=elements, nRs2=params['nRs2'],
-												nRs3=params['nRs3'], nTs=params['nTs'], eta2=params['eta2'], eta3=params['eta3'], zeta=params['zeta'],
-												acut=params['acut'], bin_min=params['bin_min'])
-				x.extend(_x)
-				y.extend(_y)
-				r.extend(_r)
+			reps = qml.representations.generate_acsf(mol.types, mol.xyz, elements=[1, 6, 7, 8, 9, 14, 15, 16, 17, 35],
+													nRs2=int(nRs2), nRs3=int(nRs3),
+													nTs=int(nTs), eta2=eta2, eta3=eta3, zeta=zeta, rcut=cutoff, acut=acut,
+													bin_min=0.0, gradients=False)
+			x = np.asarray(reps)
 
 		elif featureflag == 'BCAI':
 
@@ -212,6 +168,8 @@ class dataset(object):
 
 		if featureflag not in ['dummy', 'BCAI']:
 			print('Reps generated, shape: ', self.x.shape)
+
+
 
 	def assign_from_ml(self, pred_y, var, zero=True):
 		assert len(self.r) > 0, print('Something went wrong, nothing to assign')
