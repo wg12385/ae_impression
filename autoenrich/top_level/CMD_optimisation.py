@@ -30,6 +30,10 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 	opt_files = []
 
 	for conformer in molecule.conformers:
+
+		if conformer.redundant:
+			continue
+
 		if prefs['optimisation']['software'] == 'orca':
 			conformer.opt_in = orcasub.make_optin(prefs, conformer.molid, conformer.xyz, conformer.types,
 														path + 'optimisation/')
@@ -90,7 +94,7 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('qsub ', file)
-	elif prefs['comp']['system'] == 'Grendel':
+	elif prefs['comp']['system'] == 'PBS':
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('bash ', file)

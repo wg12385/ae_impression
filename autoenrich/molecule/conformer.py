@@ -39,6 +39,8 @@ class conformer(nmrmol):
 		self.energy = 404.404
 		self.pop = 404.404
 
+		self.redundant = False
+
 
 
 

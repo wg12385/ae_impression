@@ -70,6 +70,11 @@ def autoenrich(inpargs):
 		print('Edit preferences file then run again')
 		sys.exit(0)
 
+	prefs, change = check_prefs(prefs)
+	#if change:
+		#print('Editing preferences file. . .')
+		#json.dump(prefs, open(pref_file, 'w'), indent=4)
+
 	# Initialisation command
 	if args['Command'] == 'init':
 		# Check for supplied xyz file, quit if not found
@@ -132,6 +137,8 @@ def autoenrich(inpargs):
 		# Save molecule in pickle file
 		pickle.dump(molecule, open(pickle_file, "wb"))
 
+	elif args['Command'] == 'remove_redundant':
+		molecule.remove_redundant(prefs)
 
 	elif args['Command'] == 'setup_opt':
 		print('Generating optimisation ORCA input files for molecule, ', args['Molecule'])

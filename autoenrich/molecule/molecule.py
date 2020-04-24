@@ -23,6 +23,7 @@ from .nmrmol import nmrmol
 from autoenrich.boltzmann.population import get_pop_array
 from autoenrich.boltzmann.averaging import *
 import glob
+from tqdm import tqdm
 
 # global molecule object, contains everything for one auto-ENRICH run
 class molecule(nmrmol):
@@ -64,6 +65,76 @@ class molecule(nmrmol):
 			self.conformers.append(new_conf)
 
 		self.stage = 'pre-opt'
+
+	def remove_redundant(self, RMS_thresh=3.0, MMe_thresh=100000, DFTe_thresh=100000, maxconfs=1000):
+		size = len(self.conformers[0].types)
+
+		print('Making distance matrices')
+		for conf in tqdm(self.conformers):
+			dist1 = np.zeros((size, size), dtype=np.float64)
+			for i in np.where(conf.types != 1)[0]:
+				for j in np.where(conf.types != 1)[0]:
+					dist1[i][j] = np.sqrt(np.square(conf.xyz[i][0]-conf.xyz[j][0])
+										+ np.square(conf.xyz[i][1]-conf.xyz[j][1])
+										+ np.square(conf.xyz[i][2]-conf.xyz[j][2]))
+			conf.dist = dist1
+
+		for RMS_thresh in range(1, 40):
+			RMS_thresh = RMS_thresh * 0.1
+
+			redundant = []
+			c1 = 0
+			for conf1 in tqdm(self.conformers):
+				c1 += 1
+				conf1.redundant = False
+
+				if conf1.opt_status == 'successful':
+					if conf1.energy > DFTe_thresh:
+						redundant.append(conf1.molid)
+						continue
+				else:
+					if conf1.energy > MMe_thresh:
+						redundant.append(conf1.molid)
+						continue
+
+				for c2, conf2 in enumerate(self.conformers):
+					if c1 >= c2:
+						continue
+					if conf2.molid in redundant:
+						continue
+
+					RMS = np.sqrt(np.mean(np.square(conf1.dist-conf2.dist)))
+					#RMS = np.sqrt(np.mean(np.square(np.asarray(conf1.xyz)-np.asarray(conf2.xyz))))
+
+					if RMS > RMS_thresh:
+						redundant.append(conf2.molid)
+
+			'''
+			for conf in self.conformers:
+				if conf.molid in redundant:
+					conf.redundant = True
+			'''
+			print('RMS: ', '{0:<3.1f}'.format(RMS_thresh) ,' number of conformers:', len(self.conformers) - len(set(redundant)))
+			'''
+			red = 0
+			for conf in self.conformers:
+				if conf.redundant:
+					red += 1
+
+			print('Redundant: ', red)
+			'''
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ###
