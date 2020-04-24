@@ -57,7 +57,7 @@ def conformational_search(molecule, prefs, pickle_file, path=''):
 
 	jobname = 'aE_' + molecule.molid + '_confsearch'
 	strings = HPCsub.make_HPC_header(jobname=jobname, system=system, nodes=1, ppn=processors, walltime=walltime, mem=memory)
-	strings.append('source activate {env:<10s}'.format(env=python_env))
+	strings.append('conda activate {env:<10s}'.format(env=python_env))
 	strings.append('python {0:<10s}'.format(scriptname))
 
 	if prefs['comp']['system'] == 'PBS':
