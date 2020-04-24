@@ -17,6 +17,8 @@ before_install:
   # For some reason miniconda installs here instead of the above path
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - conda update --yes conda  # Update CONDA without command line prompt
+  # Install docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 install:
   - conda install -y conda-build
