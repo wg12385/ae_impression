@@ -114,10 +114,11 @@ def process_optimisation(molecule, prefs, path=''):
 			status = g09read.get_opt_status(conformer.opt_log)
 		elif prefs['optimisation']['software'] == 'g16':
 			status = g16read.get_opt_status(conformer.opt_log)
+
 		if status == 'successful':
 			good +=1
 			conformer.read_structure(conformer.opt_log.split('.')[0] + '.xyz', type='xyz')
-			conformer.read_opt(conformer.opt_log.split('.')[0] + '_property.txt', type=prefs['optimisation']['software'])
+			conformer.read_opt(conformer.opt_log, type=prefs['optimisation']['software'])
 			#files_to_delete = glob.glob(conformer.opt_log.split('.')[0] + '*.tmp')
 			#for file in files_to_delete:
 			#	os.remove(file)

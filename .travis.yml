@@ -8,6 +8,9 @@ branches:
     only:
     - master
 
+services:
+    - docker
+
 before_install:
   # Install the latest version of Miniconda
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -54,4 +57,10 @@ after_success:
   # Install the command line API for CONDA uploads
   - conda install -y anaconda-client
   - export ANACONDA_API_TOKEN=$CONDA_UPLOAD_TOKEN
-  - anaconda upload bld-dir/**/PACKAGENAME-*.tar.bz2 --label develop
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --label stable --force
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --force
+  # Build and upload docker image
+  - cd dockerfiles/minibox
+  - docker build . -t wg12385/autoenrich:stable
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push wg12385/autoenrich:stable
