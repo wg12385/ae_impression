@@ -19,9 +19,10 @@ before_install:
   - conda update --yes conda  # Update CONDA without command line prompt
   # Install docker
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - conda install -y conda-build
 
 install:
-  - conda install -y conda-build
+
   # You can add any CONDA channels you may need here. CONDA supports
   # both the commands add and append. The only difference is that
   # the add command places the channel at the front of the priority
