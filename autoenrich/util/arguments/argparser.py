@@ -142,7 +142,7 @@ def aE_parser(args):
 	# Define name of molecule (used for save/load of pickle file)
 	parser.add_argument('Molecule', help='name of molecule')
 	# Define command to perform
-	parser.add_argument('Command', help='auto-ENRICH command', choices=['undo', 'init', 'conf_search', 'setup_opt', 'process_opt', 'setup_nmr', 'process_nmr', 'update', 'check_status'])
+	parser.add_argument('Command', help='auto-ENRICH command', choices=['undo', 'init', 'conf_search', 'remove_redundant', 'setup_opt', 'process_opt', 'setup_nmr', 'process_nmr', 'update', 'check_status'])
 	# Optional arguments
 	parser.add_argument('--init_file', help='file to initialise molecule', action="store", dest='init_file', default='None')
 	parser.add_argument('--path', help='path to molecule pickle file', action="store", dest='path', default='')

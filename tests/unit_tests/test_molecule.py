@@ -2,7 +2,7 @@
 
 import sys
 import os
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../')
 
 import numpy as np
 
@@ -94,6 +94,7 @@ def test_conformer():
     assert mol.nmr_log == 'None'
     assert mol.nmr_status == 'None'
     assert mol.pop == 404.404
+    assert mol.redundant == False
 
 def test_nmrmol_read_structure():
 

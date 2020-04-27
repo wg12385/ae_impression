@@ -1,10 +1,10 @@
 import sys
 import os
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../')
 
 from autoenrich.boltzmann.averaging import boltzmann_shift, boltzmann_coupling
 from autoenrich.boltzmann.population import get_pop_array
-from tests.test_generators.dummy_mol import get_random_mol_with_confs
+from test_generators.dummy_mol import get_random_mol_with_confs
 
 import numpy as np
 

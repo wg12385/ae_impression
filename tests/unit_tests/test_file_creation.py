@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../')
 
 
 from autoenrich.file_creation.structure_formats.nmredata import nmrmol_to_nmredata
@@ -13,9 +13,9 @@ from autoenrich.file_creation import orca_submission as orcasub
 from autoenrich.file_creation import g09_submission as g09sub
 from autoenrich.file_creation import g16_submission as g16sub
 
-from tests.test_generators.dummy_dataset import get_dummy_dataset
-from tests.test_generators.dummy_prefs import get_dummy_prefs
-from tests.test_generators.dummy_mol import get_random_mol
+from test_generators.dummy_dataset import get_dummy_dataset
+from test_generators.dummy_prefs import get_dummy_prefs
+from test_generators.dummy_mol import get_random_mol
 
 
 def test_csv():
@@ -73,7 +73,7 @@ def test_make_HPC_batch_submission():
 
     prefs = get_dummy_prefs()
     molname = 'dummy_mol'
-    in_array = ['dummy_0.in', 'dummy_1.in', 'dummy_2.in']
+    in_array = 'IN_ARRAY.txt'
     softwares = ['orca', 'g09', 'g16']
     start = 0
     end = 2

@@ -1,7 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'tests/test_store/')
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../')
 
 from autoenrich.file_read import g09_read as g09read
 from autoenrich.file_read import g16_read as g16read

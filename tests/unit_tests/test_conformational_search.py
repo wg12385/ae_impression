@@ -1,7 +1,7 @@
 
 import sys
 import os
-sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../../')
+sys.path.append(os.path.realpath(os.path.dirname(__file__))+'/../')
 
 from autoenrich.conformational_search import conformational_search as csearch
 

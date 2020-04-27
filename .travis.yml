@@ -21,11 +21,9 @@ before_install:
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - conda update --yes conda  # Update CONDA without command line prompt
   # Install docker
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 
 install:
-  - conda install -y conda-build
   # You can add any CONDA channels you may need here. CONDA supports
   # both the commands add and append. The only difference is that
   # the add command places the channel at the front of the priority
@@ -33,6 +31,8 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels rdkit
   - conda config --add channels openbabel
+  - conda update --yes conda
+  - conda install -y conda-build
 
   # Build the conda recipe for this package
   - conda build -q conda-recipe --python=$TRAVIS_PYTHON_VERSION --output-folder bld-dir
