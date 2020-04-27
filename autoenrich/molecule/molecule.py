@@ -34,10 +34,6 @@ class molecule(nmrmol):
 		self.conformers = []
 		self.stage = 'init'
 
-	# function to remove redundant conformers
-	def remove_redundant(self, threshold=0.001):
-		self.conformers = redundant_conformer_elim(self.conformers, threshold=threshold)
-
 	# average NMR properties
 	def boltzmann_average(self):
 
@@ -66,63 +62,74 @@ class molecule(nmrmol):
 
 		self.stage = 'pre-opt'
 
-	def remove_redundant(self, RMS_thresh=3.0, MMe_thresh=100000, DFTe_thresh=100000, maxconfs=1000):
+	def remove_redundant(self, RMS_thresh=3.0, MMe_thresh=100000, DFTe_thresh=100000, maxconfs=200):
 		size = len(self.conformers[0].types)
+		confs = len(self.conformers)
+		redundant = []
 
-		print('Making distance matrices')
+		print('Calculating distance matrices')
 		for conf in tqdm(self.conformers):
-			dist1 = np.zeros((size, size), dtype=np.float64)
-			for i in np.where(conf.types != 1)[0]:
-				for j in np.where(conf.types != 1)[0]:
-					dist1[i][j] = np.sqrt(np.square(conf.xyz[i][0]-conf.xyz[j][0])
-										+ np.square(conf.xyz[i][1]-conf.xyz[j][1])
-										+ np.square(conf.xyz[i][2]-conf.xyz[j][2]))
-			conf.dist = dist1
+			conf.get_distance_matrix()
+			conf.redundant = False
 
-		for RMS_thresh in range(1, 40):
-			RMS_thresh = RMS_thresh * 0.1
+		print('Removing conformers based on energy threshold')
+		for conf in tqdm(self.conformers):
+			if conf.redundant:
+				continue
 
-			redundant = []
-			c1 = 0
-			for conf1 in tqdm(self.conformers):
-				c1 += 1
-				conf1.redundant = False
+			if conf.opt_status == 'successful':
+				if conf.energy > DFTe_thresh:
+					redundant.append(conf.molid)
+					continue
+			else:
+				if conf.energy > MMe_thresh:
+					redundant.append(conf.molid)
+					continue
 
-				if conf1.opt_status == 'successful':
-					if conf1.energy > DFTe_thresh:
-						redundant.append(conf1.molid)
-						continue
-				else:
-					if conf1.energy > MMe_thresh:
-						redundant.append(conf1.molid)
-						continue
+		print('Removing conformers based on RMS threshold')
+		dist = np.zeros((confs, confs), dtype=np.float64)
+		c1 = -1
+		for conf1 in tqdm(self.conformers):
+			c1 += 1
+			c2 = -1
+			for conf2 in self.conformers:
+				c2 += 1
+				if c1 >= c2:
+					continue
 
-				for c2, conf2 in enumerate(self.conformers):
-					if c1 >= c2:
-						continue
-					if conf2.molid in redundant:
-						continue
-
-					RMS = np.sqrt(np.mean(np.square(conf1.dist-conf2.dist)))
-					#RMS = np.sqrt(np.mean(np.square(np.asarray(conf1.xyz)-np.asarray(conf2.xyz))))
-
-					if RMS > RMS_thresh:
+				if conf2.molid not in redundant:
+					dist[c1][c2] = np.sqrt(np.mean(np.square(conf1.dist-conf2.dist)))
+					if dist[c1][c2] > RMS_thresh:
 						redundant.append(conf2.molid)
 
-			'''
-			for conf in self.conformers:
-				if conf.molid in redundant:
-					conf.redundant = True
-			'''
-			print('RMS: ', '{0:<3.1f}'.format(RMS_thresh) ,' number of conformers:', len(self.conformers) - len(set(redundant)))
-			'''
-			red = 0
-			for conf in self.conformers:
-				if conf.redundant:
-					red += 1
 
-			print('Redundant: ', red)
-			'''
+		if (len(self.conformers) - len(set(redundant))) > maxconfs:
+			print('Still too many conformers, selecting least similar')
+			to_remove = len(self.conformers) - maxconfs
+			# Keep looping until enough conformers are marked for removal
+			with tqdm(total=to_remove-len(set(redundant))) as pbar:
+				while len(redundant) < to_remove:
+					id = 0
+					lowest_dist = 9999999999999999
+					# Loop over conformers
+					for c, conf in enumerate(self.conformers):
+						# Get sum of distances to all other conformers for conformer i
+						sumdist = np.sum(dist[c])
+						# Store lowest distance and conformer id
+						if sumdist <= lowest_dist and conf.molid not in redundant:
+							id = conf.molid
+							lowest_dist = sumdist
+					# add least geometrically different conformer to removal list
+					redundant.append(id)
+					pbar.update(1)
+
+		conformers = len(self.conformers)
+		for conf in self.conformers:
+			if conf.molid in redundant:
+				conf.redundant = True
+				conformers -= 1
+
+		print('Conformers removed, number of conformers to be used: ', conformers)
 
 
 

@@ -33,6 +33,7 @@ class nmrmol(object):
 		self.types = []
 		self.xyz = []
 		self.conn = []
+		self.dist = []
 
 		self.shift = []
 		self.shift_var = []
@@ -106,6 +107,25 @@ class nmrmol(object):
 			for i in range(len(self.shift)):
 				if periodic_table[self.types[i]] == nucleus:
 					self.shift[i] = (self.shift[i] - factor[1]) / float(factor[0])
+
+	def get_distance_matrix(self, heavy_only=True):
+		size = len(self.types)
+		dist = np.zeros((size, size), dtype=np.float64)
+		if heavy_only:
+			for i in np.where(self.types != 1)[0]:
+				for j in np.where(self.types != 1)[0]:
+					dist[i][j] = np.sqrt(np.square(self.xyz[i][0]-self.xyz[j][0])
+										+ np.square(self.xyz[i][1]-self.xyz[j][1])
+										+ np.square(self.xyz[i][2]-self.xyz[j][2]))
+		else:
+			for i in range(size):
+				for j in range(size):
+					dist[i][j] = np.sqrt(np.square(self.xyz[i][0]-self.xyz[j][0])
+										+ np.square(self.xyz[i][1]-self.xyz[j][1])
+										+ np.square(self.xyz[i][2]-self.xyz[j][2]))
+
+		self.dist = dist
+
 
 	def save_pickle(self, file):
 		pickle.dump(self, open(file, "wb"))

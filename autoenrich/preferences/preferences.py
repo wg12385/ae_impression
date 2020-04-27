@@ -83,6 +83,7 @@ def get_default_prefs():
 	prefs['REDUNDANT']['RMS_thresh'] = 1.0
 	prefs['REDUNDANT']['MMe_thresh'] = 10000
 	prefs['REDUNDANT']['DFTe_thresh'] = 10000
+	prefs['REDUNDANT']['maxconfs'] = 200
 
 	return prefs
 
