@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import rdkit
 import autoenrich.ml.features.BCAI_calc.xyz2mol as x2m
+from autoenrich.reference.periodic_table import Get_periodic_table
 from tqdm import tqdm
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
@@ -47,6 +48,137 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
 (MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
 
+def make_atom_df(mols):
+
+	p_table = Get_periodic_table()
+
+	# construct dataframe as BCAI requires from mols
+	# atoms has: molecule_name, atom, labeled atom,
+	molecule_name = [] 	# molecule name
+	atom_index = []		# atom index
+	atom = []			# atom type (letter)
+	x = []				# x coordinate
+	y = []				# y coordinate
+	z = []				# z coordinate
+	conns = []
+
+	mol_order = []
+	m = -1
+	for molrf in tqdm(mols, desc='Constructing atom dictionary'):
+		m += 1
+		if len(mols) > 2000:
+			mol = nmrmol(molid=molrf[1])
+
+			if molrf[2] == '':
+				ftype = get_type(molrf[2])
+			else:
+				ftype = molrf[2]
+			mol.read_nmr(molrf[0], ftype)
+		else:
+			mol = molrf
+		mol_order.append(mol.molid)
+		for t, type in enumerate(mol.types):
+			molecule_name.append(mol.molid)
+			atom_index.append(t)
+			atom.append(p_table[type])
+			x.append(mol.xyz[t][0])
+			y.append(mol.xyz[t][1])
+			z.append(mol.xyz[t][2])
+			conns.append(mol.conn[t])
+
+	atoms = {	'molecule_name': molecule_name,
+				'atom_index': atom_index,
+				'atom': atom,
+				'x': x,
+				'y': y,
+				'z': z,
+				'conn': conns,
+			}
+	atoms = pd.DataFrame(atoms)
+
+	return atoms
+
+def make_bonds_df(mols):
+		# construct dataframe as BCAI requires from mols
+		# atoms has: molecule_name, atom, labeled atom,
+		id = []				# number
+		molecule_name = [] 	# molecule name
+		atom_index_0 = []	# atom index for atom 1
+		atom_index_1 = []	# atom index for atom 2
+		cpltype = []			# coupling type
+		coupling = []	# coupling value
+		r = []
+		y = []
+
+		i = -1
+		m = -1
+		for molrf in tqdm(mols, desc='Constructing bond dictionary'):
+			m += 1
+			if len(mols) > 2000:
+				mol = nmrmol(molid=molrf[1])
+
+				if molrf[2] == '':
+					ftype = get_type(molrf[2])
+				else:
+					ftype = molrf[2]
+				mol.read_nmr(molrf[0], ftype)
+			else:
+				mol = molrf
+
+			moly = []
+			molr = []
+
+			for t, type in enumerate(mol.types):
+				for t2, type2 in enumerate(mol.types):
+					if t == t2:
+						continue
+					if not ( type == target[1] and type2 == target[2] ):
+						continue
+					if mol.coupling_len[t][t2] != target[0]:
+						continue
+
+					i += 1
+					id.append(i)
+					molecule_name.append(mol.molid)
+					atom_index_0.append(t)
+					atom_index_1.append(t2)
+
+					TFM_flag = targetflag[2] + '-' + targetflag[3] + '_' + targetflag[0] + '.0'
+
+					cpltype.append(TFM_flag)
+
+					coupling.append(mol.coupling[t][t2])
+
+					if np.isnan(mol.coupling[t][t2]):
+						print(mol.molid)
+
+					moly.append(mol.coupling[t][t2])
+					molr.append([mol.molid, t, t2])
+
+			y.append(moly)
+			r.append(molr)
+
+		bonds = {	'id': id,
+					'molecule_name': molecule_name,
+					'atom_index_0': atom_index_0,
+					'atom_index_1': atom_index_1,
+					'type': cpltype,
+					'scalar_coupling_constant': coupling
+				}
+
+		#print(len(id), len(molecule_name), len(atom_index), len(atom))
+
+		snapshot = tracemalloc.take_snapshot()
+		top_stats = snapshot.statistics('lineno')
+		print("6[ Top 2 ]")
+		for stat in top_stats[:2]:
+			print(stat, '------------------------------')
+			for line in stat.traceback.format():
+				print(line)
+
+		bonds = pd.DataFrame(bonds)
+
+		return bonds
 
 def make_structure_dict(atoms_dataframe):
 	"""Convert from structures.csv output to a dictionary data storage.
