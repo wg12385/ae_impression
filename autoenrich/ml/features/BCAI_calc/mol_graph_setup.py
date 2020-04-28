@@ -98,7 +98,10 @@ def make_atom_df(mols):
 
 	return atoms
 
-def make_bonds_df(mols):
+def make_bonds_df(mols, flag='all'):
+
+		p_table = Get_periodic_table()
+
 		# construct dataframe as BCAI requires from mols
 		# atoms has: molecule_name, atom, labeled atom,
 		id = []				# number
@@ -132,9 +135,10 @@ def make_bonds_df(mols):
 				for t2, type2 in enumerate(mol.types):
 					if t == t2:
 						continue
-					if not ( type == target[1] and type2 == target[2] ):
-						continue
-					if mol.coupling_len[t][t2] != target[0]:
+
+					TFM_flag = str(mol.coupling_len[t][t2]) + 'J' + p_table[type] + p_table[type2]
+
+					if TFM_flag != flag and flag != 'all':
 						continue
 
 					i += 1
@@ -143,14 +147,10 @@ def make_bonds_df(mols):
 					atom_index_0.append(t)
 					atom_index_1.append(t2)
 
-					TFM_flag = targetflag[2] + '-' + targetflag[3] + '_' + targetflag[0] + '.0'
 
 					cpltype.append(TFM_flag)
 
 					coupling.append(mol.coupling[t][t2])
-
-					if np.isnan(mol.coupling[t][t2]):
-						print(mol.molid)
 
 					moly.append(mol.coupling[t][t2])
 					molr.append([mol.molid, t, t2])
@@ -165,16 +165,6 @@ def make_bonds_df(mols):
 					'type': cpltype,
 					'scalar_coupling_constant': coupling
 				}
-
-		#print(len(id), len(molecule_name), len(atom_index), len(atom))
-
-		snapshot = tracemalloc.take_snapshot()
-		top_stats = snapshot.statistics('lineno')
-		print("6[ Top 2 ]")
-		for stat in top_stats[:2]:
-			print(stat, '------------------------------')
-			for line in stat.traceback.format():
-				print(line)
 
 		bonds = pd.DataFrame(bonds)
 
@@ -323,7 +313,7 @@ def enhance_atoms(atoms_dataframe,structure_dict):
 	return atoms_dataframe
 
 
-def enhance_bonds(bond_dataframe,structure_dict):
+def enhance_bonds(bond_dataframe, structure_dict, flag='3JHH'):
 	"""Enhance the bonds dataframe by including derived information.
 
 	Args:
@@ -348,8 +338,6 @@ def enhance_bonds(bond_dataframe,structure_dict):
 		# labeled_type
 		if all([x[0]=='H' for x in long_symbols]):
 			lt = row['type']
-		elif not any([x[0]=='H' for x in long_symbols]):
-			raise ValueError("No hydrogen found in {}".format(row))
 		else:
 			ls = [x for x in long_symbols if x[0]!='H'][0]
 			lt = row["type"] + ls[1:].replace('.0','')
@@ -357,13 +345,17 @@ def enhance_bonds(bond_dataframe,structure_dict):
 				lt = classification_corrections[lt]
 			if lt in small_longtypes:
 				lt = lt.split('_')[0]
+
 		new_columns["labeled_type"].append(lt)
 
 		# sublabeled type
 		new_columns["sublabel_type"].append(row['type'] + '-'+ '-'.join(sorted(long_symbols)))
 		# bond order
 		new_columns["bond_order"].append(structure_dict[molecule_name]['bond_orders'][iatom0,iatom1])
-		new_columns["predict"].append(1)
+		if lt == flag:
+			new_columns["predict"].append(1)
+		else:
+			new_columns["predict"].append(0)
 	for key in new_columns:
 		bond_dataframe[key] = new_columns[key]
 	return bond_dataframe
@@ -404,9 +396,11 @@ def add_all_pairs(bond_dataframe,structure_dict):
 			for k,v in row.items():
 				new_data[k].append(v)
 			iadd -= 1
+
 	new_data = pd.DataFrame(new_data)
 	if bond_dataframe.index.name!='id':
 		bond_dataframe = bond_dataframe.set_index('id')
+
 	new_data.set_index('id',inplace=True)
 	all_data = bond_dataframe.append(new_data,verify_integrity=True,sort=False)
 	return all_data

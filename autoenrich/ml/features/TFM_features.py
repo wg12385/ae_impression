@@ -155,14 +155,11 @@ def get_BCAI_features(mols, targetflag='CCS', training=True):
 
 	atoms = BCAI.make_atom_df(mols)
 	structure_dict = BCAI.make_structure_dict(atoms)
-
 	BCAI.enhance_structure_dict(structure_dict)
-
 	BCAI.enhance_atoms(atoms, structure_dict)
 
 	bonds = BCAI.make_bonds_df(mols)
 	bonds = BCAI.enhance_bonds(bonds, structure_dict)
-
 
 	bonds = BCAI.add_all_pairs(bonds, structure_dict) # maybe replace this
 	triplets = BCAI.make_triplets(bonds["molecule_name"].unique(), structure_dict)
