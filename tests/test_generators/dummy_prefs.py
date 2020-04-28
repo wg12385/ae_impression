@@ -17,7 +17,7 @@ def get_dummy_prefs():
 
 	prefs['comp'] = {}
 	prefs['comp']['parallel'] = True
-	prefs['comp']['system'] = 'BC3'
+	prefs['comp']['system'] = 'PBS'
 	prefs['comp']['python_env'] = 'env_IMP'
 	prefs['comp']['aE_directory'] = "../../aE/"
 

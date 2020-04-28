@@ -90,7 +90,7 @@ def setup_nmr(molecule, prefs, path='', ids=[], max=50):
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('qsub ', file)
-	elif prefs['comp']['system'] == 'Grendel':
+	elif prefs['comp']['system'] == 'PBS':
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('bash ', file)

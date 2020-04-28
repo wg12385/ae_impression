@@ -30,6 +30,10 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 	opt_files = []
 
 	for conformer in molecule.conformers:
+
+		if conformer.redundant:
+			continue
+
 		if prefs['optimisation']['software'] == 'orca':
 			conformer.opt_in = orcasub.make_optin(prefs, conformer.molid, conformer.xyz, conformer.types,
 														path + 'optimisation/')
@@ -90,7 +94,7 @@ def setup_optimisation(molecule, prefs, path='', max=50):
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('qsub ', file)
-	elif prefs['comp']['system'] == 'Grendel':
+	elif prefs['comp']['system'] == 'PBS':
 		print('Submit the calculations using:')
 		for file in qsub_names:
 			print('bash ', file)
@@ -110,10 +114,11 @@ def process_optimisation(molecule, prefs, path=''):
 			status = g09read.get_opt_status(conformer.opt_log)
 		elif prefs['optimisation']['software'] == 'g16':
 			status = g16read.get_opt_status(conformer.opt_log)
+
 		if status == 'successful':
 			good +=1
 			conformer.read_structure(conformer.opt_log.split('.')[0] + '.xyz', type='xyz')
-			conformer.read_opt(conformer.opt_log.split('.')[0] + '_property.txt', type=prefs['optimisation']['software'])
+			conformer.read_opt(conformer.opt_log, type=prefs['optimisation']['software'])
 			#files_to_delete = glob.glob(conformer.opt_log.split('.')[0] + '*.tmp')
 			#for file in files_to_delete:
 			#	os.remove(file)

@@ -21,12 +21,13 @@
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]),''))
-from autoenrich.preferences.preferences import read_prefs, write_default_prefs
+from autoenrich.preferences.preferences import read_prefs, check_prefs, write_default_prefs
 from autoenrich.molecule.molecule import molecule as moleculeclass
 from autoenrich.util.header import print_header_aE
 import pybel as pyb
 
 import glob
+import json
 
 
 import pickle
@@ -63,6 +64,9 @@ def autoenrich(inpargs):
 	pref_file = args['path']+args['prefs']
 	if os.path.isfile(pref_file):
 		prefs = read_prefs(pref_file)
+		prefs, change = check_prefs(prefs)
+		if change:
+			json.dump(prefs, open(pref_file, 'w'), indent=4)
 	else:
 		# If no preferences file found, warn user, print default file then quit
 		print('Could not find preferences file located at: ', pref_file)
@@ -133,6 +137,16 @@ def autoenrich(inpargs):
 		# Save molecule in pickle file
 		pickle.dump(molecule, open(pickle_file, "wb"))
 
+	elif args['Command'] == 'remove_redundant':
+
+		RMS_thresh = prefs['REDUNDANT']['RMS_thresh']
+		MMe_thresh = prefs['REDUNDANT']['MMe_thresh']
+		DFTe_thresh = prefs['REDUNDANT']['DFTe_thresh']
+		maxconfs = prefs['REDUNDANT']['maxconfs']
+
+
+		molecule.remove_redundant(RMS_thresh=RMS_thresh, MMe_thresh=MMe_thresh, DFTe_thresh=DFTe_thresh, maxconfs=maxconfs)
+		pickle.dump(molecule, open(pickle_file, "wb"))
 
 	elif args['Command'] == 'setup_opt':
 		print('Generating optimisation ORCA input files for molecule, ', args['Molecule'])

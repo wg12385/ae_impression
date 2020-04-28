@@ -78,7 +78,7 @@ def make_HPC_header(jobname='auto-ENRICH', system='PBS', nodes=1, ppn=1, walltim
 
 	strings = []
 
-	# NEED BC4 AND GPU VERSION
+	# NEED slurm AND GPU VERSION
 
 	if system == 'PBS':
 		strings.append('# submission script for PBS')
@@ -121,7 +121,7 @@ def make_HPC_batch_submission(prefs, molname, in_array, start, end, software='or
 			strings.append("#PBS -t {0:>1d}-{1:<1d}".format(start, end))
 			strings.append("cd $PBS_O_WORKDIR")
 			strings.append("NMRNAME=$(gawk -v y=${{PBS_ARRAYID}} 'NR == y' {0:<5s})".format(in_array))
-			strings.append("OUTNAME=$( echo $NMRNAME | sed 's/\.in/\.log/')")
+			strings.append("OUTNAME=$( echo $NMRNAME | sed 's/\\.in/\\.log/')")
 			strings.append("orca ${NMRNAME} > ${OUTNAME}")
 		else:
 			strings.append("cd $PBS_O_WORKDIR")

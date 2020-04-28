@@ -16,6 +16,7 @@ RUN apt-get update --yes && apt-get install --yes \
 	libxrender1 \
 	libblas-dev \
 	liblapack-dev
+
 ## If this line fails to find de.debian.org etc, look up local DNS server address then add this to the /etc/docker/daemon.json file like this:
 ## (137.xxx.x.xx is the server address you found)
 #{
@@ -40,25 +41,14 @@ RUN cd /tmp/l_mkl_2019.3.199 && \
 	ldconfig && \
 	echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /etc/bash.bashrc
 
-# Download aE and qml python libraries
-RUN git clone https://github.com/wg12385/auto-ENRICH.git opt/autoenrich
+# Download qml python libraries
 RUN git clone https://github.com/qmlcode/qml.git --branch develop opt/qml && \
 	cd opt/qml && git checkout 18f4e9b4fec38b71c9246fb2735a4821229e37b8 && cd ../../
 
 # Create conda environment
-RUN conda env create -f opt/autoenrich/autoenrich/IMPgen1.yml
-SHELL ["conda", "run", "-n", "IMPgen1", "/bin/bash", "-c"]
+RUN conda create -n IMPenv python=3
+SHELL ["conda", "run", "-n", "IMPenv", "/bin/bash", "-c"]
+RUN conda install -c wg12385 autoenrich -c rdkit -c openbabel
 RUN python -m pip install opt/qml/
-RUN python -m pip install opt/autoenrich/
+
 SHELL ["/bin/bash", "-c"]
-
-# Add aliases to bashrc file (only affects scripts run using source /.bashrc)
-RUN echo 'alias autoenrich="python /opt/autoenrich/autoenrich.py" ' >> /.bashrc && \
-	echo 'alias IMPRESSION="python /opt/autoenrich/IMPRESSION.py" ' >> /.bashrc && \
-	echo 'alias aEutils="python /opt/autoenrich/aE_utils.py" ' >> /.bashrc && \
-	mkdir output
-
-# Add models directory
-#ADD models models
-# Add Run directory
-#ADD RUN RUN

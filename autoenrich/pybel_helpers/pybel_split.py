@@ -18,9 +18,12 @@ import numpy as np
 import openbabel
 from autoenrich.reference.periodic_table import Get_periodic_table
 
+from autoenrich.pybel_helpers import pybel_read as pread
+from autoenrich.pybel_helpers import pybel_bonds as pbonds
+
 def mol_iswhole(mol):
 	iswhole = True
-	atoms = mol_getatoms(mol)
+	atoms = pread.mol_getatoms(mol)
 	for i in range(atoms):
 		for j in range(atoms):
 			if i == j:
@@ -29,7 +32,7 @@ def mol_iswhole(mol):
 
 			while good == False:
 				for length in range(0, atoms):
-					paths = mol_find_all_paths(mol, i, j, length)
+					paths = pbonds.mol_find_all_paths(mol, i, j, length)
 					if len(paths) > 0:
 						good = True
 						break
@@ -39,7 +42,7 @@ def mol_iswhole(mol):
 	return iswhole
 
 def mol_splitmol(mol):
-	atoms = mol_getatoms(mol)
+	atoms = pread.mol_getatoms(mol)
 	structures = []
 	assigned = []
 	structures.append([])
@@ -60,7 +63,7 @@ def mol_splitmol(mol):
 					continue
 
 				for length in range(0, atoms):
-					paths = mol_find_all_paths(mol, i, j, length)
+					paths = pbonds.mol_find_all_paths(mol, i, j, length)
 					if len(paths) > 0:
 						structures[depth].append(j)
 						assigned.append(j)

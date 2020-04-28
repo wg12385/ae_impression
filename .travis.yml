@@ -8,6 +8,9 @@ branches:
     only:
     - master
 
+services:
+    - docker
+
 before_install:
   # Install the latest version of Miniconda
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -17,9 +20,10 @@ before_install:
   # For some reason miniconda installs here instead of the above path
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - conda update --yes conda  # Update CONDA without command line prompt
+  # Install docker
+
 
 install:
-  - conda install -y conda-build
   # You can add any CONDA channels you may need here. CONDA supports
   # both the commands add and append. The only difference is that
   # the add command places the channel at the front of the priority
@@ -27,6 +31,8 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels rdkit
   - conda config --add channels openbabel
+  - conda update --yes conda
+  - conda install -y conda-build
 
   # Build the conda recipe for this package
   - conda build -q conda-recipe --python=$TRAVIS_PYTHON_VERSION --output-folder bld-dir
@@ -51,4 +57,10 @@ after_success:
   # Install the command line API for CONDA uploads
   - conda install -y anaconda-client
   - export ANACONDA_API_TOKEN=$CONDA_UPLOAD_TOKEN
-  - anaconda upload bld-dir/**/PACKAGENAME-*.tar.bz2 --label develop
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --label stable --force
+  - anaconda upload bld-dir/**/autoenrich-*.tar.bz2 --force
+  # Build and upload docker image
+  - cd dockerfiles/minibox
+  - docker build . -t wg12385/autoenrich:stable
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push wg12385/autoenrich:stable
