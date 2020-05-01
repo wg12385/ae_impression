@@ -31,7 +31,7 @@ def read_prefs(file):
 
 	return prefs
 
-def write_default_prefs(file):
+def get_default_prefs():
 
 	prefs = {}
 	prefs['conf_search'] = {}
@@ -46,7 +46,7 @@ def write_default_prefs(file):
 
 	prefs['comp'] = {}
 	prefs['comp']['parallel'] = True
-	prefs['comp']['system'] = 'BC3'
+	prefs['comp']['system'] = 'PBS'
 	prefs['comp']['python_env'] = 'env_IMP'
 	prefs['comp']['aE_directory'] = "../../aE/"
 
@@ -79,4 +79,35 @@ def write_default_prefs(file):
 	prefs['NMR']['spin_nuclei'] = ['H', 'C']
 	prefs['NMR']['spin_thresh'] = 20.0
 
+	prefs['REDUNDANT'] = {}
+	prefs['REDUNDANT']['RMS_thresh'] = 1.0
+	prefs['REDUNDANT']['MMe_thresh'] = 10000
+	prefs['REDUNDANT']['DFTe_thresh'] = 10000
+	prefs['REDUNDANT']['maxconfs'] = 200
+
+	return prefs
+
+def write_default_prefs(file):
+
+	prefs = get_default_prefs()
+
 	json.dump(prefs, open(file, 'w'), indent=4)
+
+def check_prefs(prefs):
+
+	df_prefs = get_default_prefs()
+	change = False
+
+	for key in df_prefs:
+		if key not in prefs:
+			print('Warning: no value for ', key, 'supplied in preferences file')
+			prefs[key] = df_prefs[key]
+			change = True
+		else:
+			for sbkey in df_prefs[key]:
+					if sbkey not in prefs[key]:
+						print('Warning: no value for ', key, 'supplied in preferences file')
+						prefs[key][sbkey] = df_prefs[key][sbkey]
+						change = True
+
+	return prefs, change

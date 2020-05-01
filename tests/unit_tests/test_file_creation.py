@@ -73,7 +73,7 @@ def test_make_HPC_batch_submission():
 
     prefs = get_dummy_prefs()
     molname = 'dummy_mol'
-    in_array = ['dummy_0.in', 'dummy_1.in', 'dummy_2.in']
+    in_array = 'IN_ARRAY.txt'
     softwares = ['orca', 'g09', 'g16']
     start = 0
     end = 2

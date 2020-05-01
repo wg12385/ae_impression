@@ -43,9 +43,7 @@ def get_dummy_features(mols, targetflag='CCS'):
 
 		if len(target) == 3:
 			for i in range(len(mol.types)):
-				for j in range(len(mol.types)):
-					if i == j:
-						continue
+				for j in range(i+1, len(mol.types)):
 
 					if not ( mol.types[i] == target[1] and mol.types[j] == target[2] ):
 						continue

@@ -24,7 +24,10 @@ def mol_find_all_paths(mol, start, end, coupling_length, path=[]):
 		# check if we have reached target atom
 		if start == end:
 			# if we have, return succesful path
-			return [path]
+			if len(path) == 1:
+				return []
+			else:
+				return [path]
 		# define new path
 		paths = []
 		# loop over neighbouring atoms
@@ -37,8 +40,9 @@ def mol_find_all_paths(mol, start, end, coupling_length, path=[]):
 				newpaths = mol_find_all_paths(mol, node, end, coupling_length, path)
 				#for each new path, check for paths of correct length
 				for newpath in newpaths:
-					if len(newpath) == coupling_length+1:
+					if len(newpath) == coupling_length+1 and newpath != []:
 						paths.append(newpath)
+
 		return paths
 
 def mol_get_bond_table(mol):
@@ -69,7 +73,9 @@ def get_coupling_lengths(mol, types, maxlen=6):
 		for atom2 in range(len(types)):
 			coupling_paths = []
 			for i in range(maxlen):
-				coupling_paths.extend(mol_find_all_paths(mol, atom1, atom2, i))
+				paths = mol_find_all_paths(mol, atom1, atom2, i)
+				if len(paths) > 0:
+					coupling_paths.extend(mol_find_all_paths(mol, atom1, atom2, i))
 			length = 999
 			for path in coupling_paths:
 				if len(path) < length and len(path) != 0:

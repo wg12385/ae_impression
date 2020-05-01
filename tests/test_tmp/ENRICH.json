@@ -11,7 +11,7 @@
     },
     "comp": {
         "parallel": true,
-        "system": "BC3",
+        "system": "PBS",
         "python_env": "env_IMP",
         "aE_directory": "../../aE/"
     },
@@ -52,5 +52,11 @@
             "C"
         ],
         "spin_thresh": 20.0
+    },
+    "REDUNDANT": {
+        "RMS_thresh": 1.0,
+        "MMe_thresh": 10000,
+        "DFTe_thresh": 10000,
+        "maxconfs": 200
     }
 }

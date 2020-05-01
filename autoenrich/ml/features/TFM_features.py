@@ -151,197 +151,17 @@ def save_split_dataset(Dset, y, r, mol_order):
 # make BCAI features
 def get_BCAI_features(mols, targetflag='CCS', training=True):
 
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("1[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
 	target = flag_to_target(targetflag)
-	p_table = Get_periodic_table()
 
-	# construct dataframe as BCAI requires from mols
-	# atoms has: molecule_name, atom, labeled atom,
-	molecule_name = [] 	# molecule name
-	atom_index = []		# atom index
-	atom = []			# atom type (letter)
-	x = []				# x coordinate
-	y = []				# y coordinate
-	z = []				# z coordinate
-	conns = []
-
-	mol_order = []
-	m = -1
-	for molrf in tqdm(mols, desc='Constructing atom dictionary'):
-		m += 1
-		if len(mols) > 2000:
-			mol = nmrmol(molid=molrf[1])
-
-			if molrf[2] == '':
-				ftype = get_type(molrf[2])
-			else:
-				ftype = molrf[2]
-			mol.read_nmr(molrf[0], ftype)
-		else:
-			mol = molrf
-		mol_order.append(mol.molid)
-		for t, type in enumerate(mol.types):
-			molecule_name.append(mol.molid)
-			atom_index.append(t)
-			atom.append(p_table[type])
-			x.append(mol.xyz[t][0])
-			y.append(mol.xyz[t][1])
-			z.append(mol.xyz[t][2])
-			conns.append(mol.conn[t])
-
-	atoms = {	'molecule_name': molecule_name,
-				'atom_index': atom_index,
-				'atom': atom,
-				'x': x,
-				'y': y,
-				'z': z,
-				'conn': conns,
-			}
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("2[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
-	atoms = pd.DataFrame(atoms)
+	atoms = BCAI.make_atom_df(mols)
 	structure_dict = BCAI.make_structure_dict(atoms)
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("3[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
 	BCAI.enhance_structure_dict(structure_dict)
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("4[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
 	BCAI.enhance_atoms(atoms, structure_dict)
 
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("5[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
-	# construct dataframe as BCAI requires from mols
-	# atoms has: molecule_name, atom, labeled atom,
-	id = []				# number
-	molecule_name = [] 	# molecule name
-	atom_index_0 = []	# atom index for atom 1
-	atom_index_1 = []	# atom index for atom 2
-	cpltype = []			# coupling type
-	coupling = []	# coupling value
-	r = []
-	y = []
-
-	i = -1
-	m = -1
-	for molrf in tqdm(mols, desc='Constructing bond dictionary'):
-		m += 1
-		if len(mols) > 2000:
-			mol = nmrmol(molid=molrf[1])
-
-			if molrf[2] == '':
-				ftype = get_type(molrf[2])
-			else:
-				ftype = molrf[2]
-			mol.read_nmr(molrf[0], ftype)
-		else:
-			mol = molrf
-
-		moly = []
-		molr = []
-
-		for t, type in enumerate(mol.types):
-			for t2, type2 in enumerate(mol.types):
-				if t == t2:
-					continue
-				if not ( type == target[1] and type2 == target[2] ):
-					continue
-				if mol.coupling_len[t][t2] != target[0]:
-					continue
-
-				i += 1
-				id.append(i)
-				molecule_name.append(mol.molid)
-				atom_index_0.append(t)
-				atom_index_1.append(t2)
-
-				TFM_flag = targetflag[2] + '-' + targetflag[3] + '_' + targetflag[0] + '.0'
-
-				cpltype.append(TFM_flag)
-
-				coupling.append(mol.coupling[t][t2])
-
-				if np.isnan(mol.coupling[t][t2]):
-					print(mol.molid)
-
-				moly.append(mol.coupling[t][t2])
-				molr.append([mol.molid, t, t2])
-
-		y.append(moly)
-		r.append(molr)
-
-	bonds = {	'id': id,
-				'molecule_name': molecule_name,
-				'atom_index_0': atom_index_0,
-				'atom_index_1': atom_index_1,
-				'type': cpltype,
-				'scalar_coupling_constant': coupling
-			}
-
-	#print(len(id), len(molecule_name), len(atom_index), len(atom))
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("6[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat, '------------------------------')
-		for line in stat.traceback.format():
-			print(line)
-
-	bonds = pd.DataFrame(bonds)
-
+	bonds = BCAI.make_bonds_df(mols)
 	bonds = BCAI.enhance_bonds(bonds, structure_dict)
 
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("7[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat, '------------------------------')
-		for line in stat.traceback.format():
-			print(line)
-
-	bonds = BCAI.add_all_pairs(bonds, structure_dict) # maybe replace this
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("7.5[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat, '------------------------------')
-		for line in stat.traceback.format():
-			print(line)
-
 	triplets = BCAI.make_triplets(bonds["molecule_name"].unique(), structure_dict)
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("8[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat, '------------------------------')
-		for line in stat.traceback.format():
-			print(line)
 
 	atoms = pd.DataFrame(atoms)
 	bonds = pd.DataFrame(bonds)
@@ -351,31 +171,13 @@ def get_BCAI_features(mols, targetflag='CCS', training=True):
 	bonds.sort_values(['molecule_name','atom_index_0','atom_index_1'],inplace=True)
 	triplets.sort_values(['molecule_name','atom_index_0','atom_index_1','atom_index_2'],inplace=True)
 
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("9[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
 	embeddings, atoms, bonds, triplets = BCAI.add_embedding(atoms, bonds, triplets)
 	bonds.dropna()
 	atoms.dropna()
 	means, stds = BCAI.get_scaling(bonds)
 	bonds = BCAI.add_scaling(bonds, means, stds)
 
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("10[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
-
 	Dset = BCAI.create_dataset(atoms, bonds, triplets, labeled = True, max_count = 10**10, mol_order=mol_order)
-
-	snapshot = tracemalloc.take_snapshot()
-	top_stats = snapshot.statistics('lineno')
-	print("11[ Top 2 ]")
-	for stat in top_stats[:2]:
-		print(stat)
 
 	if training:
 		x, y, r, mol_order = save_split_dataset(Dset, y, r, mol_order)

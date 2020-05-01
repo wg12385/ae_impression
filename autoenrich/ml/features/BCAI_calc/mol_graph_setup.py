@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import rdkit
 import autoenrich.ml.features.BCAI_calc.xyz2mol as x2m
+from autoenrich.reference.periodic_table import Get_periodic_table
 from tqdm import tqdm
 
 # Due to some compatibility issues between rdkit/pybel and torch, we have to load them as needed.
@@ -47,6 +48,127 @@ small_longtypes = {'2JHN_4.5_2_3_1.5', '3JHN_4_2_3_1', '2JHN_4_2_3_1',
 				   '1JHN_4_4_1_1', '2JHN_3_1_3_0'}
 (MAX_ATOM_COUNT,MAX_BOND_COUNT,MAX_TRIPLET_COUNT,MAX_QUAD_COUNT) = (29, 406, 54, 117)
 
+def make_atom_df(mols):
+
+	p_table = Get_periodic_table()
+
+	# construct dataframe as BCAI requires from mols
+	# atoms has: molecule_name, atom, labeled atom,
+	molecule_name = [] 	# molecule name
+	atom_index = []		# atom index
+	atom = []			# atom type (letter)
+	x = []				# x coordinate
+	y = []				# y coordinate
+	z = []				# z coordinate
+	conns = []
+
+	mol_order = []
+	m = -1
+	for molrf in tqdm(mols, desc='Constructing atom dictionary'):
+		m += 1
+		if len(mols) > 2000:
+			mol = nmrmol(molid=molrf[1])
+
+			if molrf[2] == '':
+				ftype = get_type(molrf[2])
+			else:
+				ftype = molrf[2]
+			mol.read_nmr(molrf[0], ftype)
+		else:
+			mol = molrf
+		mol_order.append(mol.molid)
+		for t, type in enumerate(mol.types):
+			molecule_name.append(mol.molid)
+			atom_index.append(t)
+			atom.append(p_table[type])
+			x.append(mol.xyz[t][0])
+			y.append(mol.xyz[t][1])
+			z.append(mol.xyz[t][2])
+			conns.append(mol.conn[t])
+
+	atoms = {	'molecule_name': molecule_name,
+				'atom_index': atom_index,
+				'atom': atom,
+				'x': x,
+				'y': y,
+				'z': z,
+				'conn': conns,
+			}
+	atoms = pd.DataFrame(atoms)
+
+	return atoms
+
+def make_bonds_df(mols):
+
+		p_table = Get_periodic_table()
+
+		# construct dataframe as BCAI requires from mols
+		# atoms has: molecule_name, atom, labeled atom,
+		id = []				# number
+		molecule_name = [] 	# molecule name
+		atom_index_0 = []	# atom index for atom 1
+		atom_index_1 = []	# atom index for atom 2
+		cpltype = []			# coupling type
+		coupling = []	# coupling value
+		r = []
+		y = []
+
+		i = -1
+		m = -1
+		for molrf in tqdm(mols, desc='Constructing bond dictionary'):
+			m += 1
+			if len(mols) > 2000:
+				mol = nmrmol(molid=molrf[1])
+
+				if molrf[2] == '':
+					ftype = get_type(molrf[2])
+				else:
+					ftype = molrf[2]
+				mol.read_nmr(molrf[0], ftype)
+			else:
+				mol = molrf
+
+			moly = []
+			molr = []
+
+			for t, type in enumerate(mol.types):
+				for t2, type2 in enumerate(mol.types):
+					if t == t2:
+						continue
+
+					TFM_flag = str(mol.coupling_len[t][t2]) + 'J' + p_table[type] + p_table[type2]
+
+					#if TFM_flag != flag and flag != 'all':
+					#	continue
+
+					i += 1
+					id.append(i)
+					molecule_name.append(mol.molid)
+					atom_index_0.append(t)
+					atom_index_1.append(t2)
+
+
+					cpltype.append(TFM_flag)
+
+					coupling.append(mol.coupling[t][t2])
+
+					moly.append(mol.coupling[t][t2])
+					molr.append([mol.molid, t, t2])
+
+			y.append(moly)
+			r.append(molr)
+
+		bonds = {	'id': id,
+					'molecule_name': molecule_name,
+					'atom_index_0': atom_index_0,
+					'atom_index_1': atom_index_1,
+					'type': cpltype,
+					'scalar_coupling_constant': coupling
+				}
+
+		bonds = pd.DataFrame(bonds)
+
+		return bonds
 
 def make_structure_dict(atoms_dataframe):
 	"""Convert from structures.csv output to a dictionary data storage.
@@ -160,11 +282,6 @@ def enhance_structure_dict(structure_dict):
 
 		mol = pybel.readstring('xyz',xyz)
 		molecule['charges'] = [mol.atoms[i].partialcharge for i in range(n_atom)]
-		molecule['spins'] = [mol.atoms[i].spin for i in range(n_atom)]
-		molecule['heavyvalences'] = [mol.atoms[i].heavyvalence for i in range(n_atom)]
-		molecule['heterovalences'] = [mol.atoms[i].heterovalence for i in range(n_atom)]
-		molecule['valences'] = [mol.atoms[i].valence for i in range(n_atom)]
-		molecule['hyb_types'] = [mol.atoms[i].type for i in range(n_atom)]
 
 	return structure_dict
 
@@ -182,7 +299,7 @@ def enhance_atoms(atoms_dataframe,structure_dict):
 	"""
 	assert int(atoms_dataframe.groupby("molecule_name").count().max()[0]) <= MAX_ATOM_COUNT
 	for key in tqdm(['distances','angle', 'bond_orders', 'top_bonds', 'bond_ids', 'long_symbols','sublabel_atom',
-				'charges', 'spins', 'heavyvalences', 'heterovalences', 'valences', 'hyb_types'], desc='Enhancing atoms'):
+				'charges'], desc='Enhancing atoms'):
 		newkey = key if key[-1]!='s' else key[:-1]
 		atoms_dataframe[newkey] = atoms_dataframe.apply(lambda x:
 														structure_dict[x['molecule_name']][key][x['atom_index']],
@@ -191,7 +308,7 @@ def enhance_atoms(atoms_dataframe,structure_dict):
 	return atoms_dataframe
 
 
-def enhance_bonds(bond_dataframe,structure_dict):
+def enhance_bonds(bond_dataframe, structure_dict, flag='3JHH'):
 	"""Enhance the bonds dataframe by including derived information.
 
 	Args:
@@ -216,8 +333,6 @@ def enhance_bonds(bond_dataframe,structure_dict):
 		# labeled_type
 		if all([x[0]=='H' for x in long_symbols]):
 			lt = row['type']
-		elif not any([x[0]=='H' for x in long_symbols]):
-			raise ValueError("No hydrogen found in {}".format(row))
 		else:
 			ls = [x for x in long_symbols if x[0]!='H'][0]
 			lt = row["type"] + ls[1:].replace('.0','')
@@ -225,60 +340,21 @@ def enhance_bonds(bond_dataframe,structure_dict):
 				lt = classification_corrections[lt]
 			if lt in small_longtypes:
 				lt = lt.split('_')[0]
+
 		new_columns["labeled_type"].append(lt)
 
 		# sublabeled type
 		new_columns["sublabel_type"].append(row['type'] + '-'+ '-'.join(sorted(long_symbols)))
 		# bond order
 		new_columns["bond_order"].append(structure_dict[molecule_name]['bond_orders'][iatom0,iatom1])
-		new_columns["predict"].append(1)
+
+		if lt == flag:
+			new_columns["predict"].append(1)
+		else:
+			new_columns["predict"].append(0)
 	for key in new_columns:
 		bond_dataframe[key] = new_columns[key]
 	return bond_dataframe
-
-
-def add_all_pairs(bond_dataframe,structure_dict):
-	"""Add all pairs of atoms, including those without coupling and without chemical bonds.
-
-	Args:
-		bond_dataframe: Pandas dataframe read from train.csv or test.csv, after running :func:`enhance_bonds`.
-		structure_dict: Output of :func:`make_structure_dict`, after running :func:`enhance_structure_dict`.
-
-	Returns:
-		pandas.DataFrame: New dataframe, with new bonds added.
-
-	"""
-	# NOTE: The convention for id used to be very large numbers for new bonds; now it is negative.
-	iadd = -1
-	new_data = collections.defaultdict(list)
-	for molecule_name in bond_dataframe["molecule_name"].unique():
-		n_atom = len(structure_dict[molecule_name]["symbols"])
-		# for backwards compatibility, this is iatom1,iatom0. See make_new_csv.py, write_pairs.
-		for iatom1,iatom0 in itertools.combinations(range(n_atom),r=2):
-			if 'predict' not in structure_dict[molecule_name]:
-				raise KeyError('{} has no "predict" value'.format(molecule_name))
-			if structure_dict[molecule_name]['predict'][iatom0,iatom1]:
-				continue  # already got it
-			symbols = [structure_dict[molecule_name]['symbols'][i] for i in [iatom0,iatom1]]
-			bond_order = structure_dict[molecule_name]['bond_orders'][iatom0,iatom1]
-			nottype = '-'.join(sorted(symbols)) + '_' + str(bond_order)
-
-			row = {'id':iadd,'molecule_name':molecule_name,'atom_index_0':iatom0,'atom_index_1':iatom1,
-				   'type':nottype,'labeled_type':nottype,'sublabel_type':nottype,
-				   'bond_order': bond_order,
-				   'predict':0}
-			if 'scalar_coupling_constant' in bond_dataframe:
-				row['scalar_coupling_constant'] = 0.
-			for k,v in row.items():
-				new_data[k].append(v)
-			iadd -= 1
-	new_data = pd.DataFrame(new_data)
-	if bond_dataframe.index.name!='id':
-		bond_dataframe = bond_dataframe.set_index('id')
-	new_data.set_index('id',inplace=True)
-	all_data = bond_dataframe.append(new_data,verify_integrity=True,sort=False)
-	return all_data
-
 
 def make_triplets(molecule_list,structure_dict):
 	"""Make the triplet dataframe.
@@ -302,6 +378,7 @@ def make_triplets(molecule_list,structure_dict):
 			pairs = itertools.combinations(connection_indices,2)
 			for pair in pairs:
 				j, k = pair[0], pair[1]
+
 				atom0_short = short[i] + long[i].split('_')[2]
 				atom1_short = short[j] + long[j].split('_')[2]
 				atom2_short = short[k] + long[k].split('_')[2]
@@ -393,7 +470,7 @@ def add_embedding(atoms,bonds,triplets,embeddings=None):
 		atoms: Pandas dataframe read from structures.csv, after running :func:`enhance_atoms`.
 		bonds: Pandas dataframe read from train.csv or test.csv, after running :func:`enhance_bonds`.
 		triplets: Pandas dataframe created by :func:`make_triplets`.
-		embeddings (dict or None): If None, we create a new embedding (e.g. train data), otherwise we use the given embeddigns thar are output by :func:`add_embedding` (e.g. test data).
+		embeddings (dict or None): If None, we create a new embedding (e.g. train data), otherwise we use the given embeddings thar are output by :func:`add_embedding` (e.g. test data).
 
 	Returns:
 		dict: The embedding dictionary that can be passed to this function for using the same embedding on a new dataset.

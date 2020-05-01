@@ -11,38 +11,7 @@ from autoenrich.molecule.molecule import molecule
 from autoenrich.molecule.conformer import conformer
 from autoenrich.molecule.dataset import dataset
 
-def is_ethane(xyz, types, conn_table, coupling_len):
-
-    assert np.array_equal(xyz, [[-0.4125,  0.0000,  0.0000],
-                     [ 0.4125,  0.0000,  0.0000],
-                     [-0.9475,  0.9266,  0.0000],
-                     [-0.9475, -0.9266,  0.0000],
-                     [-1.4825, -0.0000,  0.0000],
-                     [ 0.9475, -0.9266,  0.0000],
-                     [ 0.9475,  0.9266,  0.0000],
-                     [ 1.4825,  0.0000,  0.0000]])
-
-    assert np.array_equal(types, [6, 6, 1, 1, 1, 1, 1, 1])
-
-    assert np.array_equal(conn_table, [[0, 1, 1, 1, 1, 0, 0, 0],
-                                         [1, 0, 0, 0, 0, 1, 1, 1],
-                                         [1, 0, 0, 0, 0, 0, 0, 0],
-                                         [1, 0, 0, 0, 0, 0, 0, 0],
-                                         [1, 0, 0, 0, 0, 0, 0, 0],
-                                         [0, 1, 0, 0, 0, 0, 0, 0],
-                                         [0, 1, 0, 0, 0, 0, 0, 0],
-                                         [0, 1, 0, 0, 0, 0, 0, 0]])
-
-    assert np.array_equal(coupling_len, [[0, 1, 1, 1, 1, 2, 2, 2],
-                                         [1, 0, 2, 2, 2, 1, 1, 1],
-                                         [1, 2, 0, 2, 2, 3, 3, 3],
-                                         [1, 2, 2, 0, 2, 3, 3, 3],
-                                         [1, 2, 2, 2, 0, 3, 3, 3],
-                                         [2, 1, 3, 3, 3, 0, 2, 2],
-                                         [2, 1, 3, 3, 3, 2, 0, 2],
-                                         [2, 1, 3, 3, 3, 2, 2, 0]])
-
-    return True
+from test_generators.dummy_mol import mol_is_ethane
 
 def test_nmrmol():
 
@@ -94,6 +63,7 @@ def test_conformer():
     assert mol.nmr_log == 'None'
     assert mol.nmr_status == 'None'
     assert mol.pop == 404.404
+    assert mol.redundant == False
 
 def test_nmrmol_read_structure():
 
@@ -101,7 +71,7 @@ def test_nmrmol_read_structure():
 
     mol.read_structure('tests/test_store/ethane.xyz', 'xyz')
 
-    assert is_ethane(mol.xyz, mol.types, mol.conn, mol.coupling_len)
+    assert mol_is_ethane(mol)
 
 def test_nmrmol_read_opt():
 
@@ -135,7 +105,7 @@ def test_nmrmol_read_nmr():
     '''
     mol.read_nmr('tests/test_store/ethane_g09_nmr.log', 'g09')
 
-    assert is_ethane(mol.xyz, mol.types, mol.conn, mol.coupling_len)
+    assert mol_is_ethane(mol)
     assert np.array_equal(mol.shift, [223.81,  223.81,   32.002,  32.002,  32.005,  32.002, 32.005,  32.002])
     assert np.array_equal(mol.coupling, [[ 0.0000,  38.796, 114.462, 115.871, 113.801, -4.644 ,  -4.576,  -4.558],
                                          [ 38.796,   0.000,  -4.558,  -4.644,  -4.576, 115.87 , 113.801, 114.462],
@@ -148,7 +118,7 @@ def test_nmrmol_read_nmr():
 
     mol.read_nmr('tests/test_store/ethane_g16_nmr.log', 'g09')
 
-    assert is_ethane(mol.xyz, mol.types, mol.conn, mol.coupling_len)
+    assert mol_is_ethane(mol)
     assert np.array_equal(mol.shift, [223.81,  223.81,   32.002,  32.002,  32.005,  32.002, 32.005,  32.002])
     assert np.array_equal(mol.coupling, [[ 0.0000,  38.796, 114.462, 115.871, 113.801, -4.644 ,  -4.576,  -4.558],
                                          [ 38.796,   0.000,  -4.558,  -4.644,  -4.576, 115.87 , 113.801, 114.462],
@@ -193,11 +163,6 @@ def test_save_pickle():
     mol.save_pickle(file)
     assert os.path.isfile(file)
     os.remove(file)
-
-
-
-
-
 
 
 
